@@ -2,10 +2,10 @@
 #### Escrito por Sonia García Llorens
 #### Actualizado el 7 Febrero 2025
 ### Contenido
-1. **[Preparación de los datos](#1-Preparación-de-los-datos)**
+1. [Preparación de los datos](#1-Preparación-de-los-datos)
      - 1.1 Descarga de los datos de RNA-seq del repositorio SRA con SRAtools  
 
-2. **[Procesamiento de los datos RNA-seq](#2-procesamiento-de-los-datos-rna-seq)**  
+2. [Procesamiento de los datos RNA-seq](#2-procesamiento-de-los-datos-rna-seq)  
      - 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad\
       - 2.2 Alineamiento contra genoma de referencia  
       - 2.2.1 Preparación del genoma de referencia  
@@ -20,7 +20,7 @@
       - 2.3.2 Recuento de características con htseq-count  
       - 2.3.3 Obtención de la matriz de recuentos  
 
-3. Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados**  
+3. [Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados](#3-Analisis-estadístico-de-los-datos-de-RNAseq-y-Genes-Diferencialmente-Expresados) 
   - 3.1 Instalación de edgeR  
               BiocManager::install("edgeR")  
       - 3.1.1 Importación de la matriz de recuentos y metadatos 
@@ -48,7 +48,7 @@
               topTags()
       - 3.1.10 Filtrado de genes segun FDR<0.05 o <0.01 y logFC >= 2
 
-4. Anotación de los genes
+4. [Anotación de los genes](4-Anotación-de-los-genes)
   - 4.1 GeneOntology
       Bioconductor as the R package GO.db.
   - 4.2 KEGG
@@ -56,14 +56,14 @@
   - 4.3 Reactome (open source and fully open acces)
   - 4.4 MSigDB
 
-## 1. Preparación de los datos
+## 1 Preparación de los datos
 
 ```console 
 fastqc read1.fq
 ```
 
-## 2. Procesamiento de los datos RNA-seq  
+## 2 Procesamiento de los datos RNA-seq  
 
-## 3. Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados
+## 3 Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados
 
-## 4. Anotación de los genes
+## 4 Anotación de los genes
