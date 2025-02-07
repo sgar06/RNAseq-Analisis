@@ -35,18 +35,33 @@
      * 4.3 Reactome (open source and fully open acces)
      * 4.4 MSigDB
 
-## Info de los datos
+## Instalación de las herramientas a través de conda
+Instalación de conda
+
+Programas a usar 
+| Herramienta | Version | Canal |
+|---------|---------|----------|
+|trim-galore | 0.6.10 |
+hisat2 | 2.2.1 |
+samtools | 1.21  |
+htseq | 0.13.5  |
+sratools | 3.1.0 | bioconda |
+
 
 ## 1 Preparación de los datos
 ### 1.1 Descarga de los datos de RNA-seq del repositorio SRA con SRAtools  
 
 Datos [GSE261866](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261866)
+
 ```console 
 fastqc read1.fq
 ```
 
 ## 2 Procesamiento de los datos RNA-seq  
 ### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
+
+trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
+
 ### 2.2 Alineamiento contra genoma de referencia  
 **2.2.1 Preparación del genoma de referencia**  
 
