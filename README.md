@@ -155,9 +155,13 @@ xargs -n1 fastq-dump --gzip --split-3 < SRR_Acc_List.txt
 ### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
 
 trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
+```console
+trim_galore --paired SAMPLE_R1.fastq.gz SAMPLE_R2.fastq.gz
+```
 
 ### 2.2 Alineamiento contra genoma de referencia  
-![image](https://github.com/user-attachments/assets/6f42b6c5-30d6-41b0-b99a-8e57c317e667)
+![image](https://github.com/user-attachments/assets/6f42b6c5-30d6-41b0-b99a-8e57c317e667)  
+
 **2.2.1 Preparación del genoma de referencia**  
 
 Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
