@@ -37,7 +37,7 @@
 
 ## Estructura de archivos
 ```console
-.
+RNAseq_analysis
 |-- Code
 |-- Data
 |   |-- 1_Raw
@@ -123,11 +123,24 @@ trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptado
 
 Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
 Si el genoma no está indexado, indexación con hisat2-build 
-El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http://daehwankimlab.github.io/hisat2/)
+El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http://daehwankimlab.github.io/hisat2/)  
+Descargar el genoma de referencia hg38_genome.tar.gz y descomprimir
+```console
+# Dentro de la carpeta Reference_genome
+tar -xvf hg38_genome.tar.gz
+```
 
 **2.2.2 Alineamiento de las lecturas contra el genoma de referencia con HISAT2**  
 HISAT2 usa menos recursos computacionalmente que STAR, pero STAR genera resultados más precisos
 Elementos que mapean 1 vez  
+```console
+hisat2 -k1 -U ../02.Trimming/SRR1552444_trimmed.fq.gz -x ../../Reference_genome/mm10/genome -S SRR1552444_hisat2.sam
+```
+-x : prefijo del índice del genoma de referencia [genome]
+-U : lista de lecturas para ser alineadas [trimmed]
+-S : archivo de salida en formato SAM
+-k : define el número máximo de alineamientos por lectura.
+
 
 **2.2.3 Modificación y conversión de archivos SAM con SAMtools**
 
