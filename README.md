@@ -83,18 +83,18 @@ conda activate genomic_analysis
 ```
 
 Herramientas a usar 
-| Programa | Versión | Canal | Comando de instalación | Utilidad | 
-|---------|---------|----------|----------|----------|
-sratools | 3.1.0 | bioconda | conda install -c bioconda sra-tools |
-cutadapt | 3.5 |  | conda install cutadapt=3.5 |
-trim-galore | 0.6.10 | | conda install -c bioconda trim-galore=0.6.10 |
-hisat2 | 2.2.1 | bioconda | 
-samtools | 1.21  | bioconda | conda install -c bioconda samtools |
-htseq | 0.13.5  | bioconda | conda install -c bioconda htseq |
-fastqc | 0.11.9 | bioconda | conda install -c bioconda fastqc |
-multiqc | 1.19 | conda install -c bioconda multiqc |
-RseQC |   |   | conda install bioconda::rseqc |
-bedops 
+| Programa | Versión | Comando de instalación | Utilidad | 
+|---------|---------|----------|----------|
+sratools | 3.2.0  | conda install -c bioconda sra-tools |
+cutadapt | 5.0 |  | conda install cutadapt=3.5 |
+trim-galore | 0.6.10 | conda install -c bioconda trim-galore=0.6.10 |
+hisat2 | 2.2.1 | conda install -c bioconda hisat2 |
+samtools | 1.21  | conda install -c bioconda samtools |
+htseq | 2.0.5 | conda install -c bioconda htseq |
+fastqc | 0.12.1 | conda install -c bioconda fastqc |
+multiqc | 1.27 | conda install -c bioconda multiqc |
+RseQC | 5.0.4 | conda install bioconda::rseqc |
+bedops | | | conda install -c bioconda bedops |
 
 
 ## 1 Preparación de los datos
@@ -121,22 +121,29 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
   * Reads in file 1 are always on the same strand as the gene (sense)
   * Reads in file 2 are always on the same strand as the gene
 * Preparation of annotation file in bed format
+  Descarga del archivo GTF
+![image](https://github.com/user-attachments/assets/d24311bb-f95f-4b54-9a5c-fa0d52745cde)
+![image](https://github.com/user-attachments/assets/98d1f57c-9493-4829-904c-8026c8ed7bb7)
+
   Tras la descarga del archivo de anotaciones GTF, descomprimimos el archivo con gunzip 
 * ```console
   gunzip 3_Annotation/gencode.v47.annotation.gtf.gz
   # Cambio de nombre
   mv gencode.v47.annotation.gtf grch38.refannot.gtf
   # empleo del script gtf2bed del paquete bedops
-  gtf2bed hg.refseq.gtf > hg.refseq.bed
+  convert2bed --input=gtf < hg.refseq.gtf > hg.refseq.bed
   ```
 * RSeQC script: infer_experiment.py
 * ```console
   infer_experiment.py -r hg.refseq.bed  -i Pairend_strandspecific_Human_hg38.bam
   * Options:
   * -i : input alignment file SAM or BAM format
-  * -r : reference gene model in bed  format 
+  * -r : reference gene model in bed  format
+
+**Descarga de datos crudos**
 ```console 
 fastq-dump --gzip --readids --split-3 SRR
+xargs -n1 fastq-dump --gzip --split-3 < SRR_Acc_List.txt
 ```
 
 --gzip: Compress output using gzip.  
