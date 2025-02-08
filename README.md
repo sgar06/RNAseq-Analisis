@@ -85,16 +85,16 @@ conda activate genomic_analysis
 Herramientas a usar 
 | Programa | Versión | Comando de instalación | Utilidad | 
 |---------|---------|----------|----------|
-sratools | 3.2.0  | conda install -c bioconda sra-tools |
-cutadapt | 5.0 |  | conda install cutadapt=3.5 |
-trim-galore | 0.6.10 | conda install -c bioconda trim-galore=0.6.10 |
+sratools | 3.2.0 | conda install -c bioconda sra-tools |
+cutadapt | 5.0 | conda install cutadapt |
+trim-galore | 0.6.10 | conda install -c bioconda trim-galore |
 hisat2 | 2.2.1 | conda install -c bioconda hisat2 |
 samtools | 1.21  | conda install -c bioconda samtools |
 htseq | 2.0.5 | conda install -c bioconda htseq |
 fastqc | 0.12.1 | conda install -c bioconda fastqc |
 multiqc | 1.27 | conda install -c bioconda multiqc |
 RseQC | 5.0.4 | conda install bioconda::rseqc |
-bedops | | | conda install -c bioconda bedops |
+bedops | | conda install -c bioconda bedops |
 
 
 ## 1 Preparación de los datos
