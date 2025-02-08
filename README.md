@@ -103,8 +103,8 @@ Lecturas: paired-end
 Información de hebra específica de ARN  (paired-end strand specific RNA)
 Longitud: 101  
 Alineamiento de secuencias a genoma hg38 con el alineador STAR. 
-[Stranded or non-stranded reads](https://eclipsebio.com/eblogs/stranded-libraries/)
-![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)
+[Stranded or non-stranded reads](https://eclipsebio.com/eblogs/stranded-libraries/)  
+![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)  
 ![image](https://github.com/user-attachments/assets/b77955c8-6c20-4d15-a905-90c5987efe23)
 
 
@@ -113,8 +113,8 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
 fastq-dump --gzip --readids --split-3 SRR
 ```
 
---gzip: Compress output using gzip.
---readids or -I: Append read ID after spot ID as ‘accession.spot.readid’. With this flag, one sequence gets appended the ID .1 and the other .2. Without this option, pair-ended reads will have identical IDs.
+--gzip: Compress output using gzip.  
+--readids or -I: Append read ID after spot ID as ‘accession.spot.readid’. With this flag, one sequence gets appended the ID .1 and the other .2. Without this option, pair-ended reads will have identical IDs.  
 
 --split-3 separates the reads into left and right ends. If there is a left end without a matching right end, or a right end without a matching left end, they will be put in a single file.
 
@@ -130,14 +130,14 @@ trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptado
 Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
 Si el genoma no está indexado, indexación con hisat2-build 
 El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http://daehwankimlab.github.io/hisat2/)  
-Descargar el genoma de referencia hg38_genome.tar.gz (o GRCh38) y descomprimir
+Descargar el genoma de referencia hg38_genome.tar.gz (o GRCh38) y descomprimir  
 ```console
 # Dentro de la carpeta Reference_genome
 tar -xvf hg38_genome.tar.gz
 ```
 
 **2.2.2 Alineamiento de las lecturas contra el genoma de referencia con HISAT2**  
-HISAT2 usa menos recursos computacionalmente que STAR, pero STAR genera resultados más precisos
+HISAT2 usa menos recursos computacionalmente que STAR, pero STAR genera resultados más precisos  
 Elementos que mapean 1 vez  
 ```console
 hisat2 -k1 -U ../02.Trimming/SRR1552444_trimmed.fq.gz -x ../../Reference_genome/mm10/genome -S SRR1552444_hisat2.sam
@@ -171,6 +171,13 @@ sobre el genoma de referencia.
 El archivo de anatociones empleados es GRCh38.p14 descargado del [GENCODE](https://www.gencodegenes.org/human/)
 
 **2.3.2 Recuento de características con htseq-count**  
+```console
+htseq-count -t exon -i gene_id --stranded=yes?? -f bam -r pos 2_Processed/3_Alignment/SRRxx_hisat2.sorted.bam 3_Annotation/gencode.xxx,gtf > ../Results/SRRxxx_counts.tsv
+```
+Con la opción -t exon indicamos que cuente las lecturas alineadas específicamente contra los exones y, con la opción -i gene_id, indicamos que agrupe las diferentes lecturas atendiendo al identificador del gen al que pertenecen. Con la opción --stranded=no y -s no, determinamos que las lecturas no provienen de un experimento de hebra específica y, por tanto, la lectura puede mapear en ambas hebras del genoma.  
+Finalmente, las opciones –f y –r , las usamos para indicar el formato del archivo a emplear (bam) y cómo están ordenados los alineamientos, en este caso por posición o coordenadas genómicas (pos).  
+Una vez hemos definido todas las opciones, indicamos la ruta de los archivos BAM y el archivo de anotaciones (GTF), así como la ruta de salida y el nombre del nuevo archivo que contendrá la información.
+
 **2.3.3 Obtención de la matriz de recuentos** 
 
 ## 3 Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados
