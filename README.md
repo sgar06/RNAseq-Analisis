@@ -94,7 +94,7 @@ htseq | 0.13.5  | bioconda | conda install -c bioconda htseq |
 fastqc | 0.11.9 | bioconda | conda install -c bioconda fastqc |
 multiqc | 1.19 | conda install -c bioconda multiqc |
 RseQC |   |   | conda install bioconda::rseqc |
-
+gtf2bed
 
 
 ## 1 Preparación de los datos
@@ -121,6 +121,10 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
   * Reads in file 1 are always on the same strand as the gene (sense)
   * Reads in file 2 are always on the same strand as the gene
 * RSeQC script: infer_experiment.py
+* Preparation of annotation file in bed format
+* ```console
+  gtf2bed hg.refseq.gtf > hg.refseq.bed
+  ```
 * ```console
   infer_experiment.py -r hg.refseq.bed  -i Pairend_strandspecific_Human_hg38.bam
   * Options:
