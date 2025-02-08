@@ -159,7 +159,10 @@ Elementos que mapean 1 vez
 ```console
 hisat2 -k1 -U ../02.Trimming/SRR1552444_trimmed.fq.gz -x ../../Reference_genome/mm10/genome -S SRR1552444_hisat2.sam
 #Paired-end reads
-hisat2 -k1 -x (/ruta-genoma-ref) -1 sample_R1.fg.gz -2 sample_R2.fg.gz -S sample_alignment.sam ```
+hisat2 -k1 -x (/ruta-genoma-ref) -1 sample_R1.fg.gz -2 sample_R2.fg.gz -S sample_alignment.sam
+#More efficient
+hisat2 -k1 -x (/ruta-genoma-ref) -1 sample_R1.fg.gz -2 sample_R2.fg.gz | samtools view -Sbh > sample_alignment.bam
+```
 -x : prefijo del índice del genoma de referencia [genome]
 -U : lista de lecturas para ser alineadas [trimmed]
 -S : archivo de salida en formato SAM
@@ -176,6 +179,8 @@ samtools view -Sbh SRR1552444_hisat2.sam > SRR1552444_hisat2.bam
 samtools sort SRR1552444_hisat2.bam -o SRR1552444_hisat2.sorted.bam
 # Indexación del archivo BAM
 samtools index SRR1552444_hisat2.sorted.bam
+# Opción 2:
+samtools sort --write-index 
 ```
 Se genera un archivo SRR1552444_hisat2.sorted.bam.bai cuyo alineamiento podemos visualizar en programas de visualización como IGV.
 En este caso, podemos elegir el genoma de referencia y
