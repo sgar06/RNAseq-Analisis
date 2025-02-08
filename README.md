@@ -35,27 +35,83 @@
      * 4.3 Reactome (open source and fully open acces)
      * 4.4 MSigDB
 
-## Instalación de las herramientas a través de conda
-Instalación de conda
+## Estructura de archivos
+```console
+.
+|-- Code
+|-- Data
+|   |-- 1_Raw
+|   |-- 2_Processed
+|   |-- 3_Annotation
+|   |-- Reference_genome
+|   `-- Supplementary
+`-- Results
+```
 
-Programas a usar 
-| Herramienta | Version | Canal |
-|---------|---------|----------|
-|trim-galore | 0.6.10 |
-hisat2 | 2.2.1 |
-samtools | 1.21  |
-htseq | 0.13.5  |
-sratools | 3.1.0 | bioconda |
+## Instalación de las herramientas a través de conda
+Instalación de miniconda
+Por defecto el programa se instala en el directorio *home*
+```console
+# Downloading miniconda
+$ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+# Installing miniconda
+$ bash miniconda.sh -b -u -p $HOME/miniconda
+# Ejecutar conda por defecto en la terminal
+$HOME/miniconda/bin/conda init bash
+# Updating conda
+$ conda update -q conda
+```
+
+Establecimiento de los canales de instalacion
+```console
+conda config --add channels default
+conda config --add channels bioconda
+conda config --add channels conda-forge
+# Mostrar la preferencia de repositorios
+conda config --show-sources
+```
+
+Creación de un nuevo environment y activación
+```console
+# Creación
+conda create -n genomic_analysis
+# Activación
+conda activate genomic_analysis
+```
+
+Herramientas a usar 
+| Programa | Versión | Canal | Comando de instalación | Utilidad | 
+|---------|---------|----------|----------|----------|
+sratools | 3.1.0 | bioconda | conda install -c bioconda sra-tools |
+cutadapt | 3.5 |  | conda install cutadapt=3.5 |
+trim-galore | 0.6.10 | | conda install -c bioconda trim-galore=0.6.10 |
+hisat2 | 2.2.1 | bioconda | 
+samtools | 1.21  | bioconda | 
+htseq | 0.13.5  | bioconda | 
+fastqc | 0.11.9 | bioconda | conda install -c bioconda fastqc |
+multiqc | 1.19 | conda install -c bioconda multiqc |
+
 
 
 ## 1 Preparación de los datos
 ### 1.1 Descarga de los datos de RNA-seq del repositorio SRA con SRAtools  
 
 Datos [GSE261866](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261866)
+Bioproject PRJNA1089226
+Secuenciador: Illumina Novaseq 6000
+Lecturas: paired-end
+Información de hebra específica de ARN
+Longitud: 101
+Alineamiento de secuencias a genoma hg38 con el alineador STAR.
 
 ```console 
-fastqc read1.fq
+fastq-dump --gzip --readids --split-3 SRR
 ```
+
+--gzip: Compress output using gzip.
+--readids or -I: Append read ID after spot ID as ‘accession.spot.readid’. With this flag, one sequence gets appended the ID .1 and the other .2. Without this option, pair-ended reads will have identical IDs.
+
+--split-3 separates the reads into left and right ends. If there is a left end without a matching right end, or a right end without a matching left end, they will be put in a single file.
 
 ## 2 Procesamiento de los datos RNA-seq  
 ### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
@@ -66,7 +122,8 @@ trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptado
 **2.2.1 Preparación del genoma de referencia**  
 
 Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
-Si el genoma no está indexado, indexación con hisat2-build  
+Si el genoma no está indexado, indexación con hisat2-build 
+El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http://daehwankimlab.github.io/hisat2/)
 
 **2.2.2 Alineamiento de las lecturas contra el genoma de referencia con HISAT2**  
 HISAT2 usa menos recursos computacionalmente que STAR, pero STAR genera resultados más precisos
