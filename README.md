@@ -96,13 +96,13 @@ multiqc | 1.19 | conda install -c bioconda multiqc |
 ## 1 Preparación de los datos
 ### 1.1 Descarga de los datos de RNA-seq del repositorio SRA con SRAtools  
 
-Datos [GSE261866](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261866)
-Bioproject PRJNA1089226
-Secuenciador: Illumina Novaseq 6000
-Lecturas: paired-end
-Información de hebra específica de ARN
-Longitud: 101
-Alineamiento de secuencias a genoma hg38 con el alineador STAR.
+Datos [GSE261866](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261866)  
+Bioproject PRJNA1089226  
+Secuenciador: Illumina Novaseq 6000  
+Lecturas: paired-end  
+Información de hebra específica de ARN  
+Longitud: 101  
+Alineamiento de secuencias a genoma hg38 con el alineador STAR.  
 
 ```console 
 fastq-dump --gzip --readids --split-3 SRR
