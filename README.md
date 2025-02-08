@@ -111,6 +111,8 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
 ![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)  
 ![image](https://github.com/user-attachments/assets/b77955c8-6c20-4d15-a905-90c5987efe23)  
 
+![image](https://github.com/user-attachments/assets/c01fcefe-fbdc-4d61-8b56-aa23607ba78a)
+![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
 
 
 ```console 
