@@ -93,7 +93,7 @@ samtools | 1.21  | bioconda | conda install -c bioconda samtools |
 htseq | 0.13.5  | bioconda | conda install -c bioconda htseq |
 fastqc | 0.11.9 | bioconda | conda install -c bioconda fastqc |
 multiqc | 1.19 | conda install -c bioconda multiqc |
-IGV |   |   |
+RseQC |   |   | conda install bioconda::rseqc |
 
 
 
@@ -114,7 +114,18 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
 ![image](https://github.com/user-attachments/assets/6a04a794-3a5c-46ec-83aa-4a3a5b83413b)
 ![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
 
-
+## Cómo saber la hebra de procedencia de las lecturas
+* A subset of 200 000 reads is first made from the input FASTQ files
+* Next the reads are aligned against the selected reference genome using hisat2. The alignment is then compared to reference annotation to infer the strandedness of reads.
+* For strand specific experiments there are two scenarios:
+  * Reads in file 1 are always on the same strand as the gene (sense)
+  * Reads in file 2 are always on the same strand as the gene
+* RSeQC script: infer_experiment.py
+* ```console
+  infer_experiment.py -r hg.refseq.bed  -i Pairend_strandspecific_Human_hg38.bam
+  * Options:
+  * -i : input alignment file SAM or BAM format
+  * -r : reference gene model in bed  format 
 ```console 
 fastq-dump --gzip --readids --split-3 SRR
 ```
@@ -147,7 +158,8 @@ HISAT2 usa menos recursos computacionalmente que STAR, pero STAR genera resultad
 Elementos que mapean 1 vez  
 ```console
 hisat2 -k1 -U ../02.Trimming/SRR1552444_trimmed.fq.gz -x ../../Reference_genome/mm10/genome -S SRR1552444_hisat2.sam
-```
+#Paired-end reads
+hisat2 -k1 -x (/ruta-genoma-ref) -1 sample_R1.fg.gz -2 sample_R2.fg.gz -S sample_alignment.sam ```
 -x : prefijo del índice del genoma de referencia [genome]
 -U : lista de lecturas para ser alineadas [trimmed]
 -S : archivo de salida en formato SAM
