@@ -86,8 +86,8 @@ sratools | 3.1.0 | bioconda | conda install -c bioconda sra-tools |
 cutadapt | 3.5 |  | conda install cutadapt=3.5 |
 trim-galore | 0.6.10 | | conda install -c bioconda trim-galore=0.6.10 |
 hisat2 | 2.2.1 | bioconda | 
-samtools | 1.21  | bioconda | 
-htseq | 0.13.5  | bioconda | 
+samtools | 1.21  | bioconda | conda install -c bioconda samtools |
+htseq | 0.13.5  | bioconda | conda install -c bioconda htseq |
 fastqc | 0.11.9 | bioconda | conda install -c bioconda fastqc |
 multiqc | 1.19 | conda install -c bioconda multiqc |
 
@@ -100,9 +100,14 @@ Datos [GSE261866](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261866)
 Bioproject PRJNA1089226  
 Secuenciador: Illumina Novaseq 6000  
 Lecturas: paired-end  
-Información de hebra específica de ARN  
+Información de hebra específica de ARN  (paired-end strand specific RNA)
 Longitud: 101  
-Alineamiento de secuencias a genoma hg38 con el alineador STAR.  
+Alineamiento de secuencias a genoma hg38 con el alineador STAR. 
+[Stranded or non-stranded reads](https://eclipsebio.com/eblogs/stranded-libraries/)
+![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)
+![image](https://github.com/user-attachments/assets/b77955c8-6c20-4d15-a905-90c5987efe23)
+
+
 
 ```console 
 fastq-dump --gzip --readids --split-3 SRR
@@ -119,6 +124,7 @@ fastq-dump --gzip --readids --split-3 SRR
 trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
 
 ### 2.2 Alineamiento contra genoma de referencia  
+![image](https://github.com/user-attachments/assets/6f42b6c5-30d6-41b0-b99a-8e57c317e667)
 **2.2.1 Preparación del genoma de referencia**  
 
 Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
@@ -144,9 +150,26 @@ hisat2 -k1 -U ../02.Trimming/SRR1552444_trimmed.fq.gz -x ../../Reference_genome/
 
 **2.2.3 Modificación y conversión de archivos SAM con SAMtools**
 
+Creación del archivo BAM, ordenación e indexado
+```console
+# Conversión al archivo BAM
+samtools view -Sbh SRR1552444_hisat2.sam > SRR1552444_hisat2.bam
+# Ordenación del archivo BAM por coordenadas genómicas
+samtools sort SRR1552444_hisat2.bam -o SRR1552444_hisat2.sorted.bam
+# Indexación del archivo BAM
+samtools index SRR1552444_hisat2.sorted.bam
+```
+Se genera un archivo SRR1552444_hisat2.sorted.bam.bai cuyo alineamiento podemos visualizar en programas de visualización como IGV.
+En este caso, podemos elegir el genoma de referencia y
+cargar nuestro archivo sorted.bam previamente indexado para observar las lecturas y su alineamiento
+sobre el genoma de referencia.
+
 ### 2.3 Identificación y recuento de features o características  
 
-**2.3.1 Preparación del archivo de anotaciones gff**  
+**2.3.1 Preparación del archivo de anotaciones GTF**  
+
+El archivo de anatociones empleados es GRCh38.p14 descargado del [GENCODE](https://www.gencodegenes.org/human/)
+
 **2.3.2 Recuento de características con htseq-count**  
 **2.3.3 Obtención de la matriz de recuentos** 
 
