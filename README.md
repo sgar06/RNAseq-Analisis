@@ -106,7 +106,7 @@ Secuenciador: Illumina Novaseq 6000
 Lecturas: paired-end  
 Información de hebra específica de ARN  (paired-end strand specific RNA)  
 Longitud: 101  
-Alineamiento de secuencias a genoma hg38 con el alineador STAR. 
+Alineamiento de secuencias a genoma hg38 con el alineador STAR.   
 [Stranded or non-stranded reads](https://eclipsebio.com/eblogs/stranded-libraries/)  
 ![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)  
 ![image](https://github.com/user-attachments/assets/b77955c8-6c20-4d15-a905-90c5987efe23)  
