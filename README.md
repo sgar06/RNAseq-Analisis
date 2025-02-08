@@ -124,7 +124,7 @@ trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptado
 Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
 Si el genoma no está indexado, indexación con hisat2-build 
 El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http://daehwankimlab.github.io/hisat2/)  
-Descargar el genoma de referencia hg38_genome.tar.gz y descomprimir
+Descargar el genoma de referencia hg38_genome.tar.gz (o GRCh38) y descomprimir
 ```console
 # Dentro de la carpeta Reference_genome
 tar -xvf hg38_genome.tar.gz
@@ -209,3 +209,5 @@ Bioconductor as the R package GO.db.
 Bioconductor , R package KEGG.db
 ### 4.3 Reactome (open source and fully open acces)
 ### 4.4 MSigDB
+Panther? Biocarta? EnrichR, GSEA, DAVID, GOstats
+## Interactome analysis: STRING-DB
