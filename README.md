@@ -42,6 +42,9 @@ RNAseq_analysis
 |-- Data
 |   |-- 1_Raw
 |   |-- 2_Processed
+|   |   |-- 1_Quality_Control
+|   |   |-- 2_Trimming
+|   |   `-- 3_Alignment
 |   |-- 3_Annotation
 |   |-- Reference_genome
 |   `-- Supplementary
