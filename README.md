@@ -90,6 +90,7 @@ samtools | 1.21  | bioconda | conda install -c bioconda samtools |
 htseq | 0.13.5  | bioconda | conda install -c bioconda htseq |
 fastqc | 0.11.9 | bioconda | conda install -c bioconda fastqc |
 multiqc | 1.19 | conda install -c bioconda multiqc |
+IGV |   |   |
 
 
 
