@@ -139,7 +139,7 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
   * -r : reference gene model in bed  format
   
 Resultados: 
-This is PairEnd Data  (tipo de librería antisentido: Reverse, reverse stranded)
+This is PairEnd Data  (tipo de librería antisentido: Reverse, reverse stranded)  
 Fraction of reads failed to determine: 0.1925  
 Fraction of reads explained by "1++,1--,2+-,2-+": 0.0158  
 Fraction of reads explained by "1+-,1-+,2++,2--": 0.7917  
