@@ -133,25 +133,23 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
   ```
 * RSeQC script: infer_experiment.py
 * ```console
-  infer_experiment.py -r Homo_sapiens.bed  -i Pairend_strandspecific_Human_hg38.bam
+  infer_experiment.py -r Homo_sapiens.bed  -i sample.bam | tee infer_strand.txt
   * Options:
   * -i : input alignment file SAM or BAM format
   * -r : reference gene model in bed  format
+  
 Resultados: 
-This is PairEnd Data  
+This is PairEnd Data  (tipo de librería antisentido: Reverse, reverse stranded)
 Fraction of reads failed to determine: 0.1925  
 Fraction of reads explained by "1++,1--,2+-,2-+": 0.0158  
 Fraction of reads explained by "1+-,1-+,2++,2--": 0.7917  
 
 **Descarga de datos crudos**
 ```console 
-fastq-dump --gzip --readids --split-3 SRR
 xargs -n1 fastq-dump --gzip --split-3 < SRR_Acc_List.txt
 ```
-
+xargs -n1 
 --gzip: Compress output using gzip.  
---readids or -I: Append read ID after spot ID as ‘accession.spot.readid’. With this flag, one sequence gets appended the ID .1 and the other .2. Without this option, pair-ended reads will have identical IDs.  
-
 --split-3 separates the reads into left and right ends. If there is a left end without a matching right end, or a right end without a matching left end, they will be put in a single file.
 
 ## 2 Procesamiento de los datos RNA-seq  
@@ -173,23 +171,22 @@ El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http
 Descargar el genoma de referencia hg38_genome.tar.gz (o GRCh38) y descomprimir  
 ```console
 # Dentro de la carpeta Reference_genome
-tar -xvf hg38_genome.tar.gz
+tar -xvf grch38_genome.tar.gz
 ```
+Se nos va a generar un carpeta /grch38/ con el genoma de referencia. Va a tener diferentes archivos genome.1 , genome.2 ... genome.8 y también el ejecutable. De esta forma ya lo tenemos indexado. 
 
 **2.2.2 Alineamiento de las lecturas contra el genoma de referencia con HISAT2**  
 HISAT2 usa menos recursos computacionalmente que STAR, pero STAR genera resultados más precisos  
 Elementos que mapean 1 vez  
 ```console
+# Single-end reads
 hisat2 -k1 -U ../02.Trimming/SRR1552444_trimmed.fq.gz -x ../../Reference_genome/mm10/genome -S SRR1552444_hisat2.sam
 #Paired-end reads
-hisat2 -k1 -x (/ruta-genoma-ref) -1 sample_R1.fg.gz -2 sample_R2.fg.gz -S sample_alignment.sam
-#More efficient
-hisat2 -k1 -x (/ruta-genoma-ref) -1 sample_R1.fg.gz -2 sample_R2.fg.gz | samtools view -Sbh > sample_alignment.bam
+hisat2 -k1 -x (/ruta-genoma-ref/grch38/genome) -1 sample_R1.fg.gz -2 sample_R2.fg.gz | samtools view -Sbh > sample_alignment.bam | tee alignment.txt
 ```
 -x : prefijo del índice del genoma de referencia [genome]
--U : lista de lecturas para ser alineadas [trimmed]
--S : archivo de salida en formato SAM
--k : define el número máximo de alineamientos por lectura.
+-1 y -2: lecturas a alinear
+-k : define el número máximo de alineamientos por lectura
 
 
 **2.2.3 Modificación y conversión de archivos SAM con SAMtools**
