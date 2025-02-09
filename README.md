@@ -127,18 +127,21 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
 
   Tras la descarga del archivo de anotaciones GTF, descomprimimos el archivo con gunzip 
 * ```console
-  gunzip 3_Annotation/gencode.v47.annotation.gtf.gz
-  # Cambio de nombre
-  mv gencode.v47.annotation.gtf grch38.refannot.gtf
-  # empleo del script gtf2bed del paquete bedops
-  convert2bed --input=gtf < hg.refseq.gtf > hg.refseq.bed
+  gunzip Homo_sapiens.gtf.gz
+  # empleo del script convert2bed del paquete bedops
+  convert2bed --input=gtf < Homo_sapiens.gtf > Homo_sapiens.bed
   ```
 * RSeQC script: infer_experiment.py
 * ```console
-  infer_experiment.py -r hg.refseq.bed  -i Pairend_strandspecific_Human_hg38.bam
+  infer_experiment.py -r Homo_sapiens.bed  -i Pairend_strandspecific_Human_hg38.bam
   * Options:
   * -i : input alignment file SAM or BAM format
   * -r : reference gene model in bed  format
+Resultados: 
+This is PairEnd Data
+Fraction of reads failed to determine: 0.1925
+Fraction of reads explained by "1++,1--,2+-,2-+": 0.0158
+Fraction of reads explained by "1+-,1-+,2++,2--": 0.7917
 
 **Descarga de datos crudos**
 ```console 
