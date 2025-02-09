@@ -138,10 +138,10 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
   * -i : input alignment file SAM or BAM format
   * -r : reference gene model in bed  format
 Resultados: 
-This is PairEnd Data
-Fraction of reads failed to determine: 0.1925
-Fraction of reads explained by "1++,1--,2+-,2-+": 0.0158
-Fraction of reads explained by "1+-,1-+,2++,2--": 0.7917
+This is PairEnd Data  
+Fraction of reads failed to determine: 0.1925  
+Fraction of reads explained by "1++,1--,2+-,2-+": 0.0158  
+Fraction of reads explained by "1+-,1-+,2++,2--": 0.7917  
 
 **Descarga de datos crudos**
 ```console 
