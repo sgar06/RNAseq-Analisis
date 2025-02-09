@@ -125,7 +125,7 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
 ![image](https://github.com/user-attachments/assets/d24311bb-f95f-4b54-9a5c-fa0d52745cde)
 ![image](https://github.com/user-attachments/assets/98d1f57c-9493-4829-904c-8026c8ed7bb7)
 
-  Tras la descarga del archivo de anotaciones GTF, descomprimimos el archivo con gunzip 
+  Tras la descarga del archivo de anotaciones GTF, descomprimimos el archivo con gunzip. Es imporante que pinchemos sobre incluir transcrit_id porque si no el programa convert2bed da error!
 * ```console
   gunzip Homo_sapiens.gtf.gz
   # empleo del script convert2bed del paquete bedops
@@ -179,8 +179,6 @@ Se nos va a generar un carpeta /grch38/ con el genoma de referencia. Va a tener 
 HISAT2 usa menos recursos computacionalmente que STAR, pero STAR genera resultados más precisos  
 Elementos que mapean 1 vez  
 ```console
-# Single-end reads
-hisat2 -k1 -U ../02.Trimming/SRR1552444_trimmed.fq.gz -x ../../Reference_genome/mm10/genome -S SRR1552444_hisat2.sam
 #Paired-end reads
 hisat2 -k1 -x (/ruta-genoma-ref/grch38/genome) -1 sample_R1.fg.gz -2 sample_R2.fg.gz |\
 samtools view -Sbh > sample_alignment.bam |\
