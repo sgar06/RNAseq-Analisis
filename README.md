@@ -134,15 +134,27 @@ Alineamiento de secuencias a genoma hg38 con el alineador STAR.
 * RSeQC script: infer_experiment.py
 * ```console
   infer_experiment.py -r Homo_sapiens.bed  -i sample.bam | tee infer_strand.txt
+  ```
   * Options:
   * -i : input alignment file SAM or BAM format
   * -r : reference gene model in bed  format
   
-Resultados: 
+Resultados para la muestra 65: 
 This is PairEnd Data  (tipo de librería antisentido: Reverse, reverse stranded)  
 Fraction of reads failed to determine: 0.1925  
 Fraction of reads explained by "1++,1--,2+-,2-+": 0.0158  
 Fraction of reads explained by "1+-,1-+,2++,2--": 0.7917  
+
+Resultados para la muestra 65:  
+$ infer_experiment.py -r ~/Descargas/Homo_sapiens.bed -i sample66_alignment.bam   
+Reading reference gene model /home/sgarciallorens/Descargas/Homo_sapiens.bed ... Done  
+Loading SAM/BAM file ...  Total 200000 usable reads were sampled  
+
+This is PairEnd Data  
+Fraction of reads failed to determine: 0.2869  
+Fraction of reads explained by "1++,1--,2+-,2-+": 0.0054  
+Fraction of reads explained by "1+-,1-+,2++,2--": 0.7077  
+
 
 **Descarga de datos crudos**
 ```console 
