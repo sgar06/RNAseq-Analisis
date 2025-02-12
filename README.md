@@ -249,7 +249,7 @@ seqdata <- read.csv(file, sep=",", header=T)
 ```console
 y <- DGEList(seqdata)
 ```
-Objeto DGElist: 2 apartados: $counts, $sample  +añadimos $genes
+Objeto DGElist: 2 apartados: $counts, $sample  +añadimos $genes  
 **3.1.3 Eliminación de genes con recuentos bajos**
 ```console
 keep <- filterbyExpr(y)
