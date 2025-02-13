@@ -241,10 +241,15 @@ Una vez hemos definido todas las opciones, indicamos la ruta de los archivos BAM
 ```console
 BiocManager::install("edgeR")
 ```
+cargamos todas las librerías necesarias para el análisis y establecemos el directorio de trabajo.  
+
 **3.1.1 Importación de la matriz de recuentos y metadatos**
 ```console
 seqdata <- read.csv(file, sep=",", header=T)
 ```
+
+With the example data set, we see 61852 rows and 25 columns, meaning 61852 annotated genes and 25 samples. That's a large number of genes, but are they all actually informative? We can firstly check their average expression levels.
+
 **3.1.2 Conversión de la matriz de recuentos al objeto DGEList**
 ```console
 y <- DGEList(seqdata)
