@@ -151,6 +151,14 @@ infer_experiment.py samples a few hundred thousand reads from your bam/sam and t
 ![image](https://github.com/user-attachments/assets/6a04a794-3a5c-46ec-83aa-4a3a5b83413b)
 ![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
 
+| Tipo de Librería | Infer experiment | HISAT2 | htseq-count | 
+|---------|---------|----------|----------|
+Paired-End (PE) - SF | 1++,1–,2+-,2-+ | Second Strand F/FR | yes |
+PE-SR | 1+-,1-+,2++,2– | First Strand R/RF | reverse |
+Single-End (SE) - SF |	+,– | Second Strand F/FR | yes
+SE - SR |	+-,-+ |	First Strand R/RF |	reverse
+PE, SE - U |	undecided |	default	| no
+
 ## Cómo saber la hebra de procedencia de las lecturas
 * A subset of 200 000 reads is first made from the input FASTQ files
 * Next the reads are aligned against the selected reference genome using hisat2. The alignment is then compared to reference annotation to infer the strandedness of reads.
