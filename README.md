@@ -39,19 +39,6 @@
 ```console
 RNAseq_analysis
 |-- Code
-|-- Data
-|   |-- 1_Raw
-|   |-- 2_Processed
-|   |   |-- 1_Quality_Control
-|   |   |-- 2_Trimming
-|   |   `-- 3_Alignment
-|   |-- 3_Annotation
-|   |-- Reference_genome
-|   `-- Supplementary
-`-- Results
-
-.
-|-- Code
 |   `-- DEG_script.R
 |-- Data
 |   |-- 1_Raw
