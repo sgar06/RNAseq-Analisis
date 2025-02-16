@@ -277,6 +277,19 @@ samtools view -Sbh > sample_alignment.bam
 Most stranded protocols in use these days follow the dUTP-method, where read #2 in a pair has the same orientation as the transcript from which it arose (2++ or 2--). So either `R` or `RF` would typically be appropriate   
 Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.  
 
+Here is a bash script for the above HISAT2 command called hisat2.sh that will run all the .fastq.gz files for you simultaneously.
+
+```console
+#!/usr/bin/bash
+
+#bash script for hisat2; align all .fastq.gz files to indexed reference genome to generate .sam files
+
+SAMPLES="ERR188044 ERR188104 ERR188234 ERR188245 ERR188257 ERR188273 ERR188337 ERR188383 ERR188401 ERR188428 ERR188454 ERR204916"
+
+for SAMPLE in $SAMPLES; do
+    hisat2 -p 11 --dta -x ~/chrX_data/indexes/chrX_tran -1 ~/chrX_data/samples/${SAMPLE}_chrX_1.fastq.gz -2 ~/chrX_data/samples/${SAMPLE}_chrX_2.fastq.gz -S ${SAMPLE}_chrX.sam
+done
+```
 
 **2.2.3 Modificación y conversión de archivos SAM con SAMtools**
 
