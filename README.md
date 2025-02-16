@@ -105,7 +105,8 @@ Dentro de la página HISAT2, nos vamos a la sección de descargas. En la secció
 
 ![image](https://github.com/user-attachments/assets/9ee4a874-6133-4039-b638-90b39d1fcfc7)  
   
-En la sección de _H.sapiens_, encontramos los diferentes genomas de referencia humano según la versión. A su vez, dentro de cada versión se tienen los _link_ de descarga para los diferentes genomas. En este caso, seleccionaremos el genoma de referencia humano más reciente GRCh38.
+En la sección de _H.sapiens_, encontramos los diferentes genomas de referencia humano según la versión. A su vez, dentro de cada versión se tienen los _link_ de descarga para los diferentes genomas. En este caso, seleccionaremos el genoma de referencia humano más reciente GRCh38.  
+
 ![image](https://github.com/user-attachments/assets/d88c15e4-f20d-466d-a3de-b822aa82f16f)
 
 Descargamos el genoma de referencia _grch38_genome.tar.gz_ directamente desde la terminal y almacenamos el contenido en una nueva ccarpeta 
