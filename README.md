@@ -229,9 +229,8 @@ Once the genome indexing is done, you are ready to map the reads to the referenc
 Elementos que mapean 1 vez  
 ```console
 #Paired-end reads
-hisat2 -k1 -x (/ruta-genoma-ref/grch38/genome) -1 sample_R1.fg.gz -2 sample_R2.fg.gz |\
-samtools view -Sbh > sample_alignment.bam |\
-tee alignment.txt
+hisat2 -k1 --summary-file {sample}.summary.txt --rna-strandedness RF -x (/ruta-genoma-ref/grch38/genome) -1 {sample_R1.fg.gz} -2 {sample_R2.fg.gz} |\
+samtools view -Sbh > sample_alignment.bam 
 ```
 -x : prefijo del índice del genoma de referencia [genome]
 -1 y -2: lecturas a alinear
