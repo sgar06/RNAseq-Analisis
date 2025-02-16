@@ -39,7 +39,6 @@
 ```console
 RNAseq_analysis
 |-- Code
-|   `-- DEG_script.R
 |-- Data
 |   |-- 1_Raw
 |   |-- 2_Infer_strandedness
