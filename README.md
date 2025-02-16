@@ -147,7 +147,30 @@ xargs -n1 fastq-dump --gzip --split-3 < SRR_Acc_List.txt
 ## 2 Procesamiento de los datos RNA-seq  
 
 ### 2.1.1 Estimation of the strandness
-Para determinar si las lecturas RNA-seq son de hebra específica, primero se realizó un subsampling de lecturas a partir de una de las muestras. Para ello, se empleó la herramienta `seqkit` y se seleccionaron de forma aleatoria las lecturas tanto en el archivo `R1.fastq.gz`como `R2.fastq-gz`. Sin embargo, es importante que en el caso del subsampling aleatorio se seleccionen ambos extremos de cada par de lecturas, tanto  Forward como Reverse en el orden correcto.
+Para determinar si las lecturas RNA-seq son de hebra específica, las lecturas se alinean contra el genoma de referencia usando un mapeador, en nuestro caso `HISAT2`. Seguidamente, los resultados del alineamiento se comparan respecto al archivo de anotación de referencia para la especie seleccionada mediante la herramienta `infer_experiment.py` del paquete `RseQC` para determinar el tipo de librería empleada. 
+Como resultado se van a poder dar diferentes escenarios según la forma de preparación de la libraría: lecturas pareadas o de extremo único, lecturas con información de hebra específica o no, y dentro de los experimentos de hebra específica se pueden diferenciar a su vez:  
+* Librerias sentido: Lecturas *forward* o R1 situadas en la misma hebra del gen
+* Librerias antisentido: Lecturas *reverse* o R2 situadas en la misma hebra del gen 
+
+![image](https://github.com/user-attachments/assets/6a04a794-3a5c-46ec-83aa-4a3a5b83413b)
+![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
+
+
+infer_experiment.py samples a few hundred thousand reads from your bam/sam and tells you the portion that would be explained by each type of strandedness, e.g  
+[Stranded or non-stranded reads](https://eclipsebio.com/eblogs/stranded-libraries/)  
+![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)  
+
+Según los resultados obtenidos, se deben especificar diferentes paramétros en las  herramientas posteriores. 
+
+| Tipo de Librería | Infer experiment | HISAT2 | htseq-count | 
+|---------|---------|----------|----------|
+Paired-End (PE) - SF (sense Forward) | 1++,1–,2+-,2-+ | Second Strand F/FR | yes |
+PE-SR (Sense-Reverse) | 1+-,1-+,2++,2– | First Strand R/RF | reverse |
+Single-End (SE) - SF |	+,– | Second Strand F/FR | yes
+SE - SR |	+-,-+ |	First Strand R/RF |	reverse
+PE, SE - U |	undecided |	default	| no  
+
+Como lo que nos interesa en este paso es simplemente determinar el tipo de librería contruida y la especificidad de hebra, se realizó un *subsampling* de lecturas a partir de una de las muestras con el fin de aumentar la eficiencia en la etapa de alineamiento o mapeo. Para ello, se empleó la herramienta `seqkit` y se seleccionaron de forma aleatoria las lecturas tanto en el archivo `R1.fastq.gz`como `R2.fastq-gz`. Sin embargo, es importante que en el caso del *subsampling* aleatorio se seleccionen ambos extremos de cada par de lecturas, tanto  *Forward* como *Reverse* en el orden correcto.
 
 Para ello se empleó el siguiente comando:
 ```console
@@ -157,57 +180,31 @@ seqkit sample -p 0.1 -s 100 {sample}_2.fastq.gz -o subsampled_{sample}_2.fastq.g
 > NOTA  
 > `-p` se emplea para seleccionar la proporción de lecturas a seleccionar. En nuestro caso el 10% de lecturas totales.  
 > `-s` se emplea para determinar el random seed.
-> Ambos parametros tanto `-p`como `-s` tienen que ser los mismos en ambos archivos R1 y R2.
+> Ambos parametros tanto `-p`como `-s` tienen que ser los mismos en ambos archivos R1 y R2 para seleccionar las mismas lecturas aleatorias.
 
-Posteriormente, las lecturas seleccionadas se alinean contra el genoma de referencia usando HISAT2. Seguidamente el alineamiento se compara contra el archivo de anotación de referencia para la especie Homo sapiens mediante la herramienta infer_experiment.py del paquete RseQC para determinar el tipo de librería empleada. 
-Como resultado se van a poder dar diferentes escenarios lecturas pareadas o de extremo único, lecturas con información de hebra específica o no, y dentro de los experimentos de hebra específicos pueden ser a su vez:
-En el caso de los experimento de hebra específicos, se pueden dar 2 escenarios:
-* Librerias Sentido: Lecturas forward o R1 situadas en la misma hebra del gene
-* Librerias antisentido: Lecturas reverse o R2 situadas en la misma hebra del gen
+Una vez se tienen las lecturas subseleccionadas, se realizó el mapeo contra el genoma de referencia humano indexado descargado de la página HISAT2. 
+```console
+hisat2 -k1 -x /Reference_genome/grch38/genome -1 subsampled_{sample}_1.fastq.gz -2 subsampled_{sample}_2.fastq.gz | samtools view -Sbh > subsampled_alignment.bam
+```
+> NOTA
+> `-k1`
+> `-x`
+> `-1`y `-2`
+> `samtools view -Sbh > subsampled_alignment.bam`  
 
-![image](https://github.com/user-attachments/assets/6a04a794-3a5c-46ec-83aa-4a3a5b83413b)
-![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
-
-
-infer_experiment.py samples a few hundred thousand reads from your bam/sam and tells you the portion that would be explained by each type of strandedness, e.g  
-[Stranded or non-stranded reads](https://eclipsebio.com/eblogs/stranded-libraries/)  
-![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)  
-![image](https://github.com/user-attachments/assets/b77955c8-6c20-4d15-a905-90c5987efe23)  
-
-
-| Tipo de Librería | Infer experiment | HISAT2 | htseq-count | 
-|---------|---------|----------|----------|
-Paired-End (PE) - SF | 1++,1–,2+-,2-+ | Second Strand F/FR | yes |
-PE-SR | 1+-,1-+,2++,2– | First Strand R/RF | reverse |
-Single-End (SE) - SF |	+,– | Second Strand F/FR | yes
-SE - SR |	+-,-+ |	First Strand R/RF |	reverse
-PE, SE - U |	undecided |	default	| no
-
-## Cómo saber la hebra de procedencia de las lecturas
-* A subset of reads is first made from the input FASTQ files
-* Primero se hizo una subselección de lecturas
-* Next the reads are aligned against the selected reference genome using hisat2. The alignment is then compared to reference annotation to infer the strandedness of reads.
-* For strand specific experiments there are two scenarios:
-  * Reads in file 1 are always on the same strand as the gene (sense)
-  * Reads in file 2 are always on the same strand as the gene
-* Preparation of annotation file in bed format
-  Descarga del archivo GTF
-![image](https://github.com/user-attachments/assets/d24311bb-f95f-4b54-9a5c-fa0d52745cde)
-![image](https://github.com/user-attachments/assets/98d1f57c-9493-4829-904c-8026c8ed7bb7)
-
-  Tras la descarga del archivo de anotaciones GTF, descomprimimos el archivo con gunzip. Es imporante que pinchemos sobre incluir transcrit_id porque si no el programa convert2bed da error!
-* ```console
-  gunzip Homo_sapiens.gtf.gz
-  # empleo del script convert2bed del paquete bedops
-  convert2bed --input=gtf < Homo_sapiens.gtf > Homo_sapiens.bed
-  ```
-* RSeQC script: infer_experiment.py
-* ```console
-  infer_experiment.py -r Homo_sapiens.bed  -i sample.bam | tee infer_strand.txt
-  ```
-  * Options:
-  * -i : input alignment file SAM or BAM format
-  * -r : reference gene model in bed  format
+Los resultados del alineamiento almacenados en el archivo BAM se compararon contra el archivo de anotación de referencias gracias a la herramienta `RseQC`. Sin embargo, el archivo de anotaciones a emplear debe estar en formato `.bed` por lo que se hicieron algunas modificaciones.
+```console
+# empleo del script convert2bed del paquete bedops
+convert2bed --input=gtf < Homo_sapiens.gtf > Homo_sapiens.bed
+```
+Finalmente se empleó la herramienta infer_experiment.py de RseQC:
+```console
+infer_experiment.py -r Homo_sapiens.bed  -i subsampled_alignment.bam | tee infer_strand.txt
+```
+> NOTA
+> `-i` : input alignment file SAM or BAM format
+> `-r` : reference gene model in bed  format
+> `tee` permite...
   
 Resultados para la muestra 65: 
 This is PairEnd Data  (tipo de librería antisentido: Reverse, reverse stranded)  
@@ -215,19 +212,7 @@ Fraction of reads failed to determine: 0.1925
 Fraction of reads explained by "1++,1--,2+-,2-+": 0.0158  
 Fraction of reads explained by "1+-,1-+,2++,2--": 0.7917  
 
-Resultados para la muestra 65:  
-$ infer_experiment.py -r ~/Descargas/Homo_sapiens.bed -i sample66_alignment.bam   
-Reading reference gene model /home/sgarciallorens/Descargas/Homo_sapiens.bed ... Done  
-Loading SAM/BAM file ...  Total 200000 usable reads were sampled  
-
-This is PairEnd Data  
-Fraction of reads failed to determine: 0.2869  
-Fraction of reads explained by "1++,1--,2+-,2-+": 0.0054  
-Fraction of reads explained by "1+-,1-+,2++,2--": 0.7077    
-
-`--rna-strandedness` option in HISAT2  sets how reads are expected to align against genes. With this option being used, every read alignment will have an XS attribute tag: '+' means a read belongs to a transcript on '+' strand of genome. '-' means a read belongs to a transcript on '-' strand of genome.  
-Most stranded protocols in use these days follow the dUTP-method, where read #2 in a pair has the same orientation as the transcript from which it arose (2++ or 2--). So either `R` or `RF` would typically be appropriate  
-Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.  
+Como resultado se obtuvo un experimento de tipo **LIBRERIA ANTISENTIDO**
 
 ### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
 
@@ -284,9 +269,11 @@ samtools view -Sbh > sample_alignment.bam
 > NOTA
 > `-x` : prefijo del índice del genoma de referencia [genome]
 > `--summary-file`
-> `--rna-strandedness` en nuestro caso RF
 > `-1` y `-2`: lecturas a alinear
 > `-k`: define el número máximo de alineamientos por lectura
+> `--rna-strandedness` {STRING} option in HISAT2  sets how reads are expected to align against genes. With this option being used, every read alignment will have an XS attribute tag: '+' means a read belongs to a transcript on '+' strand of genome. '-' means a read belongs to a transcript on '-' strand of genome.  
+Most stranded protocols in use these days follow the dUTP-method, where read #2 in a pair has the same orientation as the transcript from which it arose (2++ or 2--). So either `R` or `RF` would typically be appropriate   
+Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.  
 
 
 **2.2.3 Modificación y conversión de archivos SAM con SAMtools**
