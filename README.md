@@ -101,9 +101,10 @@ htseq | 2.0.5 | conda install -c bioconda htseq |
 ## Decarga del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*
 **Primero descarga del genoma referencia**  
 Como vamos a emplear el alineador [HISAT2](http://daehwankimlab.github.io/hisat2/), a partir de su página web, descargaremos directamente el genoma de referencia huamno indexado que utilizaremos. En el caso de que el genoma no estuviera indexado, se podría hacer una indexación manual con la función `hisat2-build`, aunque este proceso requiere mucho tiempo. 
-Dentro de la página HISAT2, nos vamos a la sección de descargas. En la sección _Index_ encontramos diferentes _links_ según el genoma de interés, siendo en nuestro caso _H.sapiens_. 
-![image](https://github.com/user-attachments/assets/cbdcf322-2339-4862-a3e6-3ea061cb766b)
+Dentro de la página HISAT2, nos vamos a la sección de descargas. En la sección _Index_ encontramos diferentes _links_ según el genoma de interés, siendo en nuestro caso _H.sapiens_.  
 
+![image](https://github.com/user-attachments/assets/9ee4a874-6133-4039-b638-90b39d1fcfc7)  
+  
 En la sección de _H.sapiens_, encontramos los diferentes genomas de referencia humano según la versión. A su vez, dentro de cada versión se tienen los _link_ de descarga para los diferentes genomas. En este caso, seleccionaremos el genoma de referencia humano más reciente GRCh38.
 ![image](https://github.com/user-attachments/assets/d88c15e4-f20d-466d-a3de-b822aa82f16f)
 
