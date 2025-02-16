@@ -239,11 +239,11 @@ Una vez hemos definido todas las opciones, indicamos la ruta de los archivos BAM
 ### 3.1 Instalación de edgeR  
 
 edgeR is implemented as R packages in Bioconductor. It expects the raw count matrix without normalization.  
-```console
+```R
 BiocManager::install("edgeR")
 ```
 cargamos todas las librerías necesarias para el análisis y establecemos el directorio de trabajo.  
-```console
+```R
 # Libreria para la anotacion del gneoma humano
 #no se si esta bien
 BiocManager::install("Homo.sapiens")
@@ -259,7 +259,7 @@ library(edgeR)
 ```
 
 **3.1.1 Importación de la matriz de recuentos y metadatos**
-```console
+```R
 seqdata <- read.csv(file, sep=",", header=T)
 ```
 
@@ -268,7 +268,7 @@ With the example data set, we see 61852 rows and 25 columns, meaning 61852 annot
 Cambiamos los nombres de las muestras, para que sean los mismos que los especificados en el archivo de metadatos.
 
 **3.1.2 Conversión de la matriz de recuentos al objeto DGEList**
-```console
+```R
 y <- DGEList(seqdata)
 ```
 los nombres de las filas representan los identificadores de los genes en formato **(??)**, correspondiente a la base de  datos **(??)**
@@ -278,19 +278,19 @@ Objeto DGElist: 2 apartados: $counts, $sample  +añadimos $genes
 modificación de la columna sample$group para especificar grupo ctrl o enfermos (conversion primero a una variable categórica group <- as.factor(group)
 
 **3.1.3 Eliminación de genes con recuentos bajos**
-```console
+```R
 keep <- filterbyExpr(y)
 y <- y[keep, keep.lib.sizes=F]
 ```
 Se eliminan los genes sin expresar o con expresión muy baja (0-10)
 **3.1.4 Normalización de librerias y recuentos**
 Los recuentos filtrados y obtenidos previamente para cada gen se tienen que normalizar para corregir las diferencias debido a las profundidades de secuenciación irregular en cada muestra
-```console
+```R
 y <- calcNormFactors(y)
 ```
 **3.1.5 Estimacion de la variabilidad biologica entre muestras y réplicas**
 Another way to check similarities between samples is to use dimension reduction techniques. 
-```console
+```R
 plotMDS(y) / PCA
 ```
 Para estimar la variabilidad biológica podemos usar un gráfico de escala multidimensional (MDS), con la función plotMDS del paquete limma. Este gráfico nos permite ver las relaciones entre muestras, de forma que las muestras con perfiles de expresión de genes similares estarán más cerca en el gráfico.
@@ -301,11 +301,11 @@ PCA: prcomp function considers rows as samples and columns as features.
 Creación de la matriz de diseño 
 Para estimar la sobredispersión de los genes, vamos a emplear la función estimateDisp() del paquete edgeR. Esta función necesita que se le proporcione una matriz que contenga el diseño experimental que especifique cómo se asocian o agrupan las muestras.
 Por tanto, primero creamos la matriz con la función model.matrix(~0 + group). Vamos a construir una matriz a partir de la variable categórica “group” de nuestro Environment y vamos a establecer las diferentes relaciones entre los grupos con el símbolo (~). Si no queremos que se emplee ningúngrupo de ref escribimos 0 **¿QUEREMOS QUE SE USE UN GRUPO COMO REFERENCIA?**  
-```console
+```R
 design <- model.matrix(~)
 ```
 Dispersión de los genes
-```console
+```R
 y <- estimateDisp(y, design, robust=T)
 ```
 robust=T protege la estimación contra los outliers  
@@ -327,12 +327,12 @@ El nuevo objeto creado `fit` será un objeto de tipo DGEGLM. Si observamos el ob
 Control vs enfermedad  
 Una vez computada la dispersión y ajustados los datos, vamos a llevar a cabo una prueba de significancia o test de expresión diferencial, de forma que ahora sí que queremos saber lo genes diferencialmente expresados entre grupos comparados o contraste.  
 Primero, con la función makeContrast del paquete limma, vamos a definir el tipo de comparación que vamos a hacer entre los grupos experimentales. Además, la función makeContrast, requiere de la matriz de diseño experimental para saber qué muestras se asocian con estos grupos. La función makeContrast genera una matriz numérica que representa los grupos indicados a contrastar. El valor 1 y –1 corresponderá a los grupos a comparar.  
-```console
+```R
 # Grupos contraste a comparar
 CvsL <- makeContrast(control-lupus, leves = design)
 ```
-Test de expresión diferencial con la función glmQLFTest() del paquete de edgeR y guardamos los resultados en la variable. Se genera un objeto de tipo DGELRT. Le tenemos que indicar el objeti "fit" con el modelo ajustado y la variable con los grupos de contraste
-```console
+Test de expresión diferencial con la función glmQLFTest() del paquete de edgeR y guardamos los resultados en la variable. Se genera un objeto de tipo DGELRT. Le tenemos que indicar el objeti `fit` con el modelo ajustado y la variable con los grupos de contraste
+```R
 res_CvsL <- glmQLFTest(fit, contrast = CvsL)
 ```
 El objeto res_CvsL, contendrá parámetros estadísticos comunes al objeto “fit” con el modelo ajustado. Sin embargo, aparecen unos subapartados nuevos que contendrán los resultados de la comparación. En concreto, los resultados obtenidos tras la comparación se guardarán en el subapartado “table” .
@@ -347,7 +347,7 @@ multiple testing correction techniques to make statistical tests more stringent 
  There are other alternative approaches, for instance, the Benjamini–Hochberg (BH) correction, or FDR (False Discovery Rate) correction, which estimates an FDR for each test based on the assumption of 0-1 uniform distribution of the p-values when the null hypothesis holds. In practice, it counts the number of test with p-values no larger than the observed p-value of a test (k), and then it estimates the expected number of tests with no-larger p-value as p×n. The FDR is thus $ \frac{k}{p \times n}$. In R, both methods are implemented, together with others, as the function p.adjust
 
 hay que corregir los valores de P. Para ello usamos la función topTags() del paquete edgeR. Esta función aplicará el método de Benjamini-Hochberg para corregir los valores de P, reduciendo así los falsos positivos.  
-```console
+```R
 res_correct_CvsL <- topTags(res_CvsL, n = Inf)
 ```
 
@@ -355,7 +355,7 @@ Se genera un objeto de tipo TopTags que contiene los resultados de la prueba de 
 ![image](https://github.com/user-attachments/assets/c5167d7d-1afe-4f9f-99e7-645e81239917)  
   
 El dataset contenido en el elemento “table” lo almacenamos en una nueva variable, denominada de_data.
-```console
+```R
 de_CvsL <- res_correct_CvsL$table
 ```
 Esta función topTags aplica la corrección de los P valores y crea una nueva columna con los valores corregidos (FDR).  
@@ -364,7 +364,7 @@ Esta función topTags aplica la corrección de los P valores y crea una nueva co
  FDR<0.05 o <0.01 y logFC >= 2 
 A partir del objeto "de_CvsL", llevamos a cabo la selección de todas aquellas filas que cumplan ambos filtros especificados: valores de FDR <= 0.05 y valor absoluto de logFC >= 1.
 Es decir, vamos a seleccionar todas las filas que cumplen los criterios especificados y vamos a reportar los resultados filtrados para todas las columnas. En el caso de la escala de logFC, escribimos el valor absoluto de 1 puesto que al ser una escala simétrica me van a interesar valores positivos y negativos. Valores de log de FC por debajo de –1 los anotaremos como genes infraexpresados, mientras que valores de log FC mayores a 1 los anotaremos como genes sobreexpresados.
-```console
+```R
 # numero de genes DE o bien UP o bien Down
 isDE_CvsL <- de_CvsL[ de_CvsL$FDR =< 0.05 & abs(de_CvsL$logFC) >= 1,]
 
