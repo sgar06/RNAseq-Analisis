@@ -317,10 +317,10 @@ podemos evaluar cómo se ajustan los datos y decidir el tipo de dispersión más
 **3.1.7 Ajuste de la variabilidad de cada gen según la dispersión**  
 
 Una vez hemos computado los valores de dispersión, edgeR usa estos valores para ajustar el nivel de variabilidad de cada gen. Por defecto, la dispersión empleada para datos de RNA-seq es “trended dispersion”.   Para modelar los datos de conteo de RNAseq y capturar la sobredispersión, usaremos una aproximación Binomial Negativa. Para ello, emplearemos una función específica de edgeR, glmQLfit. Esta función permite ajustar nuestros datos empleando un modelo lineal generalizado y usando un enfoque de QL (quasi-likelihood). De esta manera, se tiene en cuenta la sobredispersión de los genes con una mayor precisión.  
-```console
+```R
 fit <- glmQLfit(y, design, robust =T)
 ```
-El nuevo objeto creado “fit” será un objeto de tipo DGEGLM. Si observamos el objeto “fit” con la función View, vemos que tendrá diferentes parámetros computados para cada uno de nuestros genes, tales como coeficientes, valores ajustados...
+El nuevo objeto creado `fit` será un objeto de tipo DGEGLM. Si observamos el objeto “fit” con la función View, vemos que tendrá diferentes parámetros computados para cada uno de nuestros genes, tales como coeficientes, valores ajustados...
 ![image](https://github.com/user-attachments/assets/90c4e4ff-a3ac-4710-bc71-1f74d4642f6f)  
 
 **3.1.8 Prueba de significancia o Test de expresión diferencial**
