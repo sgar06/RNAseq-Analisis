@@ -99,7 +99,7 @@ htseq | 2.0.5 | conda install -c bioconda htseq |
 
 
 ## Decarga del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*
-**Primero descarga del genoma referencia**
+**Primero descarga del genoma referencia**  
 So we need to firstly retrieve the reference genome. Specifically for the example data set, we need a human reference genome.  
 Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
 Si el genoma no está indexado, indexación con hisat2-build 
