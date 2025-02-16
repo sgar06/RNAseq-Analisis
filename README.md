@@ -113,8 +113,7 @@ tar -xvf grch38_genome.tar.gz
 Se nos va a generar un carpeta /grch38/ con el genoma de referencia. Va a tener diferentes archivos genome.1 , genome.2 ... genome.8 y también el ejecutable. De esta forma ya lo tenemos indexado.   
 
 Segundo decarga del archivo de anotaciones de referencia
-![image](https://github.com/user-attachments/assets/6a04a794-3a5c-46ec-83aa-4a3a5b83413b)
-![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
+
 
   Descarga del archivo GTF
 ![image](https://github.com/user-attachments/assets/d24311bb-f95f-4b54-9a5c-fa0d52745cde)
@@ -165,7 +164,8 @@ En el caso de los experimento de hebra específicos, se pueden dar 2 escenarios:
 * Lecturas forward o R1 situadas en la misma hebra del gene
 * Lecturas reverse o R2 situadas en la misma hebra del gen
 
-
+![image](https://github.com/user-attachments/assets/6a04a794-3a5c-46ec-83aa-4a3a5b83413b)
+![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
 
 
 infer_experiment.py samples a few hundred thousand reads from your bam/sam and tells you the portion that would be explained by each type of strandedness, e.g  
