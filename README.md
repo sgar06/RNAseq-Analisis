@@ -49,6 +49,18 @@ RNAseq_analysis
 |   |-- Reference_genome
 |   `-- Supplementary
 `-- Results
+
+.
+|-- Code
+|   `-- DEG_script.R
+|-- Data
+|   |-- 1_Raw
+|   |-- 2_Infer_strandedness
+|   |-- 3_Trimming
+|   |-- 4_Alignment
+|   |-- 5_Annotation
+|   `-- Supplementary
+`-- Results
 ```
 
 ## Instalación de las herramientas a través de conda
