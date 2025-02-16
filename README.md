@@ -121,6 +121,9 @@ Se genera un carpeta `/grch38/` con el genoma de referencia. El genoma descargad
 
 **Segundo decarga del archivo de anotaciones de referencia**
 
+El archivo de anotaciones de referencia de la especie _H.sapiens_ se descargó desde la página [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon). 
+Para descargar el archivo  se empleó la herramienta _File Chamaleon_ que permite el formateo de archivos genómicos existentes en la base de datos.  
+En nuestro caso, seleccionaremos la especie 
 
   Descarga del archivo GTF
 ![image](https://github.com/user-attachments/assets/d24311bb-f95f-4b54-9a5c-fa0d52745cde)
@@ -289,10 +292,11 @@ Here is a bash script for the above HISAT2 command called hisat2.sh that will ru
 
 #bash script for hisat2; align all .fastq.gz files to indexed reference genome to generate .sam files
 
-SAMPLES="ERR188044 ERR188104 ERR188234 ERR188245 ERR188257 ERR188273 ERR188337 ERR188383 ERR188401 ERR188428 ERR188454 ERR204916"
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568"
 
 for SAMPLE in $SAMPLES; do
-    hisat2 -p 11 --dta -x ~/chrX_data/indexes/chrX_tran -1 ~/chrX_data/samples/${SAMPLE}_chrX_1.fastq.gz -2 ~/chrX_data/samples/${SAMPLE}_chrX_2.fastq.gz -S ${SAMPLE}_chrX.sam
+	hisat2 -k1 --summary-file ~/RNAseq_analysis/Data/4_Alignment/${SAMPLE}_align.summary.txt  --rna-strandness RF -x ~/RNAseq_analysis/Data/4_Alignment/Reference_genome/grch38/genome -1 ~/RNAseq_analysis/Data/3_Processed/${SAMPLE}_1_val_1.fq.gz -2 ~/RNAseq_analysis/Data/3_Processed/${SAMPLE}_2_val_2.fq.gz |\
+ samtools view -Sbh > ~/RNAseq_analysis/Data/4_Alignment/${SAMPLE}.bam
 done
 ```
 
