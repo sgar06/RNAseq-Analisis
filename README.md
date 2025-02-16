@@ -125,9 +125,8 @@ El archivo de anotaciones de referencia de la especie _H.sapiens_ se descargó d
 Para descargar el archivo  se empleó la herramienta _File Chamaleon_ que permite el formateo de archivos genómicos existentes en la base de datos.  
 En nuestro caso, seleccionaremos la especie 
 
-  Descarga del archivo GTF
-![image](https://github.com/user-attachments/assets/d24311bb-f95f-4b54-9a5c-fa0d52745cde)
-![image](https://github.com/user-attachments/assets/98d1f57c-9493-4829-904c-8026c8ed7bb7)
+![image](https://github.com/user-attachments/assets/1b63b6a6-371d-472f-a282-ec66534acdb2)
+
 
   Tras la descarga del archivo de anotaciones GTF, descomprimimos el archivo con gunzip. Es imporante que pinchemos sobre incluir transcrit_id porque si no el programa convert2bed da error!
 * ```console
