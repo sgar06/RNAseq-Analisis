@@ -100,19 +100,22 @@ htseq | 2.0.5 | conda install -c bioconda htseq |
 
 ## Decarga del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*
 **Primero descarga del genoma referencia**  
-So we need to firstly retrieve the reference genome. Specifically for the example data set, we need a human reference genome.  
-Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
-Si el genoma no está indexado, indexación con hisat2-build 
-El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http://daehwankimlab.github.io/hisat2/)  
-In the download page, data are grouped by species. At the Index section, you can see the links of different genome data such as human genome. At the human section, you can see the links of different human genome data, which are further grouped by different human reference genome versions. Here we want to the newest human reference genome (GRCh38/hg38). We need the [GRCh38 genome](https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz)  
-Descargar el genoma de referencia hg38_genome.tar.gz (o GRCh38) y descomprimir  
+Como vamos a emplear el alineador [HISAT2](http://daehwankimlab.github.io/hisat2/), a partir de su página web, descargaremos directamente el genoma de referencia huamno indexado que utilizaremos. En el caso de que el genoma no estuviera indexado, se podría hacer una indexación manual con la función `hisat2-build`, aunque este proceso requiere mucho tiempo. 
+Dentro de la página HISAT2, nos vamos a la sección de descargas. En la sección _Index_ encontramos diferentes _links_ según el genoma de interés, siendo en nuestro caso _H.sapiens_. 
+![image](https://github.com/user-attachments/assets/cbdcf322-2339-4862-a3e6-3ea061cb766b)
+
+En la sección de _H.sapiens_, encontramos los diferentes genomas de referencia humano según la versión. A su vez, dentro de cada versión se tienen los _link_ de descarga para los diferentes genomas. En este caso, seleccionaremos el genoma de referencia humano más reciente GRCh38.
+![image](https://github.com/user-attachments/assets/d88c15e4-f20d-466d-a3de-b822aa82f16f)
+
+Descargamos el genoma de referencia _grch38_genome.tar.gz_ directamente desde la terminal y almacenamos el contenido en una nueva ccarpeta 
 ```console
-cd Reference_genome
+mkdir ~/RNAseq_analysis/Data/4_Alignment/Reference_genome
+cd ~/RNAseq_analysis/Data/4_Alignment/Reference_genome
 wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
-# Dentro de la carpeta Reference_genome
+# Descomprimir el archivo
 tar -xvf grch38_genome.tar.gz
 ```
-Se nos va a generar un carpeta /grch38/ con el genoma de referencia. Va a tener diferentes archivos genome.1 , genome.2 ... genome.8 y también el ejecutable. De esta forma ya lo tenemos indexado.   
+Se genera un carpeta `/grch38/` con el genoma de referencia. El genoma descargado indexado va necesitar de 8 archivos concretos denominados _genome.number.ht2_ , donde _number_ toma los valores del 1 al 8. Esta indexación previa del genoma permitirá al algoritmo HISAT2, llevar a cabo un alineamiento de las lecturas más rápido.
 
 **Segundo decarga del archivo de anotaciones de referencia**
 
