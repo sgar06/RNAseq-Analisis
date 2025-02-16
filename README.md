@@ -153,8 +153,11 @@ Loading SAM/BAM file ...  Total 200000 usable reads were sampled
 This is PairEnd Data  
 Fraction of reads failed to determine: 0.2869  
 Fraction of reads explained by "1++,1--,2+-,2-+": 0.0054  
-Fraction of reads explained by "1+-,1-+,2++,2--": 0.7077  
+Fraction of reads explained by "1+-,1-+,2++,2--": 0.7077    
 
+`--rna-strandedness` option in HISAT2  sets how reads are expected to align against genes. With this option being used, every read alignment will have an XS attribute tag: '+' means a read belongs to a transcript on '+' strand of genome. '-' means a read belongs to a transcript on '-' strand of genome.  
+Most stranded protocols in use these days follow the dUTP-method, where read #2 in a pair has the same orientation as the transcript from which it arose (2++ or 2--). So either `R` or `RF` would typically be appropriate  
+Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.
 
 **Descarga de datos crudos**
 ```console 
