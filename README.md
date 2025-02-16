@@ -96,6 +96,35 @@ multiqc | 1.27 | conda install -c bioconda multiqc |
 RseQC | 5.0.4 | conda install bioconda::rseqc |
 bedops | | conda install -c bioconda bedops |
 
+## Decarga del genoma de referencia y el archivo de anotaciones 
+Primero descarga del genoma re ferencia 
+So we need to firstly retrieve the reference genome. Specifically for the example data set, we need a human reference genome.  
+Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
+Si el genoma no está indexado, indexación con hisat2-build 
+El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http://daehwankimlab.github.io/hisat2/)  
+In the download page, data are grouped by species. At the Index section, you can see the links of different genome data such as human genome. At the human section, you can see the links of different human genome data, which are further grouped by different human reference genome versions. Here we want to the newest human reference genome (GRCh38/hg38). We need the [GRCh38 genome](https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz) 
+Descargar el genoma de referencia hg38_genome.tar.gz (o GRCh38) y descomprimir  
+```console
+cd Reference_genome
+wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
+# Dentro de la carpeta Reference_genome
+tar -xvf grch38_genome.tar.gz
+```
+Se nos va a generar un carpeta /grch38/ con el genoma de referencia. Va a tener diferentes archivos genome.1 , genome.2 ... genome.8 y también el ejecutable. De esta forma ya lo tenemos indexado.   
+
+Segundo decarga del archivo de anotaciones de referencia
+![image](https://github.com/user-attachments/assets/6a04a794-3a5c-46ec-83aa-4a3a5b83413b)
+![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
+
+  Descarga del archivo GTF
+![image](https://github.com/user-attachments/assets/d24311bb-f95f-4b54-9a5c-fa0d52745cde)
+![image](https://github.com/user-attachments/assets/98d1f57c-9493-4829-904c-8026c8ed7bb7)
+
+  Tras la descarga del archivo de anotaciones GTF, descomprimimos el archivo con gunzip. Es imporante que pinchemos sobre incluir transcrit_id porque si no el programa convert2bed da error!
+* ```console
+  gunzip Homo_sapiens.gtf.gz
+  ```
+
 
 ## 1 Preparación de los datos
 ### 1.1 Descarga de los datos de RNA-seq del repositorio SRA con SRAtools  
@@ -117,39 +146,33 @@ xargs -n1 fastq-dump --gzip --split-3 < SRR_Acc_List.txt
 `--split-3` separates the reads into left and right ends. If there is a left end without a matching right end, or a right end without a matching left end, they will be put in a single file.
 
 ## 2 Procesamiento de los datos RNA-seq  
-### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
-
-FastQC is a tool providing a simple way to do some quality control checks on the sequencing data. It checks different aspect of data quality and provides a graphical report so that one can intuitively get the idea about the data quality. Outputs an html report and a .zip file with the raw quality data  
-```console
-cd 1_Raw
-mkdir initial_qc
-fastqc -o initial_qc  *.fastq.gz
-```
-MultiQC Aggregates FastQC results of multiple analyses into a single report.  
-```console
-multiqc ??
-```
-Artefact removal.  Adapter trimming and quality-based trimming
-trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
-```console
-trim_galore --paired SAMPLE_R1.fastq.gz SAMPLE_R2.fastq.gz -o /2_Processed/2_Trimming/
-```
-![image](https://github.com/user-attachments/assets/96ca0af9-6caf-4244-872a-5405249788ce)  
-Para ver el número de lecturas después 
-```console
-zcat Data/2_Processed/2_Trimming/SRR155244_trimmed.fq.gz | grep -c "@SRR"
-```
 
 ### 2.1.1 Estimation of the strandness
-To tell whether RNA-seq reads are strand-specific, you must first perform an alignment. Following alignment you can use an automated tool like infer_experiment.py in the RSeQC package that will tell you whether the data is single-end or paired-end, strand-specific or unstranded, and if strand-specific, what type (first strand or second strand).
+Para determinar si las lecturas RNA-seq son de hebra específica, primero se realizó un subsampling de lecturas a partir de una de las muestras. Para ello, se empleó la herramienta `seqkit` y se seleccionaron de forma aleatoria las lecturas tanto en el archivo `R1.fastq.gz`como `R2.fastq-gz`. Sin embargo, es importante que en el caso del subsampling aleatorio se seleccionen ambos extremos de cada par de lecturas, tanto  Forward como Reverse en el orden correcto.
+
+Para ello se empleó el siguiente comando:
+```console
+seqkit sample -p 0.1 -s 100 {sample}_1.fastq.gz -o subsampled_{sample}_1.fastq.gz
+seqkit sample -p 0.1 -s 100 {sample}_2.fastq.gz -o subsampled_{sample}_2.fastq.gz
+```
+> NOTA  
+> `-p` se emplea para seleccionar la proporción de lecturas a seleccionar. En nuestro caso el 10% de lecturas totales.  
+> `-s` se emplea para determinar el random seed.
+> Ambos parametros tanto `-p`como `-s` tienen que ser los mismos en ambos archivos R1 y R2.
+
+Posteriormente, las lecturas seleccionadas se alinean contra el genoma de referencia usando HISAT2. Seguidamente el alineamiento se compara contra el archivo de anotación de referencia para la especie Homo sapiens mediante la herramienta infer_experiment.py del paquete RseQC para determinar el tipo de librería empleada. 
+En el caso de los experimento de hebra específicos, se pueden dar 2 escenarios:
+* Lecturas forward o R1 situadas en la misma hebra del gene
+* Lecturas reverse o R2 situadas en la misma hebra del gen
+
+
+
 
 infer_experiment.py samples a few hundred thousand reads from your bam/sam and tells you the portion that would be explained by each type of strandedness, e.g  
 [Stranded or non-stranded reads](https://eclipsebio.com/eblogs/stranded-libraries/)  
 ![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)  
 ![image](https://github.com/user-attachments/assets/b77955c8-6c20-4d15-a905-90c5987efe23)  
 
-![image](https://github.com/user-attachments/assets/6a04a794-3a5c-46ec-83aa-4a3a5b83413b)
-![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
 
 | Tipo de Librería | Infer experiment | HISAT2 | htseq-count | 
 |---------|---------|----------|----------|
@@ -160,7 +183,8 @@ SE - SR |	+-,-+ |	First Strand R/RF |	reverse
 PE, SE - U |	undecided |	default	| no
 
 ## Cómo saber la hebra de procedencia de las lecturas
-* A subset of 200 000 reads is first made from the input FASTQ files
+* A subset of reads is first made from the input FASTQ files
+* Primero se hizo una subselección de lecturas
 * Next the reads are aligned against the selected reference genome using hisat2. The alignment is then compared to reference annotation to infer the strandedness of reads.
 * For strand specific experiments there are two scenarios:
   * Reads in file 1 are always on the same strand as the gene (sense)
@@ -203,6 +227,30 @@ Fraction of reads explained by "1+-,1-+,2++,2--": 0.7077
 `--rna-strandedness` option in HISAT2  sets how reads are expected to align against genes. With this option being used, every read alignment will have an XS attribute tag: '+' means a read belongs to a transcript on '+' strand of genome. '-' means a read belongs to a transcript on '-' strand of genome.  
 Most stranded protocols in use these days follow the dUTP-method, where read #2 in a pair has the same orientation as the transcript from which it arose (2++ or 2--). So either `R` or `RF` would typically be appropriate  
 Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.  
+
+### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
+
+FastQC is a tool providing a simple way to do some quality control checks on the sequencing data. It checks different aspect of data quality and provides a graphical report so that one can intuitively get the idea about the data quality. Outputs an html report and a .zip file with the raw quality data  
+```console
+cd 1_Raw
+mkdir initial_qc
+fastqc -o initial_qc  *.fastq.gz
+```
+MultiQC Aggregates FastQC results of multiple analyses into a single report.  
+```console
+multiqc ??
+```
+Artefact removal.  Adapter trimming and quality-based trimming
+trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
+```console
+trim_galore --paired SAMPLE_R1.fastq.gz SAMPLE_R2.fastq.gz -o /2_Processed/2_Trimming/
+```
+![image](https://github.com/user-attachments/assets/96ca0af9-6caf-4244-872a-5405249788ce)  
+Para ver el número de lecturas después 
+```console
+zcat Data/2_Processed/2_Trimming/SRR155244_trimmed.fq.gz | grep -c "@SRR"
+```
+
 
 ### 2.2 Alineamiento contra genoma de referencia  
 Once the quality of the data is confirmed, we need to convert those millions of reads per sample into the gene- or transcript-level quantification. This would need the assignment of reads to genes or transcripts.  
