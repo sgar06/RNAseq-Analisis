@@ -176,8 +176,10 @@ fastqc -o initial_qc  *.fastq.gz
 
 trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
 ```console
-trim_galore --paired SAMPLE_R1.fastq.gz SAMPLE_R2.fastq.gz
+trim_galore --paired SAMPLE_R1.fastq.gz SAMPLE_R2.fastq.gz -o /2_Processed/2_Trimming/
 ```
+![image](https://github.com/user-attachments/assets/96ca0af9-6caf-4244-872a-5405249788ce)  
+
 
 ### 2.2 Alineamiento contra genoma de referencia  
 Once the quality of the data is confirmed, we need to convert those millions of reads per sample into the gene- or transcript-level quantification. This would need the assignment of reads to genes or transcripts.  
