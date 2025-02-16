@@ -230,7 +230,7 @@ El archivo de anatociones empleados es GRCh38.p14 descargado del [GENCODE](https
 htseq-count -t exon -i gene_id --stranded=yes?? -f bam -r pos 2_Processed/3_Alignment/SRRxx_hisat2.sorted.bam 3_Annotation/gencode.xxx,gtf > ../Results/SRRxxx_counts.tsv
 ```
 Con la opción -t exon indicamos que cuente las lecturas alineadas específicamente contra los exones y, con la opción -i gene_id, indicamos que agrupe las diferentes lecturas atendiendo al identificador del gen al que pertenecen. Con la opción --stranded=no y -s no, determinamos que las lecturas no provienen de un experimento de hebra específica y, por tanto, la lectura puede mapear en ambas hebras del genoma.  
-Finalmente, las opciones –f y –r , las usamos para indicar el formato del archivo a emplear (bam) y cómo están ordenados los alineamientos, en este caso por posición o coordenadas genómicas (pos).  
+Finalmente, las opciones `–f` y `–r` , las usamos para indicar el formato del archivo a emplear (bam) y cómo están ordenados los alineamientos, en este caso por posición o coordenadas genómicas (pos).  
 Una vez hemos definido todas las opciones, indicamos la ruta de los archivos BAM y el archivo de anotaciones (GTF), así como la ruta de salida y el nombre del nuevo archivo que contendrá la información.
 
 **2.3.3 Obtención de la matriz de recuentos** 
@@ -238,10 +238,25 @@ Una vez hemos definido todas las opciones, indicamos la ruta de los archivos BAM
 ## 3 Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados
 ### 3.1 Instalación de edgeR  
 
+edgeR is implemented as R packages in Bioconductor. It expects the raw count matrix without normalization.  
 ```console
 BiocManager::install("edgeR")
 ```
 cargamos todas las librerías necesarias para el análisis y establecemos el directorio de trabajo.  
+```console
+# Libreria para la anotacion del gneoma humano
+#no se si esta bien
+BiocManager::install("Homo.sapiens")
+library(Homo.sapiens)
+
+#Innstalacion de  edgeR
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("edgeR")
+library(edgeR)
+
+#Librerias complementarias
+```
 
 **3.1.1 Importación de la matriz de recuentos y metadatos**
 ```console
@@ -250,54 +265,134 @@ seqdata <- read.csv(file, sep=",", header=T)
 
 With the example data set, we see 61852 rows and 25 columns, meaning 61852 annotated genes and 25 samples. That's a large number of genes, but are they all actually informative? We can firstly check their average expression levels.
 
+Cambiamos los nombres de las muestras, para que sean los mismos que los especificados en el archivo de metadatos.
+
 **3.1.2 Conversión de la matriz de recuentos al objeto DGEList**
 ```console
 y <- DGEList(seqdata)
 ```
+los nombres de las filas representan los identificadores de los genes en formato **(??)**, correspondiente a la base de  datos **(??)**
+Para cada identificador del genoma Homo sapiens,  vamos a buscar los identificadores para estos mismos genes en formato Symbol. 
+
 Objeto DGElist: 2 apartados: $counts, $sample  +añadimos $genes  
+modificación de la columna sample$group para especificar grupo ctrl o enfermos (conversion primero a una variable categórica group <- as.factor(group)
+
 **3.1.3 Eliminación de genes con recuentos bajos**
 ```console
 keep <- filterbyExpr(y)
 y <- y[keep, keep.lib.sizes=F]
 ```
+Se eliminan los genes sin expresar o con expresión muy baja (0-10)
 **3.1.4 Normalización de librerias y recuentos**
+Los recuentos filtrados y obtenidos previamente para cada gen se tienen que normalizar para corregir las diferencias debido a las profundidades de secuenciación irregular en cada muestra
 ```console
 y <- calcNormFactors(y)
 ```
 **3.1.5 Estimacion de la variabilidad biologica entre muestras y réplicas**
+Another way to check similarities between samples is to use dimension reduction techniques. 
 ```console
 plotMDS(y) / PCA
 ```
-**3.1.6 Estudio de la dispersión de los genes**
+Para estimar la variabilidad biológica podemos usar un gráfico de escala multidimensional (MDS), con la función plotMDS del paquete limma. Este gráfico nos permite ver las relaciones entre muestras, de forma que las muestras con perfiles de expresión de genes similares estarán más cerca en el gráfico.
+
+PCA: prcomp function considers rows as samples and columns as features.
+**3.1.6 Estudio de la dispersión de los genes**  
+
 Creación de la matriz de diseño 
+Para estimar la sobredispersión de los genes, vamos a emplear la función estimateDisp() del paquete edgeR. Esta función necesita que se le proporcione una matriz que contenga el diseño experimental que especifique cómo se asocian o agrupan las muestras.
+Por tanto, primero creamos la matriz con la función model.matrix(~0 + group). Vamos a construir una matriz a partir de la variable categórica “group” de nuestro Environment y vamos a establecer las diferentes relaciones entre los grupos con el símbolo (~). Si no queremos que se emplee ningúngrupo de ref escribimos 0 **¿QUEREMOS QUE SE USE UN GRUPO COMO REFERENCIA?**  
 ```console
-design <- model.matrix()
+design <- model.matrix(~)
 ```
-Dispersión
+Dispersión de los genes
 ```console
 y <- estimateDisp(y, design, robust=T)
 ```
-**3.1.7 Ajuste de la variabilidad de cada gen según la dispersión**
+robust=T protege la estimación contra los outliers  
+![image](https://github.com/user-attachments/assets/9174f674-7070-4bed-a096-783874e07bb6)  
+
+El resultado de aplicar la función estimateDisp() genera una serie de resultados estadísticos dentro del objeto “y”. La dispersión de los genes se va a evaluar desde 3 puntos de vista diferentes: “common dispersion”, “trended dispersion” y “tagwise dispersion”.
+podemos evaluar cómo se ajustan los datos y decidir el tipo de dispersión más apropiada  
+
+**3.1.7 Ajuste de la variabilidad de cada gen según la dispersión**  
+
+Una vez hemos computado los valores de dispersión, edgeR usa estos valores para ajustar el nivel de variabilidad de cada gen. Por defecto, la dispersión empleada para datos de RNA-seq es “trended dispersion”.   Para modelar los datos de conteo de RNAseq y capturar la sobredispersión, usaremos una aproximación Binomial Negativa. Para ello, emplearemos una función específica de edgeR, glmQLfit. Esta función permite ajustar nuestros datos empleando un modelo lineal generalizado y usando un enfoque de QL (quasi-likelihood). De esta manera, se tiene en cuenta la sobredispersión de los genes con una mayor precisión.  
 ```console
-glmQLfit()
+fit <- glmQLfit(y, design, robust =T)
 ```
+El nuevo objeto creado “fit” será un objeto de tipo DGEGLM. Si observamos el objeto “fit” con la función View, vemos que tendrá diferentes parámetros computados para cada uno de nuestros genes, tales como coeficientes, valores ajustados...
+![image](https://github.com/user-attachments/assets/90c4e4ff-a3ac-4710-bc71-1f74d4642f6f)  
+
 **3.1.8 Prueba de significancia o Test de expresión diferencial**
+Control vs enfermedad  
+Una vez computada la dispersión y ajustados los datos, vamos a llevar a cabo una prueba de significancia o test de expresión diferencial, de forma que ahora sí que queremos saber lo genes diferencialmente expresados entre grupos comparados o contraste.  
+Primero, con la función makeContrast del paquete limma, vamos a definir el tipo de comparación que vamos a hacer entre los grupos experimentales. Además, la función makeContrast, requiere de la matriz de diseño experimental para saber qué muestras se asocian con estos grupos. La función makeContrast genera una matriz numérica que representa los grupos indicados a contrastar. El valor 1 y –1 corresponderá a los grupos a comparar.  
 ```console
-glmQLFTest()
+# Grupos contraste a comparar
+CvsL <- makeContrast(control-lupus, leves = design)
 ```
+Test de expresión diferencial con la función glmQLFTest() del paquete de edgeR y guardamos los resultados en la variable. Se genera un objeto de tipo DGELRT. Le tenemos que indicar el objeti "fit" con el modelo ajustado y la variable con los grupos de contraste
+```console
+res_CvsL <- glmQLFTest(fit, contrast = CvsL)
+```
+El objeto res_CvsL, contendrá parámetros estadísticos comunes al objeto “fit” con el modelo ajustado. Sin embargo, aparecen unos subapartados nuevos que contendrán los resultados de la comparación. En concreto, los resultados obtenidos tras la comparación se guardarán en el subapartado “table” .
+![image](https://github.com/user-attachments/assets/6f75917a-48cc-4b58-a31a-480b85843e59)  
+Dentro de esta tabla tendremos diferentes estadísticos como logFC, logCPM, F y Pvalue obtenidos a partir de la comparación. El valor de Pvalue es un parámetro estadístico que se usa para estimar la probabilidad de que un resultado sea obtenido al azar, de forma que cuando la probabilidad de obtener ese mismo resultado al azar es menor al 5% (p < 0.05), decimos que se trata de un resultado estadísticamente significativo. Sin embargo, al comparar un número de genes tan alto, aumenta la probabilidad de tener valores de p significativos (p< 0.05), por puro azar, aunque no sean realmente significativos.
+Of course, we shouldn't directly take those estimated p-values. In statistics, there is the multiple testing problem. 
+![image](https://github.com/user-attachments/assets/d035687a-c58e-4ee1-b852-1fd980d37239)  
+
+
 **3.1.9 Correción FP**
+multiple testing correction techniques to make statistical tests more stringent in order to counteract the problem of multiple testing. There are quite some different techniques.
+ There are other alternative approaches, for instance, the Benjamini–Hochberg (BH) correction, or FDR (False Discovery Rate) correction, which estimates an FDR for each test based on the assumption of 0-1 uniform distribution of the p-values when the null hypothesis holds. In practice, it counts the number of test with p-values no larger than the observed p-value of a test (k), and then it estimates the expected number of tests with no-larger p-value as p×n. The FDR is thus $ \frac{k}{p \times n}$. In R, both methods are implemented, together with others, as the function p.adjust
+
+hay que corregir los valores de P. Para ello usamos la función topTags() del paquete edgeR. Esta función aplicará el método de Benjamini-Hochberg para corregir los valores de P, reduciendo así los falsos positivos.  
 ```console
-topTags()
+res_correct_CvsL <- topTags(res_CvsL, n = Inf)
 ```
+
+Se genera un objeto de tipo TopTags que contiene los resultados de la prueba de significancia para los grupos comparados. El dataset contenido en el elemento “table” lo almacenamos en una nueva variable, denominada de_data.
+![image](https://github.com/user-attachments/assets/c5167d7d-1afe-4f9f-99e7-645e81239917)  
+  
+El dataset contenido en el elemento “table” lo almacenamos en una nueva variable, denominada de_data.
+```console
+de_CvsL <- res_correct_CvsL$table
+```
+Esta función topTags aplica la corrección de los P valores y crea una nueva columna con los valores corregidos (FDR).  
+
 **3.1.10 Filtrado de genes segun FDR y logFD**
-FDR<0.05 o <0.01 y logFC >= 2
+ FDR<0.05 o <0.01 y logFC >= 2 
+A partir del objeto "de_CvsL", llevamos a cabo la selección de todas aquellas filas que cumplan ambos filtros especificados: valores de FDR <= 0.05 y valor absoluto de logFC >= 1.
+Es decir, vamos a seleccionar todas las filas que cumplen los criterios especificados y vamos a reportar los resultados filtrados para todas las columnas. En el caso de la escala de logFC, escribimos el valor absoluto de 1 puesto que al ser una escala simétrica me van a interesar valores positivos y negativos. Valores de log de FC por debajo de –1 los anotaremos como genes infraexpresados, mientras que valores de log FC mayores a 1 los anotaremos como genes sobreexpresados.
+```console
+# numero de genes DE o bien UP o bien Down
+isDE_CvsL <- de_CvsL[ de_CvsL$FDR =< 0.05 & abs(de_CvsL$logFC) >= 1,]
+
+#Creacion de una nueva columna con Up y Down
+de_CvsL$DEgene <- "Not Sign"
+de_CvsL[de_CvsL$FDR =< 0.05 & de_CvsL$logFC >= 1, de_CvsL$DEgene] <- "Up"  #cambio de anotación de genes sobreexpresados
+de_CvsL[de_CvsL$FDR =< 0.05 & de_CvsL$logFC <= -1, de_CvsL$DEgene] <- "Down" #cambio de anotacion de genes infraexpresados
+
+# grafico
+ggplot(de_CvsL, aes(x=logFC , y = -log10(FDR), color = DEgene) +  geom_point(size =1)
+```
 
 ## 4 Anotación de los genes
-### 4.1 GeneOntology
-Bioconductor as the R package GO.db.
+we need to figure out that those different groups of DEGs mean biologically. This is not a simple task, as we need to know the functions of every gene within the gene set, summarize them together, and then compare with genes outside of the gene set and see whether the gene set is significantly enriched in participating or representing certain functions, processes, pathways, components or other biological features.  
+### 4.1 Gene Ontology
+Bioconductor as the R package GO.db. databases providing functional annotation of genes.  The Gene Ontology project provides an ontology of defined terms representing gene product properties.
+GO ontology information is available in Bioconductor as the R package GO.db  
 ### 4.2 KEGG
 Bioconductor , R package KEGG.db
+database resource for understanding high-level functions and utilities of the biological system. It curates huge amount of molecular pathways in different species, providing information of how different genes, gene products and small molecules regulate, interact, or have chemical interactions with each other. It is one of the most comprehensive database of biological pathways, chemicals and drugs. The database is also available in Bioconductor, as the R package KEGG.db.
+It is based on a subscription model. (only subscribers can download the complete data, others have limited access via web portal or REST API)  
 ### 4.3 Reactome (open source and fully open acces)
 ### 4.4 MSigDB
+It is a resource of tens of thousands of annotated gene sets, but is only available for human and mouse. One can download the gene sets from the website, or alternatively, to use the R package msigdbr.
+### Enrichment Analysis: frequency comparison
+DAVID is probably the most commonly used tool for biologist to check functional enrichment given a gene list
+### Enrichment analysis: rank distribution comparison
+Among them, GSEA (Gene Set Enrichment Analysis) is the most widely used one. Instead of using a gene list of interest, it takes a ranked list of all the genes in the analysis. 
+
 Panther? Biocarta? EnrichR, GSEA, DAVID, GOstats
 ## Interactome analysis: STRING-DB
