@@ -107,6 +107,43 @@ Lecturas: paired-end
 Información de hebra específica de ARN  (paired-end strand specific RNA)  
 Longitud: 101  
 Alineamiento de secuencias a genoma hg38 con el alineador STAR.   
+
+**Descarga de datos crudos**
+```console 
+xargs -n1 fastq-dump --gzip --split-3 < SRR_Acc_List.txt
+```
+`xargs -n1`  
+`--gzip`: Compress output using gzip.  
+`--split-3` separates the reads into left and right ends. If there is a left end without a matching right end, or a right end without a matching left end, they will be put in a single file.
+
+## 2 Procesamiento de los datos RNA-seq  
+### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
+
+FastQC is a tool providing a simple way to do some quality control checks on the sequencing data. It checks different aspect of data quality and provides a graphical report so that one can intuitively get the idea about the data quality. Outputs an html report and a .zip file with the raw quality data  
+```console
+cd 1_Raw
+mkdir initial_qc
+fastqc -o initial_qc  *.fastq.gz
+```
+MultiQC Aggregates FastQC results of multiple analyses into a single report.  
+```console
+multiqc ??
+```
+Artefact removal.  Adapter trimming and quality-based trimming
+trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
+```console
+trim_galore --paired SAMPLE_R1.fastq.gz SAMPLE_R2.fastq.gz -o /2_Processed/2_Trimming/
+```
+![image](https://github.com/user-attachments/assets/96ca0af9-6caf-4244-872a-5405249788ce)  
+Para ver el número de lecturas después 
+```console
+zcat Data/2_Processed/2_Trimming/SRR155244_trimmed.fq.gz | grep -c "@SRR"
+```
+
+### 2.1.1 Estimation of the strandness
+To tell whether RNA-seq reads are strand-specific, you must first perform an alignment. Following alignment you can use an automated tool like infer_experiment.py in the RSeQC package that will tell you whether the data is single-end or paired-end, strand-specific or unstranded, and if strand-specific, what type (first strand or second strand).
+
+infer_experiment.py samples a few hundred thousand reads from your bam/sam and tells you the portion that would be explained by each type of strandedness, e.g  
 [Stranded or non-stranded reads](https://eclipsebio.com/eblogs/stranded-libraries/)  
 ![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)  
 ![image](https://github.com/user-attachments/assets/b77955c8-6c20-4d15-a905-90c5987efe23)  
@@ -157,45 +194,7 @@ Fraction of reads explained by "1+-,1-+,2++,2--": 0.7077
 
 `--rna-strandedness` option in HISAT2  sets how reads are expected to align against genes. With this option being used, every read alignment will have an XS attribute tag: '+' means a read belongs to a transcript on '+' strand of genome. '-' means a read belongs to a transcript on '-' strand of genome.  
 Most stranded protocols in use these days follow the dUTP-method, where read #2 in a pair has the same orientation as the transcript from which it arose (2++ or 2--). So either `R` or `RF` would typically be appropriate  
-Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.
-
-**Descarga de datos crudos**
-```console 
-xargs -n1 fastq-dump --gzip --split-3 < SRR_Acc_List.txt
-```
-`xargs -n1`  
-`--gzip`: Compress output using gzip.  
-`--split-3` separates the reads into left and right ends. If there is a left end without a matching right end, or a right end without a matching left end, they will be put in a single file.
-
-## 2 Procesamiento de los datos RNA-seq  
-### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
-
-FastQC is a tool providing a simple way to do some quality control checks on the sequencing data. It checks different aspect of data quality and provides a graphical report so that one can intuitively get the idea about the data quality. Outputs an html report and a .zip file with the raw quality data  
-```console
-cd 1_Raw
-mkdir initial_qc
-fastqc -o initial_qc  *.fastq.gz
-```
-MultiQC Aggregates FastQC results of multiple analyses into a single report.  
-```console
-multiqc ??
-```
-Artefact removal.  Adapter trimming and quality-based trimming
-trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
-```console
-trim_galore --paired SAMPLE_R1.fastq.gz SAMPLE_R2.fastq.gz -o /2_Processed/2_Trimming/
-```
-![image](https://github.com/user-attachments/assets/96ca0af9-6caf-4244-872a-5405249788ce)  
-Para ver el número de lecturas después 
-```console
-zcat Data/2_Processed/2_Trimming/SRR155244_trimmed.fq.gz | grep -c "@SRR"
-```
-
-### 2.1.1 Estimation of the strandness
-To tell whether RNA-seq reads are strand-specific, you must first perform an alignment. Following alignment you can use an automated tool like infer_experiment.py in the RSeQC package that will tell you whether the data is single-end or paired-end, strand-specific or unstranded, and if strand-specific, what type (first strand or second strand).
-
-infer_experiment.py samples a few hundred thousand reads from your bam/sam and tells you the portion that would be explained by each type of strandedness, e.g  
-
+Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.  
 
 ### 2.2 Alineamiento contra genoma de referencia  
 Once the quality of the data is confirmed, we need to convert those millions of reads per sample into the gene- or transcript-level quantification. This would need the assignment of reads to genes or transcripts.  
