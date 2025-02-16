@@ -229,12 +229,15 @@ Once the genome indexing is done, you are ready to map the reads to the referenc
 Elementos que mapean 1 vez  
 ```console
 #Paired-end reads
-hisat2 -k1 --summary-file {sample}.summary.txt --rna-strandedness RF -x (/ruta-genoma-ref/grch38/genome) -1 {sample_R1.fg.gz} -2 {sample_R2.fg.gz} |\
+hisat2 -k1 --summary-file {sample}.summary.txt --rna-strandedness {STRING} -x (/ruta-genoma-ref/grch38/genome) -1 {sample_R1.fg.gz} -2 {sample_R2.fg.gz} |\
 samtools view -Sbh > sample_alignment.bam 
 ```
--x : prefijo del índice del genoma de referencia [genome]
--1 y -2: lecturas a alinear
--k : define el número máximo de alineamientos por lectura
+> NOTA
+> `-x` : prefijo del índice del genoma de referencia [genome]
+> `--summary-file`
+> `--rna-strandedness` en nuestro caso RF
+> `-1` y `-2`: lecturas a alinear
+> `-k`: define el número máximo de alineamientos por lectura
 
 
 **2.2.3 Modificación y conversión de archivos SAM con SAMtools**
@@ -263,7 +266,7 @@ El archivo de anatociones empleados es GRCh38.p14 descargado del [GENCODE](https
 
 **2.3.2 Recuento de características con htseq-count**  
 ```console
-htseq-count -t exon -i gene_id --stranded=yes?? -f bam -r pos 2_Processed/3_Alignment/SRRxx_hisat2.sorted.bam 3_Annotation/gencode.xxx,gtf > ../Results/SRRxxx_counts.tsv
+htseq-count -t exon -i gene_id --stranded=reverse -f bam -r pos 2_Processed/3_Alignment/SRRxx_hisat2.sorted.bam 3_Annotation/gencode.xxx,gtf > ../Results/SRRxxx_counts.tsv
 ```
 Con la opción -t exon indicamos que cuente las lecturas alineadas específicamente contra los exones y, con la opción -i gene_id, indicamos que agrupe las diferentes lecturas atendiendo al identificador del gen al que pertenecen. Con la opción --stranded=no y -s no, determinamos que las lecturas no provienen de un experimento de hebra específica y, por tanto, la lectura puede mapear en ambas hebras del genoma.  
 Finalmente, las opciones `–f` y `–r` , las usamos para indicar el formato del archivo a emplear (bam) y cómo están ordenados los alineamientos, en este caso por posición o coordenadas genómicas (pos).  
