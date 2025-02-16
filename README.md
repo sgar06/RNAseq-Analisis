@@ -265,7 +265,7 @@ Once the genome indexing is done, you are ready to map the reads to the referenc
 Elementos que mapean 1 vez  
 ```console
 #Paired-end reads
-hisat2 -k1 --summary-file {sample}.summary.txt --rna-strandedness {STRING} -x (/ruta-genoma-ref/grch38/genome) -1 {sample_R1.fg.gz} -2 {sample_R2.fg.gz} |\
+hisat2 -k1 --summary-file {sample}.summary.txt  --rna-strandness {STRING} -x (/ruta-genoma-ref/grch38/genome) -1 {sample_R1.fg.gz} -2 {sample_R2.fg.gz} |\
 samtools view -Sbh > sample_alignment.bam 
 ```
 > NOTA
@@ -273,7 +273,7 @@ samtools view -Sbh > sample_alignment.bam
 > `--summary-file`
 > `-1` y `-2`: lecturas a alinear
 > `-k`: define el número máximo de alineamientos por lectura
-> `--rna-strandedness` {STRING} option in HISAT2  sets how reads are expected to align against genes. With this option being used, every read alignment will have an XS attribute tag: '+' means a read belongs to a transcript on '+' strand of genome. '-' means a read belongs to a transcript on '-' strand of genome.  
+> ` --rna-strandness` {STRING} option in HISAT2  sets how reads are expected to align against genes. With this option being used, every read alignment will have an XS attribute tag: '+' means a read belongs to a transcript on '+' strand of genome. '-' means a read belongs to a transcript on '-' strand of genome.  
 Most stranded protocols in use these days follow the dUTP-method, where read #2 in a pair has the same orientation as the transcript from which it arose (2++ or 2--). So either `R` or `RF` would typically be appropriate   
 Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.  
 
