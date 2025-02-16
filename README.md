@@ -302,32 +302,66 @@ Once the genome indexing is done, you are ready to map the reads to the referenc
 Elementos que mapean 1 vez  
 ```console
 #Paired-end reads
-hisat2 -k1 --summary-file {sample}.summary.txt  --rna-strandness {STRING} -x (/ruta-genoma-ref/grch38/genome) -1 {sample_R1.fg.gz} -2 {sample_R2.fg.gz} |\
-samtools view -Sbh > sample_alignment.bam 
+hisat2 -k1 --summary-file {SAMPLE}.summary.txt  --rna-strandness {STRING} \
+-x (/ruta-genoma-ref/grch38/genome) \
+-1 {SAMPLE_1_val_1.fq.gz} -2 {SAMPLE_2_val_2.fq.gz} |\
+samtools view -Sbh > {SAMPLE}.bam 
 ```
-> NOTA
-> `-x` : prefijo del índice del genoma de referencia [genome]
-> `--summary-file`
-> `-1` y `-2`: lecturas a alinear
-> `-k`: define el número máximo de alineamientos por lectura
+> NOTA  
+> `-x` : prefijo del índice del genoma de referencia [genome]  
+> `--summary-file`  
+> `-1` y `-2`: lecturas a alinear  
+> `-k`: define el número máximo de alineamientos por lectura  
 > ` --rna-strandness` {STRING} option in HISAT2  sets how reads are expected to align against genes. With this option being used, every read alignment will have an XS attribute tag: '+' means a read belongs to a transcript on '+' strand of genome. '-' means a read belongs to a transcript on '-' strand of genome.  
 Most stranded protocols in use these days follow the dUTP-method, where read #2 in a pair has the same orientation as the transcript from which it arose (2++ or 2--). So either `R` or `RF` would typically be appropriate   
-Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.  
+Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.
+> `samtools`  creamos un BAM directamente. A BAM file is the binary version of a SAM file
+> con la opción -S indicamos el archivo de entrada en formato SAM; con la opción -b, indicamos el formato de salida de tipo BAM; y con la opción -h, indicamos que queremos mantener el encabezado
 
 Here is a bash script for the above HISAT2 command called hisat2.sh that will run all the .fastq.gz files for you simultaneously.
 
 ```console
 #!/usr/bin/bash
 
-#bash script for hisat2; align all .fastq.gz files to indexed reference genome to generate .sam files
+#bash script for hisat2; align all .fastq.gz files to indexed reference genome to generate .bam files
 
 SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568"
 
+cd  ~/RNAseq_analysis/Data/4_Alignment/
+
 for SAMPLE in $SAMPLES; do
-	hisat2 -k1 --summary-file ~/RNAseq_analysis/Data/4_Alignment/${SAMPLE}_align.summary.txt  --rna-strandness RF -x ~/RNAseq_analysis/Data/4_Alignment/Reference_genome/grch38/genome -1 ~/RNAseq_analysis/Data/3_Processed/${SAMPLE}_1_val_1.fq.gz -2 ~/RNAseq_analysis/Data/3_Processed/${SAMPLE}_2_val_2.fq.gz |\
- samtools view -Sbh > ~/RNAseq_analysis/Data/4_Alignment/${SAMPLE}.bam
+	hisat2 -k1 --summary-file ${SAMPLE}_align.summary.txt  --rna-strandness RF \
+	-x ./Reference_genome/grch38/genome \
+	-1 ../3_Processed/${SAMPLE}_1_val_1.fq.gz -2 ../3_Processed/${SAMPLE}_2_val_2.fq.gz |\
+ 	samtools view -Sbh > ${SAMPLE}.bam
 done
 ```
+Los resultados se guardarán en la carpeta `~/RNAseq_analysis/Data/4_Alignment/`
+
+Posteriormente, We will use the samtools command with the options: ‘sort’ to sort the alignments by the leftmost coordinates
+```console
+samtools sort {SAMPLE}.bam -o {SAMPLE}.sorted.bam | samtools index
+```
+
+Here is a bash script for the above sort command called bam.sh
+```console
+#!/usr/bin/bash
+#bash script for samtools; sort and index the .bam files to obtain .bam.bai files
+
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568"
+cd  ~/RNAseq_analysis/Data/4_Alignment/
+
+for SAMPLE in $SAMPLES; do
+	samtools sort {SAMPLE}.bam -o {SAMPLE}.sorted.bam | samtools index
+done
+```
+
+paquete **RseQC**, tenemos distintas funciones para analizar el alineamiento.
+Vamos a usar el comando `bam_stat.py`, para obtener un resumen de las estadísticas del mapeo del archivo BAM. En este caso, se determina una calidad de mapeo para cada lectura y se calcula la probabilidad de que esa lectura esté mal posicionada en función de un umbral mínimo. El comando a emplear es el siguiente:
+```console
+bam_stat.py -i ~/RNAseq_analysis/Data/4_Alignment/{SAMPLE}.sorted.bam
+```
+
 
 **2.2.3 Modificación y conversión de archivos SAM con SAMtools**
 
