@@ -160,12 +160,19 @@ Fraction of reads explained by "1+-,1-+,2++,2--": 0.7077
 ```console 
 xargs -n1 fastq-dump --gzip --split-3 < SRR_Acc_List.txt
 ```
-xargs -n1 
---gzip: Compress output using gzip.  
---split-3 separates the reads into left and right ends. If there is a left end without a matching right end, or a right end without a matching left end, they will be put in a single file.
+`xargs -n1`  
+`--gzip`: Compress output using gzip.  
+`--split-3` separates the reads into left and right ends. If there is a left end without a matching right end, or a right end without a matching left end, they will be put in a single file.
 
 ## 2 Procesamiento de los datos RNA-seq  
 ### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
+
+FastQC is a tool providing a simple way to do some quality control checks on the sequencing data. It checks different aspect of data quality and provides a graphical report so that one can intuitively get the idea about the data quality
+```console
+cd 1_Raw
+mkdir initial_qc
+fastqc -o initial_qc  *.fastq.gz
+```
 
 trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
 ```console
@@ -173,22 +180,27 @@ trim_galore --paired SAMPLE_R1.fastq.gz SAMPLE_R2.fastq.gz
 ```
 
 ### 2.2 Alineamiento contra genoma de referencia  
+Once the quality of the data is confirmed, we need to convert those millions of reads per sample into the gene- or transcript-level quantification. This would need the assignment of reads to genes or transcripts.  
 ![image](https://github.com/user-attachments/assets/6f42b6c5-30d6-41b0-b99a-8e57c317e667)  
 
 **2.2.1 Preparación del genoma de referencia**  
-
+So we need to firstly retrieve the reference genome. Specifically for the example data set, we need a human reference genome.  
 Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
 Si el genoma no está indexado, indexación con hisat2-build 
 El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http://daehwankimlab.github.io/hisat2/)  
+In the download page, data are grouped by species. At the Index section, you can see the links of different genome data such as human genome. At the human section, you can see the links of different human genome data, which are further grouped by different human reference genome versions. Here we want to the newest human reference genome (GRCh38/hg38). We need the [GRCh38 genome](https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz) 
 Descargar el genoma de referencia hg38_genome.tar.gz (o GRCh38) y descomprimir  
 ```console
+cd Reference_genome
+wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
 # Dentro de la carpeta Reference_genome
 tar -xvf grch38_genome.tar.gz
 ```
-Se nos va a generar un carpeta /grch38/ con el genoma de referencia. Va a tener diferentes archivos genome.1 , genome.2 ... genome.8 y también el ejecutable. De esta forma ya lo tenemos indexado. 
+Se nos va a generar un carpeta /grch38/ con el genoma de referencia. Va a tener diferentes archivos genome.1 , genome.2 ... genome.8 y también el ejecutable. De esta forma ya lo tenemos indexado.  
 
 **2.2.2 Alineamiento de las lecturas contra el genoma de referencia con HISAT2**  
 HISAT2 usa menos recursos computacionalmente que STAR, pero STAR genera resultados más precisos  
+Once the genome indexing is done, you are ready to map the reads to the reference genome with HISAT2.
 Elementos que mapean 1 vez  
 ```console
 #Paired-end reads
