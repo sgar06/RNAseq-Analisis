@@ -44,6 +44,7 @@ RNAseq_analysis
 |   |-- 2_Infer_strandedness
 |   |-- 3_Trimming
 |   |-- 4_Alignment
+|   |   `-- Reference_genome
 |   |-- 5_Annotation
 |   `-- Supplementary
 `-- Results
