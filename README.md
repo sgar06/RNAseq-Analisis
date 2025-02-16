@@ -42,7 +42,7 @@ RNAseq_analysis
 |-- Data
 |   |-- 1_Raw
 |   |-- 2_Infer_strandedness
-|   |-- 3_Trimming
+|   |-- 3_Processed
 |   |-- 4_Alignment
 |   |   `-- Reference_genome
 |   |-- 5_Annotation
