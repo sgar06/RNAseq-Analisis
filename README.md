@@ -295,7 +295,7 @@ BiocManager::install("edgeR")
 library(edgeR)
 
 #Librerias complementarias
-```
+```  
 
 **3.1.1 Importación de la matriz de recuentos y metadatos**
 ```R
