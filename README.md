@@ -282,20 +282,20 @@ modificación de la columna sample$group para especificar grupo ctrl o enfermos 
 keep <- filterbyExpr(y)
 y <- y[keep, keep.lib.sizes=F]
 ```
-Se eliminan los genes sin expresar o con expresión muy baja (0-10)
+Se eliminan los genes sin expresar o con expresión muy baja (0-10)  
 **3.1.4 Normalización de librerias y recuentos**
 Los recuentos filtrados y obtenidos previamente para cada gen se tienen que normalizar para corregir las diferencias debido a las profundidades de secuenciación irregular en cada muestra
 ```R
 y <- calcNormFactors(y)
 ```
 **3.1.5 Estimacion de la variabilidad biologica entre muestras y réplicas**
-Another way to check similarities between samples is to use dimension reduction techniques. 
+Another way to check similarities between samples is to use dimension reduction techniques.  
 ```R
 plotMDS(y) / PCA
 ```
 Para estimar la variabilidad biológica podemos usar un gráfico de escala multidimensional (MDS), con la función plotMDS del paquete limma. Este gráfico nos permite ver las relaciones entre muestras, de forma que las muestras con perfiles de expresión de genes similares estarán más cerca en el gráfico.
 
-PCA: prcomp function considers rows as samples and columns as features.
+PCA: prcomp function considers rows as samples and columns as features.  
 **3.1.6 Estudio de la dispersión de los genes**  
 
 Creación de la matriz de diseño 
