@@ -96,7 +96,7 @@ multiqc | 1.27 | conda install -c bioconda multiqc |
 RseQC | 5.0.4 | conda install bioconda::rseqc |
 bedops | | conda install -c bioconda bedops |
 
-## Decarga del genoma de referencia y el archivo de anotaciones 
+## Decarga del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*
 Primero descarga del genoma re ferencia 
 So we need to firstly retrieve the reference genome. Specifically for the example data set, we need a human reference genome.  
 Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
