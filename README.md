@@ -136,6 +136,33 @@ En nuestro caso, seleccionaremos la especie
   gunzip Homo_sapiens.gtf.gz
   ```
 
+Finalmente tendríamos la siguiente estructura
+```console
+RNAseq_analysis
+|-- Code
+|-- Data
+|   |-- 1_Raw
+|   |-- 2_Infer_strandedness
+|   |-- 3_Processed
+|   |-- 4_Alignment
+|   |   |-- Reference_genome
+|   |   |   |-- grch38
+|   |   |   |   |-- genome.1.ht2
+|   |   |   |   |-- genome.2.ht2
+|   |   |   |   |-- genome.3.ht2
+|   |   |   |   |-- genome.4.ht2
+|   |   |   |   |-- genome.5.ht2
+|   |   |   |   |-- genome.6.ht2
+|   |   |   |   |-- genome.7.ht2
+|   |   |   |   |-- genome.8.ht2
+|   |   |   |   `-- make_grch38.sh
+|   |   |   `-- grch38_genome.tar.gz
+|   |-- 5_Annotation
+|   |   `-- Homo_sapiens.gtf
+|   `-- Supplementary
+`-- Results
+
+```
 
 ## 1 Preparación de los datos
 ### 1.1 Descarga de los datos de RNA-seq del repositorio SRA con SRAtools  
