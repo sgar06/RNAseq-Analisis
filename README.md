@@ -86,7 +86,7 @@ Herramientas a usar
 |---------|---------|----------|----------|
 sratools | 3.2.0 | conda install -c bioconda sra-tools |
 seqkit | 2.9.0 | conda install bioconda::seqkit |
-bedops | | conda install -c bioconda bedops |
+bedops | 2.4.41 | conda install -c bioconda bedops |
 RseQC | 5.0.4 | conda install bioconda::rseqc |
 fastqc | 0.12.1 | conda install -c bioconda fastqc |
 multiqc | 1.27 | conda install -c bioconda multiqc |
