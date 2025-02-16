@@ -170,18 +170,31 @@ xargs -n1 fastq-dump --gzip --split-3 < SRR_Acc_List.txt
 ## 2 Procesamiento de los datos RNA-seq  
 ### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
 
-FastQC is a tool providing a simple way to do some quality control checks on the sequencing data. It checks different aspect of data quality and provides a graphical report so that one can intuitively get the idea about the data quality
+FastQC is a tool providing a simple way to do some quality control checks on the sequencing data. It checks different aspect of data quality and provides a graphical report so that one can intuitively get the idea about the data quality. Outputs an html report and a .zip file with the raw quality data  
 ```console
 cd 1_Raw
 mkdir initial_qc
 fastqc -o initial_qc  *.fastq.gz
 ```
-
+MultiQC Aggregates FastQC results of multiple analyses into a single report.  
+```console
+multiqc ??
+```
+Artefact removal.  Adapter trimming and quality-based trimming
 trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
 ```console
 trim_galore --paired SAMPLE_R1.fastq.gz SAMPLE_R2.fastq.gz -o /2_Processed/2_Trimming/
 ```
 ![image](https://github.com/user-attachments/assets/96ca0af9-6caf-4244-872a-5405249788ce)  
+Para ver el número de lecturas después 
+```console
+zcat Data/2_Processed/2_Trimming/SRR155244_trimmed.fq.gz | grep -c "@SRR"
+```
+
+### 2.1.1 Estimation of the strandness
+To tell whether RNA-seq reads are strand-specific, you must first perform an alignment. Following alignment you can use an automated tool like infer_experiment.py in the RSeQC package that will tell you whether the data is single-end or paired-end, strand-specific or unstranded, and if strand-specific, what type (first strand or second strand).
+
+infer_experiment.py samples a few hundred thousand reads from your bam/sam and tells you the portion that would be explained by each type of strandedness, e.g  
 
 
 ### 2.2 Alineamiento contra genoma de referencia  
