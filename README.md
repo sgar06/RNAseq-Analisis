@@ -97,12 +97,12 @@ RseQC | 5.0.4 | conda install bioconda::rseqc |
 bedops | | conda install -c bioconda bedops |
 
 ## Decarga del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*
-Primero descarga del genoma re ferencia 
+**Primero descarga del genoma referencia**
 So we need to firstly retrieve the reference genome. Specifically for the example data set, we need a human reference genome.  
 Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
 Si el genoma no está indexado, indexación con hisat2-build 
 El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http://daehwankimlab.github.io/hisat2/)  
-In the download page, data are grouped by species. At the Index section, you can see the links of different genome data such as human genome. At the human section, you can see the links of different human genome data, which are further grouped by different human reference genome versions. Here we want to the newest human reference genome (GRCh38/hg38). We need the [GRCh38 genome](https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz) 
+In the download page, data are grouped by species. At the Index section, you can see the links of different genome data such as human genome. At the human section, you can see the links of different human genome data, which are further grouped by different human reference genome versions. Here we want to the newest human reference genome (GRCh38/hg38). We need the [GRCh38 genome](https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz)  
 Descargar el genoma de referencia hg38_genome.tar.gz (o GRCh38) y descomprimir  
 ```console
 cd Reference_genome
@@ -112,7 +112,7 @@ tar -xvf grch38_genome.tar.gz
 ```
 Se nos va a generar un carpeta /grch38/ con el genoma de referencia. Va a tener diferentes archivos genome.1 , genome.2 ... genome.8 y también el ejecutable. De esta forma ya lo tenemos indexado.   
 
-Segundo decarga del archivo de anotaciones de referencia
+**Segundo decarga del archivo de anotaciones de referencia**
 
 
   Descarga del archivo GTF
@@ -160,9 +160,10 @@ seqkit sample -p 0.1 -s 100 {sample}_2.fastq.gz -o subsampled_{sample}_2.fastq.g
 > Ambos parametros tanto `-p`como `-s` tienen que ser los mismos en ambos archivos R1 y R2.
 
 Posteriormente, las lecturas seleccionadas se alinean contra el genoma de referencia usando HISAT2. Seguidamente el alineamiento se compara contra el archivo de anotación de referencia para la especie Homo sapiens mediante la herramienta infer_experiment.py del paquete RseQC para determinar el tipo de librería empleada. 
+Como resultado se van a poder dar diferentes escenarios lecturas pareadas o de extremo único, lecturas con información de hebra específica o no, y dentro de los experimentos de hebra específicos pueden ser a su vez:
 En el caso de los experimento de hebra específicos, se pueden dar 2 escenarios:
-* Lecturas forward o R1 situadas en la misma hebra del gene
-* Lecturas reverse o R2 situadas en la misma hebra del gen
+* Librerias Sentido: Lecturas forward o R1 situadas en la misma hebra del gene
+* Librerias antisentido: Lecturas reverse o R2 situadas en la misma hebra del gen
 
 ![image](https://github.com/user-attachments/assets/6a04a794-3a5c-46ec-83aa-4a3a5b83413b)
 ![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
