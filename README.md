@@ -352,7 +352,7 @@ SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568
 cd  ~/RNAseq_analysis/Data/4_Alignment/
 
 for SAMPLE in $SAMPLES; do
-	samtools sort {SAMPLE}.bam -o {SAMPLE}.sorted.bam | samtools index
+	samtools sort ./${SAMPLE}.bam -o ./${SAMPLE}.sorted.bam | samtools index
 done
 ```
 
