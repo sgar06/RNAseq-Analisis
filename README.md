@@ -54,17 +54,17 @@ RNAseq_analysis
 Instalación de miniconda
 Por defecto el programa se instala en el directorio *home*
 ```console
-# Downloading miniconda
-$ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-# Installing miniconda
-$ bash miniconda.sh -b -u -p $HOME/miniconda
-# Ejecutar conda por defecto en la terminal
-$HOME/miniconda/bin/conda init bash
-# Updating conda
-$ conda update -q conda
+# Descarga de miniconda desde bash
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+# Instalación de miniconda
+bash miniconda.sh -b -u -p $HOME/miniconda
+# Ejecución de conda por defecto en la terminal
+HOME/miniconda/bin/conda init bash
+# Actualización de conda
+conda update -q conda
 ```
 
-Establecimiento de los canales de instalacion
+Establecimiento de los canales de instalación
 ```console
 conda config --add channels default
 conda config --add channels bioconda
@@ -73,9 +73,9 @@ conda config --add channels conda-forge
 conda config --show-sources
 ```
 
-Creación de un nuevo environment y activación
+Creación de un nuevo entorno y activación
 ```console
-# Creación
+# Creación de un nuevo entorno denominada genomic_analysis
 conda create -n genomic_analysis
 # Activación
 conda activate genomic_analysis
@@ -84,59 +84,60 @@ conda activate genomic_analysis
 Herramientas a usar 
 | Programa | Versión | Comando de instalación | Utilidad | 
 |---------|---------|----------|----------|
-sratools | 3.2.0 | conda install -c bioconda sra-tools |
-seqkit | 2.9.0 | conda install bioconda::seqkit |
-bedops | 2.4.41 | conda install -c bioconda bedops |
-RseQC | 5.0.4 | conda install bioconda::rseqc |
-fastqc | 0.12.1 | conda install -c bioconda fastqc |
-multiqc | 1.27 | conda install -c bioconda multiqc |
-cutadapt | 5.0 | conda install cutadapt |
-trim-galore | 0.6.10 | conda install -c bioconda trim-galore |
-hisat2 | 2.2.1 | conda install -c bioconda hisat2 |
-samtools | 1.21  | conda install -c bioconda samtools |
-htseq | 2.0.5 | conda install -c bioconda htseq |
+sratools | 3.2.0 | conda install -c bioconda sra-tools | Descarga de lecturas desde el repositorio NCBI |
+seqkit | 2.9.0 | conda install bioconda::seqkit | Subselección de lecturas en una muestra |
+bedops | 2.4.41 | conda install -c bioconda bedops | Conversión de archivos |
+RseQC | 5.0.4 | conda install bioconda::rseqc | Análsis de calidad |
+fastqc | 0.12.1 | conda install -c bioconda fastqc | Análisis de calidad |
+multiqc | 1.27 | conda install -c bioconda multiqc | Análisis de calidad |
+cutadapt | 5.0 | conda install cutadapt | Recorte de adaptadores |
+trim-galore | 0.6.10 | conda install -c bioconda trim-galore | Procesado de lecturas |
+hisat2 | 2.2.1 | conda install -c bioconda hisat2 | Mapeador de lecturas |
+samtools | 1.21  | conda install -c bioconda samtools | Manejo de archivos BAM |
+htseq | 2.0.5 | conda install -c bioconda htseq | Anotación de características genómicas |
 
 
 
 ## Decarga del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*
-**Primero descarga del genoma referencia**  
-Como vamos a emplear el alineador [HISAT2](http://daehwankimlab.github.io/hisat2/), a partir de su página web, descargaremos directamente el genoma de referencia huamno indexado que utilizaremos. En el caso de que el genoma no estuviera indexado, se podría hacer una indexación manual con la función `hisat2-build`, aunque este proceso requiere mucho tiempo. 
-Dentro de la página HISAT2, nos vamos a la sección de descargas. En la sección _Index_ encontramos diferentes _links_ según el genoma de interés, siendo en nuestro caso _H.sapiens_.  
+**Descarga del genoma de referencia humano (GRcH38) indexado desde la página web HISAT2** 
+HISAT2 es un programa de alineamiento rápido y eficiente capaz de alinear lecturas obtenidas tras la secuenciación contra diferentes genomas.  Desde su [repositorio online](http://daehwankimlab.github.io/hisat2/), se pueden descargar directamente diversos genomas indexados. En el caso de que el genoma de interés no estuviera indexado, la herramienta HISAT2 permite realizar una indexación manual con la función `hisat2-build`, aunque es un proceso lento y costoso.
+
+Es por ello, que descargaremos directamente el genoma humano indexado desde su página web.
+Para ello, primero, es necesario acceder a la sección de descargas y, posteriormente, en la sección _Index_ encontraremos diferentes _links_ según el genoma de interés, siendo en nuestro caso el genoma perteneciente a la especie _H.sapiens_.  
 
 ![image](https://github.com/user-attachments/assets/9ee4a874-6133-4039-b638-90b39d1fcfc7)  
   
-En la sección de _H.sapiens_, encontramos los diferentes genomas de referencia humano según la versión. A su vez, dentro de cada versión se tienen los _link_ de descarga para los diferentes genomas. En este caso, seleccionaremos el genoma de referencia humano más reciente GRCh38.  
+Dentro de la sección _H.sapiens_, encontraremos diferentes genomas humanos de referencia según la versión, y para cada uno de ellos se tendrán los _link_ de descarga según el genoma de interés. En este caso, seleccionaremos el genoma de referencia humano más reciente GRCh38.  
 
 ![image](https://github.com/user-attachments/assets/d88c15e4-f20d-466d-a3de-b822aa82f16f)
 
-Descargamos el genoma de referencia _grch38_genome.tar.gz_ directamente desde la terminal y almacenamos el contenido en una nueva ccarpeta 
+Para obtener el genoma de referencia _grch38_genome.tar.gz_, descargamos directamente el archivo a través de la terminal y almacenamos el genoma en una nueva carpeta.
 ```console
-mkdir ~/RNAseq_analysis/Data/4_Alignment/Reference_genome
-cd ~/RNAseq_analysis/Data/4_Alignment/Reference_genome
+mkdir ~/RNAseq_analysis/Data/4_Alignment/Reference_genome && cd $_
 wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
-# Descomprimir el archivo
+# Descomprisión del archivo descargado
 tar -xvf grch38_genome.tar.gz
 ```
-Se genera un carpeta `/grch38/` con el genoma de referencia. El genoma descargado indexado va necesitar de 8 archivos concretos denominados _genome.number.ht2_ , donde _number_ toma los valores del 1 al 8. Esta indexación previa del genoma permitirá al algoritmo HISAT2, llevar a cabo un alineamiento de las lecturas más rápido.
+> NOTA
+> El comando `mkdir` permite crear una nueva carpeta dónde almacenaremos el archivo, mientras que el comando `cd $_` permite...
+> Tras la descompresión del archivo, se genera un carpeta `/grch38/` con el genoma de referencia y los archivos necesarios para la indexación. Esta indexación permitirá al alineador _HISAT2_, llevar a cabo un alineamiento de las lecturas más eficiente.    
 
-**Segundo decarga del archivo de anotaciones de referencia**
+**Descarga del archivo de anotaciones de referencia GRCh38 desde el repositorio _ENSEMBLE_**
 
-El archivo de anotaciones de referencia de la especie _H.sapiens_ se descargó desde la página [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon). 
-Para descargar el archivo  se empleó la herramienta _File Chamaleon_ que permite el formateo de archivos genómicos existentes en la base de datos.  
-En nuestro caso, seleccionaremos la especie 
+Para descargar el archivo de anotaciones de referencia de la especie _H.sapiens_, emplearemos el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon). Para los programas posteriores que vamos a emplear en nuestro flujo de trabajo, es importante que el archivo de anotaciones tenga ciertas características específicas, es por ello  que se empleará la herramienta _File Chamaleon_ que permite el formateo de archivos genómicos existentes en la base de datos.   
+Una vez seleccionado el genoma de interés (GRCh38.p14), se descargará el archivo en formato GTF y se marcará la casilla de _transcript_id_ para incluir este campo en el archivo descargado.  
 
 ![image](https://github.com/user-attachments/assets/77246281-c341-4e4d-bd07-3eb7750ba2c8)
 ![image](https://github.com/user-attachments/assets/7714008b-1020-4995-a9cb-03fa7bea6f43)
 
 
-
-
-  Tras la descarga del archivo de anotaciones GTF, descomprimimos el archivo con gunzip. Es imporante que pinchemos sobre incluir transcrit_id porque si no el programa convert2bed da error!
-* ```console
-  gunzip Homo_sapiens.gtf.gz
-  ```
-
-Finalmente tendríamos la siguiente estructura
+Una vez generado el archivo de anotaciones en formato GTF, lo descargamos y descomprimimos en nuestra computadora, y ya podemos almacenarlo en el directorio de interés.
+```console
+gunzip Homo_sapiens.gtf.gz
+mv Homo_sapiens.gtf ~/RNAseq_analysis/Data/5_Annotation/
+```
+ 
+Una vez realizados todos los pasos anteriores, la estructura de directorios dentro de nuestro proyecto _RNAseq_analysis_ resultará de la siguiente manera:  
 ```console
 RNAseq_analysis
 |-- Code
@@ -325,7 +326,7 @@ Here is a bash script for the above HISAT2 command called hisat2.sh that will ru
 
 #bash script for hisat2; align all .fastq.gz files to indexed reference genome to generate .bam files
 
-SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568"
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568 SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
 
 cd  ~/RNAseq_analysis/Data/4_Alignment/
 
@@ -348,7 +349,7 @@ Here is a bash script for the above sort command called bam.sh
 #!/usr/bin/bash
 #bash script for samtools; sort and index the .bam files to obtain .bam.bai files
 
-SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568"
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568 SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
 cd  ~/RNAseq_analysis/Data/4_Alignment/
 
 for SAMPLE in $SAMPLES; do
@@ -389,11 +390,24 @@ El archivo de anatociones empleados es GRCh38.p14 descargado del [GENCODE](https
 
 **2.3.2 Recuento de características con htseq-count**  
 ```console
-htseq-count -t exon -i gene_id --stranded=reverse -f bam -r pos 2_Processed/3_Alignment/SRRxx_hisat2.sorted.bam 3_Annotation/gencode.xxx,gtf > ../Results/SRRxxx_counts.tsv
+cd ~RNAseq_analysis/Data/
+
+htseq-count -t exon -i gene_id --stranded=reverse -f bam -r pos 4_Alignment/{SAMPLE}.sorted.bam \
+5_Annotation/Homo_sapiens.gtf > ../Results/{SAMPLE}_counts.tsv
 ```
-Con la opción -t exon indicamos que cuente las lecturas alineadas específicamente contra los exones y, con la opción -i gene_id, indicamos que agrupe las diferentes lecturas atendiendo al identificador del gen al que pertenecen. Con la opción --stranded=no y -s no, determinamos que las lecturas no provienen de un experimento de hebra específica y, por tanto, la lectura puede mapear en ambas hebras del genoma.  
-Finalmente, las opciones `–f` y `–r` , las usamos para indicar el formato del archivo a emplear (bam) y cómo están ordenados los alineamientos, en este caso por posición o coordenadas genómicas (pos).  
-Una vez hemos definido todas las opciones, indicamos la ruta de los archivos BAM y el archivo de anotaciones (GTF), así como la ruta de salida y el nombre del nuevo archivo que contendrá la información.
+> NOTA Con la opción -t exon indicamos que cuente las lecturas alineadas específicamente contra los exones y, con la opción -i gene_id, indicamos que agrupe las diferentes > lecturas atendiendo al identificador del gen al que pertenecen. Con la opción --stranded=no y -s no, determinamos que las lecturas no provienen de un experimento de hebra > específica y, por tanto, la lectura puede mapear en ambas hebras del genoma.  
+> Finalmente, las opciones `–f` y `–r` , las usamos para indicar el formato del archivo a emplear (bam) y cómo están ordenados los alineamientos, en este caso por posición > o coordenadas genómicas (pos).  
+> Una vez hemos definido todas las opciones, indicamos la ruta de los archivos BAM y el archivo de anotaciones (GTF), así como la ruta de salida y el nombre del nuevo > archivo que contendrá la información.
+
+```console
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568 SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+cd  ~RNAseq_analysis/Data/
+for SAMPLE in $SAMPLES; do
+	htseq-count -t exon -i gene_id --stranded=reverse -f bam -r pos \
+	4_Alignment/${SAMPLE}.sorted.bam \
+	5_Annotation/Homo_sapines.gtf > ../Results/${SAMPLE}_counts.tsv
+	
+done
 
 **2.3.3 Obtención de la matriz de recuentos** 
 
