@@ -54,7 +54,7 @@ RNAseq_analysis
 Instalación de miniconda
 Por defecto el programa se instala en el directorio *home*
 ```console
-# Descarga de miniconda desde bash
+# Descarga de miniconda desde la terminal
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
 # Instalación de miniconda
 bash miniconda.sh -b -u -p $HOME/miniconda
