@@ -77,11 +77,11 @@ Creación de un nuevo entorno y activación
 ```console
 # Creación de un nuevo entorno denominada genomic_analysis
 conda create -n genomic_analysis
-# Activación
+# Activación del entorno
 conda activate genomic_analysis
 ```
 
-Herramientas a usar 
+Herramientas a instalar dentro del entorno:  
 | Programa | Versión | Comando de instalación | Utilidad | 
 |---------|---------|----------|----------|
 sratools | 3.2.0 | conda install -c bioconda sra-tools | Descarga de lecturas desde el repositorio NCBI |
