@@ -130,10 +130,8 @@ Para descargar el archivo de anotaciones de referencia de la especie _H.sapiens_
 
 Una vez seleccionado el genoma de interés (GRCh38.p14), se descarga el archivo de anotaciones en formato GTF y se marca la casilla de _transcript_id_ para incluir este campo en el archivo descargado.  
   
-![image](https://github.com/user-attachments/assets/77246281-c341-4e4d-bd07-3eb7750ba2c8)
-![image](https://github.com/user-attachments/assets/7714008b-1020-4995-a9cb-03fa7bea6f43)
-
-
+![image](https://github.com/user-attachments/assets/5141e4d9-41f4-4362-a1b2-ec78c2e01690)  
+  
 A continuación descargamos y descomprimimos el archivo de anotaciones en formato GTF en nuestra computadora, y ya podemos almacenarlo en el directorio de interés.  
 ```console
 gunzip Homo_sapiens.gtf.gz
