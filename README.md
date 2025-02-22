@@ -378,7 +378,8 @@ Para procesar todos los archivos `.fastq.gz` con las lecturas crudas simultaneam
 # Date 2025
 # Project Name: RNAseq_analysis
 
-# Bash script for trimgalore; quality and adapter trimming for all .fastq.gz files and storage of results in the path ~/RNAseq_analysis/Data/3_Processed/
+# Bash script for trimgalore; quality and adapter trimming for all .fastq.gz files
+# Storage of results in the path ~/RNAseq_analysis/Data/3_Processed/
 
 cd ~/RNAseq_analysis/Data/1_Raw
 
@@ -412,7 +413,7 @@ Sano |	GSM8153248 |	SRR28380570_2 |	52693417 |	52575369 |	99,78 |	0,22 | 33,8 |	
 Sano |	GSM8153246 |	SRR28380572_1 |	33449072 |	33406729 |	99,87 |	0,13 | 21,1 |	48
 Sano |	GSM8153246 |	SRR28380572_2 |	33449072 |	33406729 |	99,87 |	0,13 | 25,1 |	48
 Sano |	GSM8153245 |	SRR28380573_1 |	33188628 |	33134489 |	99,84 |	0,16 | 20,4 |	47
-Sano |	GSM8153245 |	SRR28380573_2 1	33188628 |	33134489 |	99,84 |	0,16 | 24,9 |	47
+Sano |	GSM8153245 |	SRR28380573_2 |	33188628 |	33134489 |	99,84 |	0,16 | 24,9 |	47
 LES	GSM8153238 	SRR28380580						
 LES	GSM8153238	SRR28380580						
 LES	GSM8153236	SRR28380582						
