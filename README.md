@@ -180,7 +180,8 @@ Secuenciador: Illumina Novaseq 6000
 Librería: lecturas pareadas con información específica de hebra  
 Longitud: 101 pb  
 
-| Nombre de la muestra | Identificador de Lecturas | Estado | Lecturas (M) | Bases | Tamaño
+| Nombre de la muestra | Identificador de Lecturas | Estado | Lecturas (M) | Bases | Tamaño |
+|---------|---------|----------|----------|----------|----------|
 GSM8153253 | SRR28380565 | Sano | 28.5 | 5.7G | 1.8 Gb |
 GSM8153252 | SRR28380566 | Sano | 50.8 | 10.3G | 3.1Gb |
 GSM8153250 | SRR28380568 | Sano | 55.1 | 11.1 G | 3.5 Gb |
