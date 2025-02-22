@@ -104,7 +104,9 @@ _HISAT2_ es un programa de alineamiento rápido y eficiente capaz de alinear lec
 
 Es por ello, que descargamos directamente el genoma humano indexado desde su página web.
 Para ello, primero, es necesario acceder a la sección de descargas y, posteriormente, en la sección _Index_ encontramos diferentes _links_ según el genoma de interés, siendo en nuestro caso el genoma perteneciente a la especie _H.sapiens_.  
-  
+
+![image](https://github.com/user-attachments/assets/ddfb3af8-1e12-4a78-be2b-753cf76d5133)
+
 ![image](https://github.com/user-attachments/assets/9ee4a874-6133-4039-b638-90b39d1fcfc7)  
   
 Dentro de la sección _H.sapiens_, encontramos diferentes genomas de referencia según la versión, y para cada uno de ellos, se disponen de distintos _links_ de descarga según el genoma de interés. En este caso, se selecciona el genoma de referencia humano más reciente GRCh38.   
