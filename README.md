@@ -168,11 +168,9 @@ RNAseq_analysis
 ### 1.1 Descarga de las lecturas crudas a partir del repositorio _Sequence Read Archive_(SRA) del NCBI  
 
 Para llevar a cabo el análisis, se emplean lecturas crudas depositadas en el repositorio público _Gene Expression Omnibus _(GEO) bajo el índice [GSE261866](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261866). En esta página encontramos distinta información relativa al estudio, tales como el número de muestras, el organismo, el tipo de experimento o la plataforma de secuenciación. Además, en el apartado de _Supplementary file_ se encuentra un enlace hacia el repositorio _SRA Run selector_.   
-
+  
 ![image](https://github.com/user-attachments/assets/d6a8b328-8015-441d-9369-3c9876b0c39f)
-
-![image](https://github.com/user-attachments/assets/adcc0a0a-690a-487e-a592-f34eb0c3fdfc)  
-
+  
 A partir del repositorio _SRA Run selector_ se pueden descargar tanto las lecturas crudas como los metadatos de las muestras. Además, existe una herramienta implementada por NCBI denominada _SRA-toolkit_ que permite descargar las lecturas directamente en la computadora.  
 
 En el presente tutorial, se emplean las muestras de un estudio de RNAseq de neutrófilos aislados de pacientes con lupus eritematoso sistémico y controles sanos. Para llevar a cabo el flujo de trabajo, solamente se emplean 6 muestras de cada grupo seleccionadas aleatoriamente.  
