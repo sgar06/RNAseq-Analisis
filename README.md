@@ -104,11 +104,11 @@ _HISAT2_ es un programa de alineamiento rápido y eficiente capaz de alinear lec
 
 Es por ello, que descargamos directamente el genoma humano indexado desde su página web.
 Para ello, primero, es necesario acceder a la sección de descargas y, posteriormente, en la sección _Index_ encontramos diferentes _links_ según el genoma de interés, siendo en nuestro caso el genoma perteneciente a la especie _H.sapiens_.  
-
+  
 ![image](https://github.com/user-attachments/assets/9ee4a874-6133-4039-b638-90b39d1fcfc7)  
   
 Dentro de la sección _H.sapiens_, encontramos diferentes genomas de referencia según la versión, y para cada uno de ellos, se disponen de distintos _links_ de descarga según el genoma de interés. En este caso, se selecciona el genoma de referencia humano más reciente GRCh38.   
-
+  
 ![image](https://github.com/user-attachments/assets/d88c15e4-f20d-466d-a3de-b822aa82f16f)
 
 Una vez conocido el _link_ de nuestro genoma de referencia, lo descargamos directamente a través de la terminal. Este nuevo archivo se almacena en una nueva carpeta.  
@@ -127,7 +127,7 @@ tar -xvf grch38_genome.tar.gz
 Para descargar el archivo de anotaciones de referencia de la especie _H.sapiens_, se emplea el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon). Por otro lado, es importante que el archivo de anotaciones tenga ciertas características específicas necesarias para la correcta ejecución de programas posteriores. Es por ello, que se emplea la herramienta _File Chamaleon_ con el fin de formatear el archivo de anotaciones.  
 
 Una vez seleccionado el genoma de interés (GRCh38.p14), se descarga el archivo de anotaciones en formato GTF y se marca la casilla de _transcript_id_ para incluir este campo en el archivo descargado.  
-
+  
 ![image](https://github.com/user-attachments/assets/77246281-c341-4e4d-bd07-3eb7750ba2c8)
 ![image](https://github.com/user-attachments/assets/7714008b-1020-4995-a9cb-03fa7bea6f43)
 
@@ -170,6 +170,7 @@ RNAseq_analysis
 ### 1.1 Descarga de las lecturas crudas a partir del repositorio _Sequence Read Archive_(SRA) del NCBI  
 
 Para llevar a cabo el análisis, se emplean lecturas crudas depositadas en el repositorio público _Gene Expression Omnibus _(GEO) bajo el índice [GSE261866](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261866). En esta página encontramos distinta información relativa al estudio, tales como el número de muestras, el organismo, el tipo de experimento o la plataforma de secuenciación. Además, en el apartado de _Supplementary file_ se encuentra un enlace hacia el repositorio _SRA Run selector_.   
+  
 ![image](https://github.com/user-attachments/assets/adcc0a0a-690a-487e-a592-f34eb0c3fdfc)  
 
 A partir del repositorio _SRA Run selector_ se pueden descargar tanto las lecturas crudas como los metadatos de las muestras. Además, existe una herramienta implementada por NCBI denominada _SRA-toolkit_ que permite descargar las lecturas directamente en la computadora.  
@@ -188,14 +189,15 @@ GSM8153250 | SRR28380568 | Sano | 55.1 | 11.1 G | 3.5 Gb |
 GSM8153248 | SRR28380570 | Sano | 52.7 | 10.6G	| 3.3Gb |
 GSM8153246 | SRR28380572 | Sano | 33.4 | 6.8G | 2.1Gb |
 GSM8153245 | SRR28380573 | Sano | 33.2 | 6.7G |	2.1Gb |
-GSM8153238 | SRR28380580 | LES | 31.1M	6.3G	2.0GB
-GSM8153236 | SRR28380582 | LES |
-GSM8153234 | SRR28380584 | LES |
-GSM8153232 | SRR28380586 | LES |
-GSM8153230 | SRR28380588 | LES |
-GSM8153229 | SRR28380589 | LES |  
+GSM8153238 | SRR28380580 | LES | 31.1M	| 6.3G | 2.0Gb |
+GSM8153236 | SRR28380582 | LES | 47.8M  | 9.6G	| 2.9Gb
+GSM8153234 | SRR28380584 | LES | 39.8M	| 8.0G	| 2.6Gb
+GSM8153232 | SRR28380586 | LES | 39.5M	| 8.0G	| 2.5Gb
+GSM8153230 | SRR28380588 | LES | 29.6M	| 6.0G	| 1.9Gb
+GSM8153229 | SRR28380589 | LES | 31.5M	| 6.4G	| 2.0Gb
   
 Para descargar la lista con los identificadores de las lecturas en formato de texto plano, primero se seleccionan las muestras de interés, se filtran y se descarga la lista con los identificadores o _Accesion list_.  
+  
 ![image](https://github.com/user-attachments/assets/afbcce1d-228e-4994-ba4e-32d585c77471)  
 
   
@@ -267,9 +269,10 @@ SRR28380565.44	147	1	14678	60	2S99M	=	14678	-103	GAAAGGTGTCATGGAGCC[...]  F:,FFF
 SRR28380565.47	99	1	14630	60	101M	=	14693	164	TGGCTGTGTCCATGTCAG[...]  FFFFFFFFFFFFFF[...]	AS:i:-5	ZS:i:-5	XN:i:0	XM:i:1[...]
 SRR28380565.47	147	1	14693	60	101M	=	14630	-164	CCCCTACGATTCCCAGTC[...]  FFFFFFFFF:FFFFF[...]	AS:i:0	ZS:i:-7	XN:i:0	XM:i:0[...]
 ```
-Como podemos ver, al tratarse de una submuestra en la cual las lecturas han sido seleccionadas aleatoriamente, observamos que el número especificado después del ID de las lecturas (SRR28380565) no está ordenado, sino que representa pares de lecturas aleatorias (3, 11, 43, 44, 47).  
+Como podemos ver, al tratarse de una submuestra en la cual las lecturas han sido seleccionadas aleatoriamente, observamos que el número especificado después del ID de las lecturas (SRR28380565) no está ordenado, sino que representa pares de lecturas aleatorias (3, 11, 43, 44, 47...).  
 
 | tabla con los campos |
+| ---|
 |...| 
 |...|
 
@@ -329,25 +332,38 @@ Fraction of reads explained by "1++,1--,2+-,2-+": 0.0185
 Fraction of reads explained by "1+-,1-+,2++,2--": 0.6409
 ```
 
-Como resultado se obtuvo un experimento de tipo **LIBRERIA ANTISENTIDO**  
+Como resultado se obtuvo un experimento de tipo **LIBRERIA ANTISENTIDO**   
 
-### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
+### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad  
+FastQC es una herramienta que permite hacer un control de calidad de las lecturas generando un reporte gráfico con diferentes aspectos del alineamiento. Genera una salida html y un archivo .zip con los datos de calidad.  
+Para lanzar la herramienta, primero nos situamos en el directorio con las lecturas crudas y creamos una nueva carpeta para almacenar los resultados de FastQC.  
+```console
+cd ~/RNAseq_analysis/Data/1_Raw
+mkdir qc_raw_reads
+fastqc -o qc_raw_reads *.fastq.gz
+```
+> NOTA
+> La opción `-o` permite indicar el directorio de salido dónde almacenar los reportes generados.
+  
+Al tratarse de muchas muestras, la herramienta MultiQC permite aunar los reportes generados por FastQC y comparar los resultados para todas las muestras en un mismo informe html.  
+```console
+cd ~/RNAseq_analysis/Data/1_Raw/qc_raw_reads
+multiqc .
+```
+> NOTA
+> Con el (`.`) indicamos el  directorio actual dónde MultiQC busca los archivos resultantes de FastQC o de otros programas para aunarlos y generar un informe `multiqc_report.html`. Además, genera una carpeta `multiqc_data` con archivos con información complementaria del análisis.  
 
-FastQC is a tool providing a simple way to do some quality control checks on the sequencing data. It checks different aspect of data quality and provides a graphical report so that one can intuitively get the idea about the data quality. Outputs an html report and a .zip file with the raw quality data  
+**Recorte de adaptadores y de bases anotadas de mal calidad**
+Seguidamente se lleva a cabo el recorte de adaptadores y filtrado por calidad, con el fin de eliminar artefactos técnicos. Para ello, empleamos la herramienta Trimgalore y procesamos las lecturas crudas almacenadas en la ruta (`~/RNAseq_analysis/Data/1_Raw`). Los resultaos los almacenamos en el direcctorio (`3_Processed`).  
+El programa recorta los extremos de las lecturas en función a su calidad (Phred Q<20), detecta adaptadores y filtra las lecturas con longitud menor a 20pb.  
+  
 ```console
-cd 1_Raw
-mkdir initial_qc
-fastqc -o initial_qc  *.fastq.gz
+~/RNAseq_analysis/Data/1_Raw
+trim_galore --paired {sample}_R1.fastq.gz {sample}_R2.fastq.gz -o /3_Processed/
 ```
-MultiQC Aggregates FastQC results of multiple analyses into a single report.  
-```console
-multiqc ??
-```
-Artefact removal.  Adapter trimming and quality-based trimming
-trim-galore               0.6.10 (Recorte Phred Score <20, deteccion de adaptadore y filtrado de lect <20pb
-```console
-trim_galore --paired SAMPLE_R1.fastq.gz SAMPLE_R2.fastq.gz -o /2_Processed/2_Trimming/
-```
+> NOTA  
+> Con la opción `--paired` indicamos que se trata de lecturas pareadas y seguidamente indicamos los archivos con las lecturas _forward_ y _reverse_.
+    
 ![image](https://github.com/user-attachments/assets/96ca0af9-6caf-4244-872a-5405249788ce)  
 Para ver el número de lecturas después 
 ```console
