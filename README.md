@@ -178,7 +178,7 @@ En el presente tutorial, se emplean las muestras de un estudio de RNAseq de neut
 Secuenciador: Illumina Novaseq 6000   
 Librería: lecturas pareadas con información específica de hebra  
 Longitud: 101 pb  
-
+  
 | Nombre de la muestra | Identificador de Lecturas | Estado | Lecturas (M) | Bases | Tamaño |
 |---------|---------|----------|----------|----------|----------|
 GSM8153253 | SRR28380565 | Sano | 28.5 | 5.7G | 1.8 Gb |
@@ -193,11 +193,12 @@ GSM8153234 | SRR28380584 | LES | 39.8M	| 8.0G	| 2.6Gb
 GSM8153232 | SRR28380586 | LES | 39.5M	| 8.0G	| 2.5Gb
 GSM8153230 | SRR28380588 | LES | 29.6M	| 6.0G	| 1.9Gb
 GSM8153229 | SRR28380589 | LES | 31.5M	| 6.4G	| 2.0Gb
+
   
 Para descargar la lista con los identificadores de las lecturas en formato de texto plano, primero se seleccionan las muestras de interés, se filtran y se descarga la lista con los identificadores o _Accesion list_.   
   
 ![image](https://github.com/user-attachments/assets/afbcce1d-228e-4994-ba4e-32d585c77471)  
-
+  
   
 **Descarga de lecturas crudas con _SRA-toolkit_**
 Una vez descargado el archivo de texto plano _SRR_Acc_List.txt_ con los identificadores, se gurada en la ruta `~/RNAseq_analysis/Data/Supplementary` y se emplea el comando ``fastq-dump` de la herramienta _SRA-toolkit_ desde la terminal para obtener las lecturas crudas en nuestra computadora.  
