@@ -110,10 +110,7 @@ Para ello, primero, es necesario acceder a la sección de descargas y, posterior
 Dentro de la sección _H.sapiens_, encontramos diferentes genomas de referencia según la versión, y para cada uno de ellos, se disponen de distintos _links_ de descarga según el genoma de interés. En este caso, se selecciona el genoma de referencia humano más reciente GRCh38.   
   
 ![image](https://github.com/user-attachments/assets/2a07a735-3247-4f0a-92fd-9e0da1b8994e)
-
   
-![image](https://github.com/user-attachments/assets/d88c15e4-f20d-466d-a3de-b822aa82f16f)
-
 Una vez conocido el _link_ de nuestro genoma de referencia, lo descargamos directamente a través de la terminal. Este nuevo archivo se almacena en una nueva carpeta.  
 ```console
 mkdir ~/RNAseq_analysis/Data/4_Alignment/Reference_genome && cd $_
