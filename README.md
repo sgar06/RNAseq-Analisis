@@ -373,16 +373,17 @@ Se puede encontrar más información del funcionamiento de TrimGalore en la pág
 Para procesar todos los archivos `.fastq.gz` con las lecturas crudas simultaneamente, se puede emplear el script siguiente, denominado `trimgalore.sh` para ejecutar el comando anterior sobre varios archivos.  
 ```console
 #! /usr/bin/bash
-# Bash version 4.2.46(2)
-# Date 2025
-# Project Name: RNAseq_analysis
+# Versión de Bash: 4.2.46(2)
+# Fecha: 2025
+# Nombre del proyecto: RNAseq_analysis
 
-# Bash script for trimgalore; quality and adapter trimming for all .fastq.gz files
-# Storage of results in the path ~/RNAseq_analysis/Data/3_Processed/
+# Script de bash para la herramienta TrimGalore; recorte de bases de mala calidad y adaptadores para todos los archivos .fastq.gz.
+# Almacenamiento de los resultados en el directorio ~/RNAseq_analysis/Data/3_Processed/
 
 cd ~/RNAseq_analysis/Data/1_Raw
 
-SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568 SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568
+	SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
 
 for SAMPLE in $SAMPLES; do
 	trim_galore --paired ${SAMPLE}_1.fastq.gz ${SAMPLE}_2.fastq.gz -o ../3_Processed/
@@ -399,48 +400,50 @@ cd ./qc_processed_reads
 mutliqc .
 ```
 Tras el filtrado nos quedan los siguientes resultados:   
-![image](https://github.com/user-attachments/assets/ca03a63f-90e0-43ce-84ce-af3c6ac2e049)
+![image](https://github.com/user-attachments/assets/307556a3-8a03-4141-a91c-c5f10e02e243)
+    
   
-  
-### 2.2 Alineamiento de las lecturas procesadas contra el genoma de referencia con HISAT2
-Once the quality of the data is confirmed, we need to convert those millions of reads per sample into the gene- or transcript-level quantification. This would need the assignment of reads to genes or transcripts.  
+### 2.2 Alineamiento de las lecturas procesadas contra el genoma de referencia con HISAT2  
+Una vez que las lecturas son procesadas, se alinean contra el genoma de referencia con el fin de asignar la posición y coordenadas cromosómicas para cada una de ellas.  
 ![image](https://github.com/user-attachments/assets/6f42b6c5-30d6-41b0-b99a-8e57c317e667)  
 
 **2.2.1 Preparación del genoma de referencia**  
 Como explicamos previamente, el genoma de referencia indexado se descarga desde el repositorio de _HISAT2_ y, una vez tenemos el genoma en nuestra computadora, se lleva a cabo el alineamiento.  
-
+  
 **2.2.2 Alineamiento de las lecturas**  
-Hoy en día, existen diferentes alineadores o mapeadores que se pueden emplear. Entre los más conocidos se encuentran HISAT2 y STAR. Algunas de las diferencias entre ellos son la cantidad  de recursos necesarios, siendo mennos en el caso de HISAT2; o la precisión de los resultados,  siendo más precisos en el caso de STAR. 
-En el presente trabajo, se emplea el alineador HISAT2 para mapear las lecturas procesadas al genoma de referencia indexado.  
-
+Hoy en día, existen diferentes alineadores o mapeadores que se pueden emplear. Entre los más conocidos se encuentran HISAT2 y STAR. Algunas de las diferencias entre ellos son la cantidad  de recursos necesarios, siendo menos en el caso de HISAT2; o la precisión de los resultados, siendo más precisos en el caso de STAR. 
+En el presente trabajo, se emplea el alineador HISAT2.  
+  
 Para llevar a cabo el alineamiento de las lecturas pareadas con HISAT2, empleamos el siguiente comando:  
 ```console
 #Paired-end reads
 cd ~/RNAseq_analysis/Data/4_Alignment
 hisat2 -k1 --summary-file {sample}.summary.txt  --rna-strandness {STRING} 
 -x (./Reference_genome/grch38/genome) \
--1 {SAMPLE_1_val_1.fq.gz} -2 {SAMPLE_2_val_2.fq.gz} |\
-samtools view -Sbh > {SAMPLE}.bam 
+-1 ../3_Processed/{sample}_1_val_1.fq.gz -2 ../3_Processed/{sample}_2_val_2.fq.gz |\
+samtools view -Sbh > {sample}.bam 
 ````
 > NOTA  
 > * `-k`: permite establecer el número máximo de alineamientos permitidos por lectura. El valor 1 impide la existencia de alineamientos múltiples.  
 > * `--summary-file`: crea un nuevo archivo con los resultados del alineamiento.  
-> * `-x` : ruta relativa y nombre principal de los archivos indexados para el genoma de referencia. El nombre principal incluye el nombre de los archivos indexados sin incluir el final (.1.ht2, .2.ht2, etc).  
-> `-1` y `-2`: lecturas a alinear  
-> ` --rna-strandness` {STRING} option in HISAT2  sets how reads are expected to align against genes. With this option being used, every read alignment will have an XS attribute tag: '+' means a read belongs to a transcript on '+' strand of genome. '-' means a read belongs to a transcript on '-' strand of genome.  
-Most stranded protocols in use these days follow the dUTP-method, where read #2 in a pair has the same orientation as the transcript from which it arose (2++ or 2--). So either `R` or `RF` would typically be appropriate   
-Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.
-> `samtools`  creamos un BAM directamente. A BAM file is the binary version of a SAM file
-> con la opción -S indicamos el archivo de entrada en formato SAM; con la opción -b, indicamos el formato de salida de tipo BAM; y con la opción -h, indicamos que queremos mantener el encabezado
+> * ` --rna-strandness {STRING}`: permite indicar cómo se espera que alineen las lecturas en función de la direccionalidad de la librería. En nuestro caso, al tratarse de una librería pareada antisentido, se usa la opción `RF` para indicar que la lectura 2 o _reverse_ tiene la misma orientación que el transcrito a partir del cual se genera (2++ o 2--).  
+> * `-x` : ruta relativa y nombre principal de los archivos indexados para el genoma de referencia. El nombre principal incluye el nombre de los archivos indexados sin incluir el final (.1.ht2, .2.ht2, .3.ht2 etc).  
+> * `-1` y `-2`: lecturas _forward_ y _reverse_, respectivamente.  
+> *`| samtools view -Sbh > {sample}.bam`: permite crear el archivo BAM con los resultados del alineamiento de forma directa, sin necesidad de crear el archivo SAM intermedio.  
 
-Here is a bash script for the above HISAT2 command called hisat2.sh that will run all the .fastq.gz files for you simultaneously.
+Para mapear todos los archivos `.fq.gz` con las lecturas procesadas, se puede emplear el script siguiente, denominado `hisat2_algignment.sh` para ejecutar el comando anterior sobre varios archivos.  
 
 ```console
-#!/usr/bin/bash
+#! /usr/bin/bash
+# Versión de Bash: 4.2.46(2)
+# Fecha: 2025
+# Nombre del proyecto: RNAseq_analysis
 
-#bash script for hisat2; align all .fastq.gz files to indexed reference genome to generate .bam files
+# Script de bash para el programa hisat2; alineamiento de los archivos fq.gz al genoma de referencia indexado
+# Creación de archivos BAM como resultado
 
-SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568 SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568
+	SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
 
 cd  ~/RNAseq_analysis/Data/4_Alignment/
 
@@ -451,51 +454,108 @@ for SAMPLE in $SAMPLES; do
  	samtools view -Sbh > ${SAMPLE}.bam
 done
 ```
-Los resultados se guardarán en la carpeta `~/RNAseq_analysis/Data/4_Alignment/`
-
-Posteriormente, We will use the samtools command with the options: ‘sort’ to sort the alignments by the leftmost coordinates
+Los resultados se guardan en la carpeta `~/RNAseq_analysis/Data/4_Alignment/` y, dentro de los archivos `${SAMPLE}_align.summary.txt`, se tiene la información del resultado del alineamiento.  
+Por ejemplo, en el caso del archivo `SRR28380566_align.summary.txt` se tienen los siguientes resultados:  
 ```console
-samtools sort {SAMPLE}.bam -o {SAMPLE}.sorted.bam | samtools index
+28427141 reads; of these:
+  28427141 (100.00%) were paired; of these:
+    1123549 (3.95%) aligned concordantly 0 times
+    27303592 (96.05%) aligned concordantly exactly 1 time
+    0 (0.00%) aligned concordantly >1 times
+    ----
+    1123549 pairs aligned concordantly 0 times; of these:
+      88122 (7.84%) aligned discordantly 1 time
+    ----
+    1035427 pairs aligned 0 times concordantly or discordantly; of these:
+      2070854 mates make up the pairs; of these:
+        1094218 (52.84%) aligned 0 times
+        976636 (47.16%) aligned exactly 1 time
+        0 (0.00%) aligned >1 times
+98.08% overall alignment rate
+```
+  
+Seguidamente, empleamos la herramienta samtools para ordenar las lecturas según sus coordenadas genómicas.  
+  
+```console
+samtools sort {sample}.bam -o {sample}.sorted.bam 
 ```
 
-Here is a bash script for the above sort command called bam.sh
+Para ordenar todos los archivos resutlantes del alineamiento, se puede emplear el siguiente script `bam_order.sh`.  
 ```console
-#!/usr/bin/bash
-#bash script for samtools; sort and index the .bam files to obtain .bam.bai files
+#! /usr/bin/bash
+# Versión de Bash: 4.2.46(2)
+# Fecha: 2025
+# Nombre del proyecto: RNAseq_analysis
 
-SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568 SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+# Script de bash para el programa samtools; ordenación por posición genómica de los archivos .bam
+
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568
+	SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+
 cd  ~/RNAseq_analysis/Data/4_Alignment/
 
 for SAMPLE in $SAMPLES; do
-	samtools sort ./${SAMPLE}.bam -o ./${SAMPLE}.sorted.bam | samtools index
+	samtools sort ./${SAMPLE}.bam -o ./${SAMPLE}.sorted.bam
 done
 ```
-
-paquete **RseQC**, tenemos distintas funciones para analizar el alineamiento.
-Vamos a usar el comando `bam_stat.py`, para obtener un resumen de las estadísticas del mapeo del archivo BAM. En este caso, se determina una calidad de mapeo para cada lectura y se calcula la probabilidad de que esa lectura esté mal posicionada en función de un umbral mínimo. El comando a emplear es el siguiente:
+  
+Finalmente, los archivos .bam ordenados almacenados en el directorio `~/RNAseq_analysis/Data/4_Alignment/` se indexan.  
 ```console
-bam_stat.py -i ~/RNAseq_analysis/Data/4_Alignment/{SAMPLE}.sorted.bam
+find . -name "*sorted.bam" | xargs -n1 samtools index
 ```
 
+Una vez alineadas las lecturas procesadas contra el genoma de referencia, se puede comprobar la calidad de este alineamiento. Para ello, vamos a emplear el programa _RseQC_, dentro del cual existen diferentes funciones y scripts creados para analizar el alineamiento.  
+En concreto, vamos a emplear el script `bam_stat.py`, para obtener un resumen de las estadísticas del mapeo del archivo BAM. Primero, se determina una calidad de mapeo para cada lectura y seguidamente se calcula la probabilidad de que esa lectura esté mal posicionada en función de un umbral mínimo.   
 
-**2.2.3 Modificación y conversión de archivos SAM con SAMtools**
-
-Creación del archivo BAM, ordenación e indexado
+Para emplear la herramienta usamos el siguiente comando:  
 ```console
-# Conversión al archivo BAM
-samtools view -Sbh SRR1552444_hisat2.sam > SRR1552444_hisat2.bam
-# Ordenación del archivo BAM por coordenadas genómicas
-samtools sort SRR1552444_hisat2.bam -o SRR1552444_hisat2.sorted.bam
-# Indexación del archivo BAM
-samtools index SRR1552444_hisat2.sorted.bam
-# Opción 2:
-samtools sort --write-index 
+mkdir ./statistics
+bam_stat.py -i ./{sample}.sorted.bam > statistics/{sample}.bamstats.txt
 ```
-Se genera un archivo SRR1552444_hisat2.sorted.bam.bai cuyo alineamiento podemos visualizar en programas de visualización como IGV.
-En este caso, podemos elegir el genoma de referencia y
-cargar nuestro archivo sorted.bam previamente indexado para observar las lecturas y su alineamiento
-sobre el genoma de referencia.
+  
+Para comprobar la calidad del alineamiento para cada uno de los archivos BAM resultantes, se puede emplear el siguiente script `bam_stats.sh` desdeel directorio  ~/RNAseq_analysis/Code.  
+```console
+#! /usr/bin/bash
+# Versión de Bash: 4.2.46(2)
+# Fecha: 2025
+# Nombre del proyecto: RNAseq_analysis
 
+# Script de bash para el programa RseQC; estadísticas de la calidad del alineamiento mediante el empleo de la herramienta bam_stats.py
+
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568
+	SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+
+cd ~/RNAseq_analysis/Data/4_Alignment/
+
+for SAMPLE in $SAMPLES; do
+	bam_stat.py -i ${SAMPLE}.sorted.bam > ./statistics/${SAMPLE}.bamstats.txt
+done
+```
+Como resultado se obtiene un archivo de texto plano con diferentes estadísticos del alineamiento. Por ejemplo, en el caso del archivo SRR28380565 se obtienen los siguientes resultados:  
+```console
+#==================================================
+#All numbers are READ count
+#==================================================
+
+Total records:                          56854282
+
+QC failed:                              0
+Optical/PCR duplicate:                  0
+Non primary hits                        0
+Unmapped reads:                         1094218
+mapq < mapq_cut (non-unique):           1663991
+
+mapq >= mapq_cut (unique):              54096073
+Read-1:                                 27138442
+Read-2:                                 26957631
+Reads map to '+':                       27053055
+Reads map to '-':                       27043018
+Non-splice reads:                       40899546
+Splice reads:                           13196527
+Reads mapped in proper pairs:           53037578
+Proper-paired reads map to different chrom:0
+```
+  
 ### 2.3 Identificación y recuento de features o características  
 
 **2.3.1 Preparación del archivo de anotaciones GTF**  
