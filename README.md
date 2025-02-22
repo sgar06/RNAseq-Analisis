@@ -196,7 +196,7 @@ GSM8153232 | SRR28380586 | LES | 39.5M	| 8.0G	| 2.5Gb
 GSM8153230 | SRR28380588 | LES | 29.6M	| 6.0G	| 1.9Gb
 GSM8153229 | SRR28380589 | LES | 31.5M	| 6.4G	| 2.0Gb
   
-Para descargar la lista con los identificadores de las lecturas en formato de texto plano, primero se seleccionan las muestras de interés, se filtran y se descarga la lista con los identificadores o _Accesion list_.  
+Para descargar la lista con los identificadores de las lecturas en formato de texto plano, primero se seleccionan las muestras de interés, se filtran y se descarga la lista con los identificadores o _Accesion list_.   
   
 ![image](https://github.com/user-attachments/assets/afbcce1d-228e-4994-ba4e-32d585c77471)  
 
@@ -342,7 +342,7 @@ cd ~/RNAseq_analysis/Data/1_Raw
 mkdir qc_raw_reads
 fastqc -o qc_raw_reads *.fastq.gz
 ```
-> NOTA
+> NOTA  
 > La opción `-o` permite indicar el directorio de salido dónde almacenar los reportes generados.
   
 Al tratarse de muchas muestras, la herramienta MultiQC permite aunar los reportes generados por FastQC y comparar los resultados para todas las muestras en un mismo informe html.  
@@ -350,27 +350,80 @@ Al tratarse de muchas muestras, la herramienta MultiQC permite aunar los reporte
 cd ~/RNAseq_analysis/Data/1_Raw/qc_raw_reads
 multiqc .
 ```
-> NOTA
+> NOTA  
 > Con el (`.`) indicamos el  directorio actual dónde MultiQC busca los archivos resultantes de FastQC o de otros programas para aunarlos y generar un informe `multiqc_report.html`. Además, genera una carpeta `multiqc_data` con archivos con información complementaria del análisis.  
 
 **Recorte de adaptadores y de bases anotadas de mal calidad**
-Seguidamente se lleva a cabo el recorte de adaptadores y filtrado por calidad, con el fin de eliminar artefactos técnicos. Para ello, empleamos la herramienta Trimgalore y procesamos las lecturas crudas almacenadas en la ruta (`~/RNAseq_analysis/Data/1_Raw`). Los resultaos los almacenamos en el direcctorio (`3_Processed`).  
-El programa recorta los extremos de las lecturas en función a su calidad (Phred Q<20), detecta adaptadores y filtra las lecturas con longitud menor a 20pb.  
+Seguidamente se lleva a cabo el recorte de adaptadores y filtrado por calidad, con el fin de eliminar artefactos técnicos. Para ello, empleamos la herramienta TrimGalore y procesamos las lecturas crudas almacenadas en la ruta (`~/RNAseq_analysis/Data/1_Raw`). Los resultaos los almacenamos en el direcctorio (`3_Processed`).    
   
 ```console
-~/RNAseq_analysis/Data/1_Raw
-trim_galore --paired {sample}_R1.fastq.gz {sample}_R2.fastq.gz -o /3_Processed/
+cd ~/RNAseq_analysis/Data/1_Raw
+trim_galore --paired {sample}_1.fastq.gz {sample}_2.fastq.gz -o ../3_Processed/
 ```
 > NOTA  
-> Con la opción `--paired` indicamos que se trata de lecturas pareadas y seguidamente indicamos los archivos con las lecturas _forward_ y _reverse_.
-    
-![image](https://github.com/user-attachments/assets/96ca0af9-6caf-4244-872a-5405249788ce)  
-Para ver el número de lecturas después 
+> Con la opción `--paired` indicamos que se trata de lecturas pareadas y seguidamente indicamos los archivos con las lecturas _forward_ y _reverse_.  
+
+El programa TrimGalore recorta los extremos de las lecturas en función a su calidad (Phred Q<20), detecta adaptadores y filtra las lecturas con longitud menor a 20pb. Al tratarse de lecturas pareadas, el programa procesa primero cada archivo con las lecturas _forward_ y _reverse_ de forma independiente generando archivos intermedios `*_trimmed.fq.gz` y, una vez completado el recorte, se genera una etapa de validación de los archivos intermedios que serán eliminados, generando los archivos finales validados `*_val_1.fq.gz` y `*_val_2.fq.gz`.  Además, para cada archivo FASTQ, se genera un reporte `trimming_report.txt`con los resultados del recorte y filtrado.  
+
+En cuanto al procesamiento, TrimGalore primero recorta las bases con mala calidad del extremo 3' eliminado las partes de las lecturas con poca calidad (Phred-score < 20). Seguidamente, la herramienta Cutadapt contenida en TrimGalore, encuentra y elimina las secuencias de adaptadores de los extremos 3' de  las lecturas y, finalmente, aquellas lecturas que tras el recorte de bases y adaptadores contengan una longitud inferior a 20pb por defecto son eliminadas.  
+
+se puede encontrar más información del funcionamiento de TrimGalore en la página de sus creadores, pinchando [aquí](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md)   
+
+Para procesar todos los archivos `.fastq.gz` con las lecturas crudas simultaneamente, se puede emplear el script siguiente, denominado `trimgalore.sh` para ejecutar el comando anterior sobre varios archivos.  
 ```console
-zcat Data/2_Processed/2_Trimming/SRR155244_trimmed.fq.gz | grep -c "@SRR"
+#! /usr/bin/bash
+# Bash version 4.2.46(2)
+# Date 2025
+# Project Name: RNAseq_analysis
+
+# Bash script for trimgalore; quality and adapter trimming for all .fastq.gz files and storage of results in the path ~/RNAseq_analysis/Data/3_Processed/
+
+cd ~/RNAseq_analysis/Data/1_Raw
+
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568 SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+
+for SAMPLE in $SAMPLES; do
+	trim_galore --paired ${SAMPLE}_1.fastq.gz ${SAMPLE}_2.fastq.gz -o ../3_Processed/
+done
 ```
+El script `trimgalore.sh` se almacena en la ruta  ~/RNAseq_analysis/Code/ y para ejecutarlo se usa el comando `. trimgalore.sh`.  
+  
+Para observar los nuevos resultados, se emplea FastQC y MultiQC nuevamente sobre las lecturas filtradas, de forma que podemos comparar los resultados antes y después del empleo de la herramienta Trimgalore.  
+``` console
+cd ~/RNAseq_analysis/Data/3_Processed
+fastqc -o qc_processed_reads *.fq.gz
+cd ./qc_processed_reads
+mutliqc .
+```
+Tras el filtrado nos quedan los siguientes resultados:  
 
-
+| Condición | Muestra | Lecturas ID | Lecturas Crudas | Lecturas Limpias | Lecturas Limpias (%) | Lecturas eliminadas (%) | Duplicados (%) |GC (%) |
+| --------- |--------- | --------- |--------- |--------- |--------- |--------- |--------- |--------- |
+Sano |	GSM8153253 |	SRR28380565_1 |	28464072 |	28427141 |	99,87	| 0,13 | 22,2 | 46 |
+Sano |	GSM8153253 |	SRR28380565_2 |	28464072 |	28427141 |	99,87 |	0,13 | 25,9 | 47
+Sano |	GSM8153252 |	SRR28380566_1 |	50800570 |	50647832 |	99,70 |	0,30 | 30,1 |	49
+Sano |	GSM8153252 |	SRR28380566_2 |	50800570 |	50647832 |	99,70 |	0,30 | 35,0 |	50
+Sano |	GSM8153250 |	SRR28380568_1 |	55070796 |	54749092 |	99,42 |	0,58 | 29,9 |	50
+Sano | 	GSM8153250 |	SRR28380568_2 |	55070796 |	54749092 |	99,42 | 0,58 | 34,1 |	50
+Sano |	GSM8153248 |	SRR28380570_1 |	52693417 |	52575369 |	99,78 |	0,22 | 28,1 |	48
+Sano |	GSM8153248 |	SRR28380570_2 |	52693417 |	52575369 |	99,78 |	0,22 | 33,8 |	48
+Sano |	GSM8153246 |	SRR28380572_1 |	33449072 |	33406729 |	99,87 |	0,13 | 21,1 |	48
+Sano |	GSM8153246 |	SRR28380572_2 |	33449072 |	33406729 |	99,87 |	0,13 | 25,1 |	48
+Sano |	GSM8153245 |	SRR28380573_1 |	33188628 |	33134489 |	99,84 |	0,16 | 20,4 |	47
+Sano |	GSM8153245 |	SRR28380573_2 1	33188628 |	33134489 |	99,84 |	0,16 | 24,9 |	47
+LES	GSM8153238 	SRR28380580						
+LES	GSM8153238	SRR28380580						
+LES	GSM8153236	SRR28380582						
+LES	GSM8153236	SRR28380582						
+LES	GSM8153234	SRR28380584						
+LES	GSM8153234	SRR28380584						
+LES	GSM8153232	SRR28380586						
+LES	GSM8153232	SRR28380586						
+LES	GSM8153230	SRR28380588						
+LES	GSM8153230	SRR28380588						
+LES	GSM8153229	SRR28380589						
+LES	GSM8153229	SRR28380589						
+  
 ### 2.2 Alineamiento contra genoma de referencia  
 Once the quality of the data is confirmed, we need to convert those millions of reads per sample into the gene- or transcript-level quantification. This would need the assignment of reads to genes or transcripts.  
 ![image](https://github.com/user-attachments/assets/6f42b6c5-30d6-41b0-b99a-8e57c317e667)  
@@ -396,11 +449,11 @@ Once the genome indexing is done, you are ready to map the reads to the referenc
 Elementos que mapean 1 vez  
 ```console
 #Paired-end reads
-hisat2 -k1 --summary-file {SAMPLE}.summary.txt  --rna-strandness {STRING} \
+hisat2 -k1 --summary-file {SAMPLE}.summary.txt  --rna-strandness {STRING} 
 -x (/ruta-genoma-ref/grch38/genome) \
 -1 {SAMPLE_1_val_1.fq.gz} -2 {SAMPLE_2_val_2.fq.gz} |\
 samtools view -Sbh > {SAMPLE}.bam 
-```
+````
 > NOTA  
 > `-x` : prefijo del índice del genoma de referencia [genome]  
 > `--summary-file`  
