@@ -244,7 +244,9 @@ Una vez preparada la submuestra, se lleva a cabo un alineamiento rápido contra 
 
 Como se ha comentado previamente, para realizar el mapeo se emplea la herramienta _HISAT2_ y el genoma de referencia humano indexado descargado previamente (_grch38_genome.tar.gz_). El resultado del alineamiento en formato `.bam` lo guardamos en la carpeta `2_Infer_strandedness`.  
 ```console
-hisat2 -k1 -x ../4_Alignment/Reference_genome/grch38/genome -1 subsampled_{sample}_1.fastq.gz -2 subsampled_{sample}_2.fastq.gz | samtools view -Sbh > subsampled_alignment.bam
+hisat2 -k1 -x ../4_Alignment/Reference_genome/grch38/genome \
+-1 subsampled_{sample}_1.fastq.gz -2 subsampled_{sample}_2.fastq.gz |\
+samtools view -Sbh > subsampled_alignment.bam
 ```  
 > NOTA   
 > `-k` permite determinar el número de veces que se permite que una misma lectura pueda alinear en varias ubicaciones dentro del genoma de referencia. En nuestro caso especificamos el valor 1, para impedir los alineamientos múltiples.  
