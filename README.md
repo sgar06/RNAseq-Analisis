@@ -399,34 +399,9 @@ fastqc -o qc_processed_reads *.fq.gz
 cd ./qc_processed_reads
 mutliqc .
 ```
-Tras el filtrado nos quedan los siguientes resultados:  
-
-| Condición | Muestra | Lecturas ID | Lecturas Crudas | Lecturas Limpias | Lecturas Limpias (%) | Lecturas eliminadas (%) | Duplicados (%) |GC (%) |
-| --------- |--------- | --------- |--------- |--------- |--------- |--------- |--------- |--------- |
-Sano |	GSM8153253 |	SRR28380565_1 |	28.464.072 |	28.427.141 |	99,87	| 0,13 | 22,2 | 46 |
-Sano |	GSM8153253 |	SRR28380565_2 |	28.464.072 |	28.427.141 |	99,87 |	0,13 | 25,9 | 47
-Sano |	GSM8153252 |	SRR28380566_1 |	50.800.570 |	50.647.832 |	99,70 |	0,30 | 30,1 |	49
-Sano |	GSM8153252 |	SRR28380566_2 |	50.800.570 |	50.647.832 |	99,70 |	0,30 | 35,0 |	50
-Sano |	GSM8153250 |	SRR28380568_1 |	55.070.796 |	54.749.092 |	99,42 |	0,58 | 29,9 |	50
-Sano | 	GSM8153250 |	SRR28380568_2 |	55.070.796 |	54.749.092 |	99,42 | 0,58 | 34,1 |	50
-Sano |	GSM8153248 |	SRR28380570_1 |	52.693.417 |	52.575.369 |	99,78 |	0,22 | 28,1 |	48
-Sano |	GSM8153248 |	SRR28380570_2 |	52.693.417 |	52.575.369 |	99,78 |	0,22 | 33,8 |	48
-Sano |	GSM8153246 |	SRR28380572_1 |	33.449.072 |	33.406.729 |	99,87 |	0,13 | 21,1 |	48
-Sano |	GSM8153246 |	SRR28380572_2 |	33.449.072 |	33.406.729 |	99,87 |	0,13 | 25,1 |	48
-Sano |	GSM8153245 |	SRR28380573_1 |	33.188.628 |	33.134.489 |	99,84 |	0,16 | 20,4 |	47
-Sano |	GSM8153245 |	SRR28380573_2 |	33.188.628 |	33.134.489 |	99,84 |	0,16 | 24,9 |	47
-LES |	GSM8153238 |	SRR28380580_1 |	31.119.529 |	31.088.977 |	99,90 |	0,10 |	21,2 |	45
-LES |	GSM8153238 |	SRR28380580_2 |	31.119.529 |	31.088.977 |	99,90 |	0,10 |	23,6 |	45
-LES |	GSM8153236 |	SRR28380582_1 |	47.769.675 |	47.624.561 |	99,70 |	0,30 |	26,6 |	47
-LES |	GSM8153236 |	SRR28380582_2 |	47.769.675 |	47.624.561 |	99,70 |	0,30 |	31,1 |	48
-LES |	GSM8153234 |	SRR28380584_1 |	39.813.851 |	39.713.795 |	99,75 |	0,25 |	21,3 |	46
-LES |	GSM8153234 |	SRR28380584_2 |	39.813.851 |	39.713.795 |	99,75 |	0,25 |	25,7 |	47
-LES |	GSM8153232 |	SRR28380586_1 |	39.549.321 |	39.505.171 |	99,89 |	0,11 |	22,0 |	47
-LES |	GSM8153232 |	SRR28380586_2 |	39.549.321 |	39.505.171 |	99,89 |	0,11 |	26,6 |	47
-LES |	GSM8153230 |	SRR28380588_1 |	29.644.889 |	29.566.648 |	99,74 |	0,26 |	25,9 |	46
-LES |	GSM8153230 |	SRR28380588_2 |	29.644.889 |	29.566.648 |	99,74 |	0,26 |	28,1 |	47
-LES |	GSM8153229 |	SRR28380589_1 |	31.506.750 |	31.427.785 |	99,75 |	0,25 |	23,9 |	47
-LES |	GSM8153229 |	SRR28380589_2 |	31.506.750 |	31.427.785 |	99,75 |	0,25 |	26,7 |	47						
+Tras el filtrado nos quedan los siguientes resultados:   
+![image](https://github.com/user-attachments/assets/ca03a63f-90e0-43ce-84ce-af3c6ac2e049)
+  
   
 ### 2.2 Alineamiento de las lecturas procesadas contra el genoma de referencia con HISAT2
 Once the quality of the data is confirmed, we need to convert those millions of reads per sample into the gene- or transcript-level quantification. This would need the assignment of reads to genes or transcripts.  
