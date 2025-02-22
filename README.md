@@ -212,8 +212,8 @@ Una vez situados en la carpeta de interés, empleamos el siguiente comando para 
 xargs -n1 fastq-dump --gzip --split-3 < ../Supplementary/SRR_Acc_List.txt
 ```  
 > NOTA  
-> `xargs -n1` ejecuta el comando `fastq-dump` en las lecturas cuyos nombres figuran en el archivo _SRR_Acc_List.txt_.  Para llegar al archivo, indicamos la ruta relativa desde el directorio dónde nos encontramos.  
-> `fastq-dump` permite la descarga de lecturas desde el repositorio SRA en formato FASTQ y de forma comprimida con la opcción `--gzip`. Al tratarse de lecturas pareadas, la opción `--split-3` separa las lecturas _forward_ y _reverse_ en diferentes archivos, y en el caso de que alguna lectura no esté pareada, estas se anotan en un tercer archivo que contiene las lecturas desparejadas.  
+> * `xargs -n1` ejecuta el comando `fastq-dump` en las lecturas cuyos nombres figuran en el archivo _SRR_Acc_List.txt_.  Para llegar al archivo, indicamos la ruta relativa desde el directorio dónde nos encontramos.  
+> * `fastq-dump` permite la descarga de lecturas desde el repositorio SRA en formato FASTQ y de forma comprimida con la opcción `--gzip`. Al tratarse de lecturas pareadas, la opción `--split-3` separa las lecturas _forward_ y _reverse_ en diferentes archivos, y en el caso de que alguna lectura no esté pareada, estas se anotan en un tercer archivo que contiene las lecturas desparejadas.  
 
 El formato FASTQ contiene las siguientes características:  
 
