@@ -394,6 +394,7 @@ El script `trimgalore.sh` se almacena en la ruta  ~/RNAseq_analysis/Code/ y para
 Para observar los nuevos resultados, se emplea FastQC y MultiQC nuevamente sobre las lecturas filtradas, de forma que podemos comparar los resultados antes y después del empleo de la herramienta Trimgalore.  
 ``` console
 cd ~/RNAseq_analysis/Data/3_Processed
+mkdir qc_processed_reads
 fastqc -o qc_processed_reads *.fq.gz
 cd ./qc_processed_reads
 mutliqc .
@@ -427,23 +428,12 @@ LES	GSM8153230	SRR28380588
 LES	GSM8153229	SRR28380589						
 LES	GSM8153229	SRR28380589						
   
-### 2.2 Alineamiento contra genoma de referencia  
+### 2.2 Alineamiento de las lecturas procesadas contra el genoma de referencia con HISAT2
 Once the quality of the data is confirmed, we need to convert those millions of reads per sample into the gene- or transcript-level quantification. This would need the assignment of reads to genes or transcripts.  
 ![image](https://github.com/user-attachments/assets/6f42b6c5-30d6-41b0-b99a-8e57c317e667)  
 
 **2.2.1 Preparación del genoma de referencia**  
-So we need to firstly retrieve the reference genome. Specifically for the example data set, we need a human reference genome.  
-Búsqueda:  UCSC Genome Browser o herramienta HISAT2  
-Si el genoma no está indexado, indexación con hisat2-build 
-El genoma de referencia se puede buscar en la base de Ensembl o en [HISAT2](http://daehwankimlab.github.io/hisat2/)  
-In the download page, data are grouped by species. At the Index section, you can see the links of different genome data such as human genome. At the human section, you can see the links of different human genome data, which are further grouped by different human reference genome versions. Here we want to the newest human reference genome (GRCh38/hg38). We need the [GRCh38 genome](https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz) 
-Descargar el genoma de referencia hg38_genome.tar.gz (o GRCh38) y descomprimir  
-```console
-cd Reference_genome
-wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
-# Dentro de la carpeta Reference_genome
-tar -xvf grch38_genome.tar.gz
-```
+Este paso ya lo hicimos previamente: [**Decarga del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens***](##-Decarga-del-genoma-de-referencia-y-el-archivo-de-anotaciones-de-la-especie-*Homo-sapiens*)
 Se nos va a generar un carpeta /grch38/ con el genoma de referencia. Va a tener diferentes archivos genome.1 , genome.2 ... genome.8 y también el ejecutable. De esta forma ya lo tenemos indexado.  
 
 **2.2.2 Alineamiento de las lecturas contra el genoma de referencia con HISAT2**  
