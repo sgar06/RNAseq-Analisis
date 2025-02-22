@@ -369,7 +369,7 @@ El programa TrimGalore recorta los extremos de las lecturas en función a su cal
 
 En cuanto al procesamiento, TrimGalore primero recorta las bases con mala calidad del extremo 3' eliminado las partes de las lecturas con poca calidad (Phred-score < 20). Seguidamente, la herramienta Cutadapt contenida en TrimGalore, encuentra y elimina las secuencias de adaptadores de los extremos 3' de  las lecturas y, finalmente, aquellas lecturas que tras el recorte de bases y adaptadores contengan una longitud inferior a 20pb por defecto son eliminadas.  
 
-se puede encontrar más información del funcionamiento de TrimGalore en la página de sus creadores, pinchando [aquí](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md)   
+Se puede encontrar más información del funcionamiento de TrimGalore en la página de sus creadores, pinchando [aquí](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md).  
 
 Para procesar todos los archivos `.fastq.gz` con las lecturas crudas simultaneamente, se puede emplear el script siguiente, denominado `trimgalore.sh` para ejecutar el comando anterior sobre varios archivos.  
 ```console
@@ -403,55 +403,56 @@ Tras el filtrado nos quedan los siguientes resultados:
 
 | Condición | Muestra | Lecturas ID | Lecturas Crudas | Lecturas Limpias | Lecturas Limpias (%) | Lecturas eliminadas (%) | Duplicados (%) |GC (%) |
 | --------- |--------- | --------- |--------- |--------- |--------- |--------- |--------- |--------- |
-Sano |	GSM8153253 |	SRR28380565_1 |	28464072 |	28427141 |	99,87	| 0,13 | 22,2 | 46 |
-Sano |	GSM8153253 |	SRR28380565_2 |	28464072 |	28427141 |	99,87 |	0,13 | 25,9 | 47
-Sano |	GSM8153252 |	SRR28380566_1 |	50800570 |	50647832 |	99,70 |	0,30 | 30,1 |	49
-Sano |	GSM8153252 |	SRR28380566_2 |	50800570 |	50647832 |	99,70 |	0,30 | 35,0 |	50
-Sano |	GSM8153250 |	SRR28380568_1 |	55070796 |	54749092 |	99,42 |	0,58 | 29,9 |	50
-Sano | 	GSM8153250 |	SRR28380568_2 |	55070796 |	54749092 |	99,42 | 0,58 | 34,1 |	50
-Sano |	GSM8153248 |	SRR28380570_1 |	52693417 |	52575369 |	99,78 |	0,22 | 28,1 |	48
-Sano |	GSM8153248 |	SRR28380570_2 |	52693417 |	52575369 |	99,78 |	0,22 | 33,8 |	48
-Sano |	GSM8153246 |	SRR28380572_1 |	33449072 |	33406729 |	99,87 |	0,13 | 21,1 |	48
-Sano |	GSM8153246 |	SRR28380572_2 |	33449072 |	33406729 |	99,87 |	0,13 | 25,1 |	48
-Sano |	GSM8153245 |	SRR28380573_1 |	33188628 |	33134489 |	99,84 |	0,16 | 20,4 |	47
-Sano |	GSM8153245 |	SRR28380573_2 |	33188628 |	33134489 |	99,84 |	0,16 | 24,9 |	47
-LES	GSM8153238 	SRR28380580						
-LES	GSM8153238	SRR28380580						
-LES	GSM8153236	SRR28380582						
-LES	GSM8153236	SRR28380582						
-LES	GSM8153234	SRR28380584						
-LES	GSM8153234	SRR28380584						
-LES	GSM8153232	SRR28380586						
-LES	GSM8153232	SRR28380586						
-LES	GSM8153230	SRR28380588						
-LES	GSM8153230	SRR28380588						
-LES	GSM8153229	SRR28380589						
-LES	GSM8153229	SRR28380589						
+Sano |	GSM8153253 |	SRR28380565_1 |	28.464.072 |	28.427.141 |	99,87	| 0,13 | 22,2 | 46 |
+Sano |	GSM8153253 |	SRR28380565_2 |	28.464.072 |	28.427.141 |	99,87 |	0,13 | 25,9 | 47
+Sano |	GSM8153252 |	SRR28380566_1 |	50.800.570 |	50.647.832 |	99,70 |	0,30 | 30,1 |	49
+Sano |	GSM8153252 |	SRR28380566_2 |	50.800.570 |	50.647.832 |	99,70 |	0,30 | 35,0 |	50
+Sano |	GSM8153250 |	SRR28380568_1 |	55.070.796 |	54.749.092 |	99,42 |	0,58 | 29,9 |	50
+Sano | 	GSM8153250 |	SRR28380568_2 |	55.070.796 |	54.749.092 |	99,42 | 0,58 | 34,1 |	50
+Sano |	GSM8153248 |	SRR28380570_1 |	52.693.417 |	52.575.369 |	99,78 |	0,22 | 28,1 |	48
+Sano |	GSM8153248 |	SRR28380570_2 |	52.693.417 |	52.575.369 |	99,78 |	0,22 | 33,8 |	48
+Sano |	GSM8153246 |	SRR28380572_1 |	33.449.072 |	33.406.729 |	99,87 |	0,13 | 21,1 |	48
+Sano |	GSM8153246 |	SRR28380572_2 |	33.449.072 |	33.406.729 |	99,87 |	0,13 | 25,1 |	48
+Sano |	GSM8153245 |	SRR28380573_1 |	33.188.628 |	33.134.489 |	99,84 |	0,16 | 20,4 |	47
+Sano |	GSM8153245 |	SRR28380573_2 |	33.188.628 |	33.134.489 |	99,84 |	0,16 | 24,9 |	47
+LES |	GSM8153238 |	SRR28380580_1 |	31.119.529 |	31.088.977 |	99,90 |	0,10 |	21,2 |	45
+LES |	GSM8153238 |	SRR28380580_2 |	31.119.529 |	31.088.977 |	99,90 |	0,10 |	23,6 |	45
+LES |	GSM8153236 |	SRR28380582_1 |	47.769.675 |	47.624.561 |	99,70 |	0,30 |	26,6 |	47
+LES |	GSM8153236 |	SRR28380582_2 |	47.769.675 |	47.624.561 |	99,70 |	0,30 |	31,1 |	48
+LES |	GSM8153234 |	SRR28380584_1 |	39.813.851 |	39.713.795 |	99,75 |	0,25 |	21,3 |	46
+LES |	GSM8153234 |	SRR28380584_2 |	39.813.851 |	39.713.795 |	99,75 |	0,25 |	25,7 |	47
+LES |	GSM8153232 |	SRR28380586_1 |	39.549.321 |	39.505.171 |	99,89 |	0,11 |	22,0 |	47
+LES |	GSM8153232 |	SRR28380586_2 |	39.549.321 |	39.505.171 |	99,89 |	0,11 |	26,6 |	47
+LES |	GSM8153230 |	SRR28380588_1 |	29.644.889 |	29.566.648 |	99,74 |	0,26 |	25,9 |	46
+LES |	GSM8153230 |	SRR28380588_2 |	29.644.889 |	29.566.648 |	99,74 |	0,26 |	28,1 |	47
+LES |	GSM8153229 |	SRR28380589_1 |	31.506.750 |	31.427.785 |	99,75 |	0,25 |	23,9 |	47
+LES |	GSM8153229 |	SRR28380589_2 |	31.506.750 |	31.427.785 |	99,75 |	0,25 |	26,7 |	47						
   
 ### 2.2 Alineamiento de las lecturas procesadas contra el genoma de referencia con HISAT2
 Once the quality of the data is confirmed, we need to convert those millions of reads per sample into the gene- or transcript-level quantification. This would need the assignment of reads to genes or transcripts.  
 ![image](https://github.com/user-attachments/assets/6f42b6c5-30d6-41b0-b99a-8e57c317e667)  
 
 **2.2.1 Preparación del genoma de referencia**  
-Este paso ya lo hicimos previamente: [**Decarga del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens***](##-Decarga-del-genoma-de-referencia-y-el-archivo-de-anotaciones-de-la-especie-*Homo-sapiens*)
-Se nos va a generar un carpeta /grch38/ con el genoma de referencia. Va a tener diferentes archivos genome.1 , genome.2 ... genome.8 y también el ejecutable. De esta forma ya lo tenemos indexado.  
+Como explicamos previamente, el genoma de referencia indexado se descarga desde el repositorio de _HISAT2_ y, una vez tenemos el genoma en nuestra computadora, se lleva a cabo el alineamiento.  
 
-**2.2.2 Alineamiento de las lecturas contra el genoma de referencia con HISAT2**  
-HISAT2 usa menos recursos computacionalmente que STAR, pero STAR genera resultados más precisos  
-Once the genome indexing is done, you are ready to map the reads to the reference genome with HISAT2.
-Elementos que mapean 1 vez  
+**2.2.2 Alineamiento de las lecturas**  
+Hoy en día, existen diferentes alineadores o mapeadores que se pueden emplear. Entre los más conocidos se encuentran HISAT2 y STAR. Algunas de las diferencias entre ellos son la cantidad  de recursos necesarios, siendo mennos en el caso de HISAT2; o la precisión de los resultados,  siendo más precisos en el caso de STAR. 
+En el presente trabajo, se emplea el alineador HISAT2 para mapear las lecturas procesadas al genoma de referencia indexado.  
+
+Para llevar a cabo el alineamiento de las lecturas pareadas con HISAT2, empleamos el siguiente comando:  
 ```console
 #Paired-end reads
-hisat2 -k1 --summary-file {SAMPLE}.summary.txt  --rna-strandness {STRING} 
--x (/ruta-genoma-ref/grch38/genome) \
+cd ~/RNAseq_analysis/Data/4_Alignment
+hisat2 -k1 --summary-file {sample}.summary.txt  --rna-strandness {STRING} 
+-x (./Reference_genome/grch38/genome) \
 -1 {SAMPLE_1_val_1.fq.gz} -2 {SAMPLE_2_val_2.fq.gz} |\
 samtools view -Sbh > {SAMPLE}.bam 
 ````
 > NOTA  
-> `-x` : prefijo del índice del genoma de referencia [genome]  
-> `--summary-file`  
+> * `-k`: permite establecer el número máximo de alineamientos permitidos por lectura. El valor 1 impide la existencia de alineamientos múltiples.  
+> * `--summary-file`: crea un nuevo archivo con los resultados del alineamiento.  
+> * `-x` : ruta relativa y nombre principal de los archivos indexados para el genoma de referencia. El nombre principal incluye el nombre de los archivos indexados sin incluir el final (.1.ht2, .2.ht2, etc).  
 > `-1` y `-2`: lecturas a alinear  
-> `-k`: define el número máximo de alineamientos por lectura  
 > ` --rna-strandness` {STRING} option in HISAT2  sets how reads are expected to align against genes. With this option being used, every read alignment will have an XS attribute tag: '+' means a read belongs to a transcript on '+' strand of genome. '-' means a read belongs to a transcript on '-' strand of genome.  
 Most stranded protocols in use these days follow the dUTP-method, where read #2 in a pair has the same orientation as the transcript from which it arose (2++ or 2--). So either `R` or `RF` would typically be appropriate   
 Use 'RF' if the first read in the pair corresponds to a transcript on the reverse strand, and the second read corresponds to the forward strand. When you use the `--rna-strandness` option with either 'FR' or 'RF' for paired-end reads, HISAT2 will assign an XS attribute tag to each read alignment, indicating whether the read belongs to a transcript on the '+' (plus) or '-' (minus) strand of the genome.
