@@ -229,8 +229,8 @@ seqkit sample -p 0.1 -s 100 {sample}_1.fastq.gz -o subsampled_{sample}_1.fastq.g
 seqkit sample -p 0.1 -s 100 {sample}_2.fastq.gz -o subsampled_{sample}_2.fastq.gz
 ```
 > NOTA  
-> `-p` permite determinar la proporción de lecturas a seleccionar. En nuestro caso el 10% de lecturas totales.   
-> `-s` permite determinar el random _seed_. En este caso, se especifica el valor de 100, permitiendo que las lecturas aleatorias sean las mismas en ambos archivos.  
+> * `-p` permite determinar la proporción de lecturas a seleccionar. En nuestro caso el 10% de lecturas totales.   
+> * `-s` permite determinar el random _seed_. En este caso, se especifica el valor de 100, permitiendo que las lecturas aleatorias sean las mismas en ambos archivos.  
 > Ambos parametros tanto `-p`como `-s` tienen que ser los mismos en ambos archivos R1 y R2 para seleccionar las mismas lecturas aleatorias.  
 
 Para comprobar el número de pares de lecturas seleccionadas en la submuestra, se puede especificar el siguiente comando:   
@@ -248,9 +248,9 @@ hisat2 -k1 -x ../4_Alignment/Reference_genome/grch38/genome \
 samtools view -Sbh > subsampled_alignment.bam
 ```  
 > NOTA   
-> `-k` permite determinar el número de veces que se permite que una misma lectura pueda alinear en varias ubicaciones dentro del genoma de referencia. En nuestro caso especificamos el valor 1, para impedir los alineamientos múltiples.  
-> `-x` sirve para indicar la ruta de directorios hasta llegar al genoma de referencia indexado.  
-> `-1` y `-2` permite indicar las lecturas filtradas _forward_ y _reverse_ de la submuestra.  
+> * `-k` permite determinar el número de veces que se permite que una misma lectura pueda alinear en varias ubicaciones dentro del genoma de referencia. En nuestro caso especificamos el valor 1, para impedir los alineamientos múltiples.  
+> * `-x` sirve para indicar la ruta de directorios hasta llegar al genoma de referencia indexado.  
+> * `-1` y `-2` permite indicar las lecturas filtradas _forward_ y _reverse_ de la submuestra.  
 > La salida del comando `hisat2` genera un archivo SAM con los resultados del alineamiento. Sin embargo, como se trata de un archivo muy pesado, la salida del comando de `hisat2` se concatena directamente a la herramienta `samtools` a través de una tubería `|` con el fin evitar la creación de archivos intermedios. De esta forma el comando `samtools view -Sbh > subsampled_alignment.bam`  permite crear directamente el archivo BAM en código binario, ocupando menos espacio. La opción `-Sbh` permite indicar el  formato de tipo SAM que se usa como entrada (`S`), el archivo de salida en formato BAM (`b`) y el mantenimiento del encabezado (`h`).  
 
 Para visualizar el resultado del alineamiento en formato binario (BAM), se puede emplear la herramienta `samtools`.  
@@ -296,8 +296,8 @@ cd ~/RNAseq_analysis/Data/2_Infer_strandedness
 infer_experiment.py -r ../5_Annotation/Homo_sapiens.bed  -i subsampled_alignment.bam | tee infer_strand.txt
 ```
 > NOTA  
-> `-r` : archivo de anotaciones de referencia en formato BED.  
-> `-i` : resultado del archivo de alineammiento en formato SAM o BAM.   
+> * `-r` : archivo de anotaciones de referencia en formato BED.  
+> * `-i` : resultado del archivo de alineammiento en formato SAM o BAM.   
 > La salida del comando se concatena con el comando `tee` que permite mostrar los resultados en pantalla y a la vez generar un nuevo archivo `infer_strand.txt`con la información mostrada.  
   
 Como resultado se pueden dar diferentes escenarios según la forma de preparación de la librería: lecturas pareadas o de extremo único, lecturas con información de hebra específica o no, y a su vez, dentro de los experimentos de hebra específica, se pueden diferenciar:  
@@ -582,6 +582,7 @@ for SAMPLE in $SAMPLES; do
 	5_Annotation/Homo_sapines.gtf > ../Results/${SAMPLE}_counts.tsv
 	
 done
+```
 
 **2.3.3 Obtención de la matriz de recuentos** 
 
