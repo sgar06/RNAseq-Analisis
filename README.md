@@ -204,7 +204,7 @@ Para descargar la lista con los identificadores de las lecturas en formato de te
 Una vez descargado el archivo de texto plano _SRR_Acc_List.txt_ con los identificadores, se gurada en la ruta `~/RNAseq_analysis/Data/Supplementary` y se emplea el comando ``fastq-dump` de la herramienta _SRA-toolkit_ desde la terminal para obtener las lecturas crudas en nuestra computadora.  
 Las lecturas crudas se almacenan en el directorio `1_Raw` de nustra estructura de archivos.  
 ```console
-cd /home/sgarciallorens/RNAseq_analysis/Data/1_Raw
+cd ~/RNAseq_analysis/Data/1_Raw
 ```  
 Una vez situados en la carpeta de interés, empleamos el siguiente comando para descargar las lecturas:  
 ```console 
@@ -214,7 +214,15 @@ xargs -n1 fastq-dump --gzip --split-3 < ../Supplementary/SRR_Acc_List.txt
 > * `xargs -n1` ejecuta el comando `fastq-dump` en las lecturas cuyos nombres figuran en el archivo _SRR_Acc_List.txt_.  Para llegar al archivo, indicamos la ruta relativa desde el directorio dónde nos encontramos.  
 > * `fastq-dump` permite la descarga de lecturas desde el repositorio SRA en formato FASTQ y de forma comprimida con la opcción `--gzip`. Al tratarse de lecturas pareadas, la opción `--split-3` separa las lecturas _forward_ y _reverse_ en diferentes archivos, y en el caso de que alguna lectura no esté pareada, estas se anotan en un tercer archivo que contiene las lecturas desparejadas.  
 
-El formato FASTQ contiene las siguientes características:  
+El **formato FASTQ** contiene la secuencia de las lecturas, así como la puntuación de calidad asociada para cada una de las bases anotadas. Estas puntuaciones de calidad se conocen como "_phred quality score"_ y surgieron en los años 90 para la secuenciación de Sanger, aunque posteriormente se expandieron para su uso en las tecnologías de Secuenciación de Nueva Generación o NGS.  
+  
+Si nos fijamos en la estructura del archivo de secuenciación SRR28380565, obtenido para la muestra GSM8153253, y observamos la estructura de sus primeras 4 líneas, observamos lo siguiente:  
+```console
+
+```
+
+Cada lectura contiene 4 líneas: la primera, que contiene el símbolo @ seguido del identificador de la secuencia; la segunda, que contiene la lectura; la tercera, que comienza por + seguido del identificador; y la cuarta, que contiene la calidad asociada a esa lectura.
+
 
 ## 2 Procesamiento de los datos RNA-seq  
 
@@ -272,10 +280,26 @@ SRR28380565.47	147	1	14693	60	101M	=	14630	-164	CCCCTACGATTCCCAGTC[...]  FFFFFFF
 ```
 Como podemos ver, al tratarse de una submuestra en la cual las lecturas han sido seleccionadas aleatoriamente, observamos que el número especificado después del ID de las lecturas (SRR28380565) no está ordenado, sino que representa pares de lecturas aleatorias (3, 11, 43, 44, 47...).  
 
-| tabla con los campos |
-| ---|
-|...| 
-|...|
+El **formato BAM** incluye una parte de encabezado opcional, y una otra parte con los resultados del alineamiento. La parte del encabezado se diferencia porque incluye el símbolo de '@' al comienzo de cada línea, e incluye información como el nombre de la muestra o el método de alineamiento, entre otras. En este caso, al usar el comando `samtools view` se muestra directamente la sección con el alineamiento, sin mostrar el encabezado. 
+
+La sección con el alineamiento, a su vez, se divide en 11 campos obligatorios y, en general, cada línea representa el alineamiento para un segmento dentro del genoma de referencia. Sin embargo, algunas lecturas pueden ocupar varias líneas del alineamiento, cuando se permiten los alineamientos múltiples contra el genoma de referencia.
+
+| Campo | Descripción |
+| ---| ---|
+|1. QNAME | Nombre de las lecturas |
+|2. FLAG | Identificadores específicos para indicar cómo es el mapeo |
+|3. RNAME | Nombre de la secuencia de referencia. En este caso indica el cromosoma donde mapea la lectura. Si la lectura no mapea se muestra "*". |
+|4. POS | Primera posición del mapeo |
+|5. MAPQ | Calidad del Mapeo |
+|6. CIGAR | Indica el alineamiento. describe inserciones y deleciones |
+| 7. RNEXT | Reference name of the mate/next read
+| 8. PNEXT |  Position of the mate/next read |
+| 9. TLEN | observed template length
+| 10. SEQ | Secuencia de la lectura | 
+| 11. QUAL | ASCII of Phred-scaled base QUAlity+33
+| 12. TAGS | Información adicional
+
+
 
 Para conocer el significado de cada FLAG, podemos usar el siguiente [enlace](https://broadinstitute.github.io/picard/explain-flags.html)  
 
@@ -520,7 +544,7 @@ Para comprobar la calidad del alineamiento para cada uno de los archivos BAM res
 # Fecha: 2025
 # Nombre del proyecto: RNAseq_analysis
 
-# Script de bash para el programa RseQC; estadísticas de la calidad del alineamiento mediante el empleo de la herramienta bam_stats.py
+# Script de bash para el programa RseQC; estadísticas de la calidad del alineamiento con la herramienta bam_stats.py
 
 SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568
 	SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
@@ -555,14 +579,53 @@ Splice reads:                           13196527
 Reads mapped in proper pairs:           53037578
 Proper-paired reads map to different chrom:0
 ```
+
+Finalmente, los resultados obtenidos tras el alineamiento de todas las muestras son los siguientes:  
+  
+![image](https://github.com/user-attachments/assets/0b49ef3a-0d83-4844-8ac0-034608e37af9)
+  
   
 ### 2.3 Identificación y recuento de features o características  
 
 **2.3.1 Preparación del archivo de anotaciones GTF**  
 
-El archivo de anatociones empleados es GRCh38.p14 descargado del [GENCODE](https://www.gencodegenes.org/human/)
+Como explicamos previamente, el genoma de anotaciones de la especie humana (GRCh38.p14) en formato GTF se descargó desde el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon).  
+
+La estructura del archivo es la siguiente:  
+```console
+#!genome-build GRCh38.p14
+#!genome-version GRCh38
+#!genome-date 2013-12
+#!genome-build-accession GCA_000001405.29
+#!genebuild-last-updated 2024-07
+1	ensembl_havana	gene		3069168	3438621	.	+	.	gene_id "ENSG00000142611"; gene_version "17"; gene_biotype "protein_coding"; gene_source "ensembl_havana"; transcript_id "ENSG00000142611"; gene_name "PRDM16"
+1	havana		transcript	3069168	3434342	.	+	.	tag "gencode_primary"; transcript_support_level "5"; gene_source "ensembl_havana"; transcript_name "PRDM16-206"; transcript_biotype "protein_coding"; gene_id "ENSG00000142611"; transcript_version "5"; transcript_source "havana"; gene_biotype "protein_coding"; transcript_id "ENST00000511072"; gene_name "PRDM16"; gene_version "17"
+1	havana		exon		3069168	3069296	.	+	.	gene_biotype "protein_coding"; transcript_source "havana"; exon_number "1"; gene_version "17"; exon_id "ENSE00002048533"; gene_name "PRDM16"; transcript_id "ENST00000511072"; gene_source "ensembl_havana"; transcript_support_level "5"; tag "gencode_primary"; transcript_biotype "protein_coding"; exon_version "1"; gene_id "ENSG00000142611"; transcript_version "5"; transcript_name "PRDM16-206"
+1	havana		CDS		3069260	3069296	.	+	.	protein_version "1"; protein_id "ENSP00000426975"; transcript_name "PRDM16-206"; transcript_biotype "protein_coding"; gene_id "ENSG00000142611"; transcript_version "5"; tag "gencode_primary"; gene_source "ensembl_havana"; transcript_support_level "5"; gene_name "PRDM16"; transcript_id "ENST00000511072"; gene_version "17"; transcript_source "havana"; exon_number "1"; gene_biotype "protein_coding"
+1	havana		start_codon	3069260	3069262	.	+	.	gene_version "17"; transcript_id "ENST00000511072"; gene_name "PRDM16"; gene_biotype "protein_coding"; transcript_source "havana"; exon_number "1"; gene_id "ENSG00000142611"; transcript_biotype "protein_coding"; transcript_version "5"; transcript_name "PRDM16-206"; transcript_support_level "5"; gene_source "ensembl_havana"; tag "gencode_primary"
+```
+El formato GTF representa las características y anotaciones específicas para un genoma de referencia.  Cada línea representa una región particular del genoma, y el número de columnas puede variar. Se pueden tener hasta 10 columnas, las cuales representan los siguientes indicadores:  
+```
+[cromosoma] [fuente] [característica] [posición.inicio] [posición.final] [puntuación] [hebra] [marco] [atributos] [comentarios]
+```
+| Columna | Significado |
+| -------| ------------|
+1. Cromosoma | Indica el cromosoma donde se localiza la anotación. |
+2. Fuente | Fuente de la anotación. Hace referencia al programa de predicción empleado o a la base de datos de anotaciones |
+3. Característica | Indica el tipo de característica: gen, transcrito, exón, CDS, etc. |
+4. Posición de inicio | Posición de inicio de la característica en el genoma de referencia |
+5. Posición final |  Posición final de la característica en el genoma de referencia |
+6. Puntuación | Puntuación asociada a la característica. Si no hay puntuación, se presenta solamente un '.' |
+7. Hebra | Permite indicar la hebra de procedencia de la característica.  Puede ser '+' , '-' o '.' (si  la hebra es desconocida o no aplicable |
+8. Marco | Puede presentarse como '0', '1' o '2' |
+9. Atributos | Incluyen identificadores y otras información suplementaria |
+10. Comentarios | Es una columna con información complementaria |
+  
 
 **2.3.2 Recuento de características con htseq-count**  
+
+Una vez visualizada la estructura del archivo de anotaciones (_Homo_sapiens.gtf_), este se emplea para anotar las características de las lecturas según la posición del genoma dónde alineen. Para ello, se debe comprobar que la forma de nombrar los cromosomas en ambos archivos es la misma, ya que si no esto puede conducir a errores.
+
 ```console
 cd ~RNAseq_analysis/Data/
 
@@ -585,6 +648,22 @@ done
 ```
 
 **2.3.3 Obtención de la matriz de recuentos** 
+
+Finalmente 
+```console
+#!/usr/bin/bash
+
+SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573"
+cd ~/RNAseq_analysis/Results
+
+
+for SAMPLE in $SAMPLES; do
+	sed -i "1s/^/feature\t${SAMPLE}\n/" "${SAMPLE}_counts.tsv" 
+done
+
+```
+
+
 
 ## 3 Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados
 ### 3.1 Instalación de edgeR  
