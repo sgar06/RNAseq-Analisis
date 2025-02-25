@@ -301,18 +301,18 @@ La sección con el alineamiento, a su vez, se divide en 11 campos obligatorios y
 
 | Campo | Descripción |
 | ---| ---|
-|1. QNAME | Representa un identificador único para cada una de las lecturas. |
-|2. FLAG |  Indica un valor de puntuación en base a las características del alineamiento de cada lectura.  |
-|3. RNAME | Nombre de la secuencia de referencia dónde mapea la lectura. En nuestro caso, representa el número de cromosoma. Si la lectura no mapea se representa "*". |
-|4. POS | Posición de la primera base de la lectura que mapea contra el genoma de referencia. |
-|5. MAPQ | Calidad del mapeo. Indica cómo de correcto o incorrecto es el alineamiento. |
-|6. CIGAR | Secuencia de números y letras que indica el alineamiento, inserciones y deleciones. |
-| 7. RNEXT | Análogo al campo 3, pero con la información relativa al otro par de la lectura en el caso de lecturas pareadas. |
-| 8. PNEXT | Análogo al campo 4, pero con la información relativa al otro par de la lectura en el caso de lecturas pareadas. |
-| 9. TLEN | Longitud  de la secuencia de referencia dónde mapean las lecturas. |
-| 10. SEQ | Secuencia de la lectura actual, corresponde a la misma secuencia especificada en el archivo FASTQ. | 
-| 11. QUAL | Calidad de la lectura actual, corresponde a la calidad asociada a cada una de las bases en formato _Phred score_ y también esta especificada en el archivo FASTQ. |
-| 12. TAGS | Etiquetas específicas con información adicional del alineamiento o de la lectura. |
+|1.QNAME | Representa un identificador único para cada una de las lecturas. |
+|2.FLAG |  Indica un valor de puntuación en base a las características del alineamiento de cada lectura.  |
+|3.RNAME | Nombre de la secuencia de referencia dónde mapea la lectura. En nuestro caso, representa el número de cromosoma. Si la lectura no mapea se representa "*". |
+|4.POS | Posición de la primera base de la lectura que mapea contra el genoma de referencia. |
+|5.MAPQ | Calidad del mapeo. Indica cómo de correcto o incorrecto es el alineamiento. |
+|6.CIGAR | Secuencia de números y letras que indica el alineamiento, inserciones y deleciones. |
+| 7.RNEXT | Análogo al campo 3, pero con la información relativa al otro par de la lectura en el caso de lecturas pareadas. |
+| 8.PNEXT | Análogo al campo 4, pero con la información relativa al otro par de la lectura en el caso de lecturas pareadas. |
+| 9.TLEN | Longitud  de la secuencia de referencia dónde mapean las lecturas. |
+| 10.SEQ | Secuencia de la lectura actual, corresponde a la misma secuencia especificada en el archivo FASTQ. | 
+| 11.QUAL | Calidad de la lectura actual, corresponde a la calidad asociada a cada una de las bases en formato _Phred score_ y también esta especificada en el archivo FASTQ. |
+| 12.TAGS | Etiquetas específicas con información adicional del alineamiento o de la lectura. |
   
 Además, existen diferentes recursos online que permiten conocer el significado de los distintos identificadores. Por ejemplo, para conocer el significado de los valores del campo FLAG, se puede usar el siguiente [enlace](https://broadinstitute.github.io/picard/explain-flags.html).  
 
