@@ -342,11 +342,7 @@ infer_experiment.py -r ../5_Annotation/Homo_sapiens.bed  -i subsampled_alignment
 Como resultado se pueden dar diferentes escenarios según la forma de preparación de la librería: lecturas pareadas o de extremo único, lecturas con información de hebra específica o no, y a su vez, dentro de los experimentos de hebra específica, se pueden diferenciar:  
 * Librerias sentido: Lecturas *forward* o R1 situadas en la misma dirección que el transcrito.  
 * Librerias antisentido: Lecturas *reverse* o R2 situadas en la misma dirección que el transcrito.  
-
-![image](https://github.com/user-attachments/assets/6a04a794-3a5c-46ec-83aa-4a3a5b83413b)
-![image](https://github.com/user-attachments/assets/43ba8b94-eae8-454c-810e-326a7d8d7da3)
-
-
+  
 infer_experiment.py samples a few hundred thousand reads from your bam/sam and tells you the portion that would be explained by each type of strandedness, e.g  
 [Stranded or non-stranded reads](https://eclipsebio.com/eblogs/stranded-libraries/)  
 ![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)  
