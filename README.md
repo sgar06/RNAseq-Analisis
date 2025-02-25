@@ -181,8 +181,8 @@ RNAseq_analysis
 
 ```
 
-## 1 Preparación de los datos
-### 1.1 Descarga de las lecturas crudas a partir del repositorio _Sequence Read Archive_(SRA) del NCBI  
+
+### 1.5  Descarga de los datos de RNA-seq del repositorio público SRA  
 
 Para llevar a cabo el análisis, se emplean lecturas crudas depositadas en el repositorio público _Gene Expression Omnibus _(GEO) bajo el índice [GSE261866](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261866). En esta página encontramos distinta información relativa al estudio, tales como el número de muestras, el organismo, el tipo de experimento o la plataforma de secuenciación. Además, en el apartado de _Supplementary file_ se encuentra un enlace hacia el repositorio _SRA Run selector_.   
   
