@@ -87,7 +87,7 @@ SeqKit | 2.9.0 | conda install bioconda::seqkit | Subselección de lecturas en u
 Bedops | 2.4.41 | conda install -c bioconda bedops | Conversión de archivos. |
 RseQC | 5.0.4 | conda install bioconda::rseqc | Evualuación de datos de RNAseq. |
 FastQC | 0.12.1 | conda install -c bioconda fastqc | Análisis de calidad de archivos FASTQ. |
-MultiQC | 1.27 | conda install -c bioconda multiqc | Creación de reportes. Capaz de aglomerar los resultados de otras herramientas en un único informe interactivo. |
+MultiQC | 1.27 | conda install -c bioconda multiqc | Creación de reportes. Capacidad paraaglomerar los resultados de otras herramientas en un único informe interactivo. |
 Cutadapt | 5.0 | conda install cutadapt | Búsqueda y recorte de adaptadores de las lecturas secuenciadas. |
 Trim-Galore | 0.6.10 | conda install -c bioconda trim-galore | Recorte de adaptadores y de calidad en archivos FASTQ. |
 HISAT2 | 2.2.1 | conda install -c bioconda hisat2 | Mapeador de lecturas. |
@@ -112,14 +112,18 @@ RNAseq_analysis
 |   `-- Supplementary
 `-- Results
 ```
+> NOTA
+> La carpeta Code....
+> La carprta Data....
+> La carpeta Results ....  
  
 ### 1.4 Obtención del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*  
   
-* **Descarga del genoma de referencia humano (GRcH38) indexado desde la página web HISAT2**
+* **Descarga del genoma de referencia desde la página web de HISAT2**
   
-_HISAT2_ es un programa de alineamiento rápido y eficiente capaz de alinear lecturas obtenidas tras la secuenciación contra diferentes genomas.  Desde su [repositorio online](http://daehwankimlab.github.io/hisat2/), se pueden descargar directamente diversos genomas indexados. En el caso de que el genoma de interés no esté indexado, la herramienta _HISAT2_ permite realizar una indexación manual con la función `hisat2-build`, aunque es un proceso lento y costoso.  
+_HISAT2_ es un programa de alineamiento rápido y eficiente capaz de alinear lecturas resultantes de la secuenciación contra diferentes genomas.  Desde su [repositorio online](http://daehwankimlab.github.io/hisat2/), se tienen disponibles para su descarga diversos genomas indexados. En el caso de que el genoma de interés no esté indexado, la herramienta _HISAT2_ permite realizar una indexación manual con la función `hisat2-build`, aunque es un proceso lento y costoso.   **La indexacion del genoma permite...**.  
 
-Es por ello, que descargamos directamente el genoma humano indexado desde su página web.
+Es por ello, que descargamos directamente el genoma de referencia humano (GRcH38) indexado desde su página web.
 Para ello, primero, es necesario acceder a la sección de descargas y, posteriormente, en la sección _Index_ encontramos diferentes _links_ según el genoma de interés, siendo en nuestro caso el genoma perteneciente a la especie _H.sapiens_.  
 
 ![image](https://github.com/user-attachments/assets/ddfb3af8-1e12-4a78-be2b-753cf76d5133)  
