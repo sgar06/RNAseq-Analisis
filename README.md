@@ -7,7 +7,7 @@
      * 1.2 Conda e instalación de herramientas para el análisis RNA-seq
      * 1.3 Estructura de directorios
      * 1.4 Obtención del genoma de referencia y el archivo de anotaciones de la especie _Homo sapiens_
-     * 1.1 Descarga de los datos de RNA-seq del repositorio SRA con SRAtools  
+     * 1.5 Descarga de los datos de RNA-seq del repositorio público SRA
 
 2. [Procesamiento de los datos RNA-seq](#2-procesamiento-de-los-datos-rna-seq)
      * 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
@@ -217,7 +217,7 @@ Para descargar la lista con los identificadores de las lecturas en formato de te
 ![image](https://github.com/user-attachments/assets/afbcce1d-228e-4994-ba4e-32d585c77471)  
   
   
-**Descarga de lecturas crudas con _SRA-toolkit_**
+### 1.5 Descarga de los datos de RNA-seq del repositorio público SRA  
 Una vez descargado el archivo de texto plano _SRR_Acc_List.txt_ con los identificadores, se gurada en la ruta `~/RNAseq_analysis/Data/Supplementary` y se emplea el comando ``fastq-dump` de la herramienta _SRA-toolkit_ desde la terminal para obtener las lecturas crudas en nuestra computadora.  
 Las lecturas crudas se almacenan en el directorio `1_Raw` de nustra estructura de archivos.  
 ```console
