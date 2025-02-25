@@ -538,7 +538,8 @@ Finalmente, los archivos .bam ordenados almacenados en el directorio `~/RNAseq_a
 ```console
 find . -name "*sorted.bam" | xargs -n1 samtools index
 ```
-
+**BAM files are often accompanied by a BAM index file also known as a BAI file with a similar name. This file will always be much smaller than the BAM file and acts as a “table of contents” for the BAM file, indicating where in the BAM file a specific read or set of reads can be found. Because the location of reads within the file is likely to change with sorting, it is important to generate or regenerate the BAM index file after the companion BAM file is sorted. The creation of the BAM index file can again be done using Samtools or Picard. Most software that expects a BAM file as input also expects a companion BAI file with a similar name to be available in the same folder as the BAM.** 
+  
 Una vez alineadas las lecturas procesadas contra el genoma de referencia, se puede comprobar la calidad de este alineamiento. Para ello, vamos a emplear el programa _RseQC_, dentro del cual existen diferentes funciones y scripts creados para analizar el alineamiento.  
 En concreto, vamos a emplear el script `bam_stat.py`, para obtener un resumen de las estadísticas del mapeo del archivo BAM. Primero, se determina una calidad de mapeo para cada lectura y seguidamente se calcula la probabilidad de que esa lectura esté mal posicionada en función de un umbral mínimo.   
 
