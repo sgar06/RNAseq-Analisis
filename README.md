@@ -416,7 +416,7 @@ Para procesar todos los archivos `.fastq.gz` con las lecturas crudas simultaneam
 # Fecha: 2025
 # Nombre del proyecto: RNAseq_analysis
 
-# Script de bash para la herramienta TrimGalore; recorte de bases de mala calidad y adaptadores para todos los archivos .fastq.gz.
+# Script de bash para la herramienta TrimGalore; recorte de bases de mala calidad y adaptadores para los archivos .fastq.gz.
 # Almacenamiento de los resultados en el directorio ~/RNAseq_analysis/Data/3_Processed/
 
 cd ~/RNAseq_analysis/Data/1_Raw
