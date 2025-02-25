@@ -2,7 +2,11 @@
 #### Escrito por Sonia García Llorens
 #### Actualizado el 7 Febrero 2025
 ### Contenido
-1. [Preparación de los datos](#1-Preparación-de-los-datos)
+1. [Preparación](#1-Preparación)
+     * 1.1 Linux y Bash
+     * 1.2 Conda e instalación de herramientas para el análisis RNA-seq
+     * 1.3 Estructura de directorios
+     * 1.4 Obtención del genoma de referencia y el archivo de anotaciones de la especie _Homo sapiens_
      * 1.1 Descarga de los datos de RNA-seq del repositorio SRA con SRAtools  
 
 2. [Procesamiento de los datos RNA-seq](#2-procesamiento-de-los-datos-rna-seq)
@@ -35,7 +39,66 @@
      * 4.3 Reactome (open source and fully open acces)
      * 4.4 MSigDB
 
-## Estructura de archivos
+## 1. Preparación 
+### 1.1 Linux y Bash
+### 1.2 Conda e instalación de herramientas para el análisis RNA-seq  
+  
+[Conda](https://docs.conda.io/en/latest/) es un gestor de paquetes y entornos de código abierto. Además, cuenta con grandes repositorios de _software_ o canales, que permiten la instalación y actualización de paquetes o herramientas, así como sus dependencias. Para emplear Conda, descargaremos la distribución de [Miniconda](https://docs.anaconda.com/miniconda/), un instalador gratuito de conda más ligero que incluye solamente conda, Python, y un pequeño número de paquetes o softwares.  
+  
+Para la instalación empleamos el siguiente bloque de comandos.
+```console
+# Creación de la carpeta miniconda3 para almacenar el contenido del software
+mkdir ~/miniconda3
+# Descarga de miniconda a través de la terminal
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+# Instalación de miniconda
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+# Ejecución de conda por defecto en la terminal
+~/miniconda/bin/conda init bash
+```
+> NOTA
+> El comando `conda init` permite inicializar conda por defecto en la terminal. Seguidamente, finalizamos la sesión en el servidor y comenzamos una nueva, de forma que observamos la palabra (base) en nuestra terminal indicando que nos encontramos en el entorno 'base' de cona.
+  
+Una vez tenemos conda instalado por defecto en la terminal, podemos instalar nuevas herramientas o paquetes con el comando `conda install`, de forma que conda verifica si el programa está disponible dentro sus repositorios o canales, y si está  disponible, descargará el _software_ y las dependencias necesarias para su buen funcionamiento. 
+Para la correcta instalación de herramientas, debemos especificar a conda los canales o repositorios dónde buscar, asi cómo el orden de preferencia. De esta forma, nos aseguramos de la correcta instalación de los programas así como de sus dependendencias con las versiones adecuadas. 
+
+Para configurar los canales o repositorios de preferencia y el orden jerárquico de búsqueda, empleamos los siguientes comandos, de forma que el último repositorio añadido tiene mayor prioridad que el anterior.  
+  
+```console
+conda config --add channels default
+conda config --add channels bioconda
+conda config --add channels conda-forge
+```
+
+Una vez establecidos los parámetros para el buen funcionamiento de conda, creamos un entorno específico dónde trabajaremos e instalaremos los paquetes o herramientas para el análisis RNA-seq.  
+```console
+# Creación de un nuevo entorno denominado genomic_analysis
+conda create -n genomic_analysis
+# Activación del entorno
+conda activate genomic_analysis
+```
+
+Posteriormente, instalamos la lista de herramientas mostrada a continuación, necesarias para el análisis transcriptómico dentro de nuestro entorno:  
+
+| Programa | Versión | Comando de instalación | Función | 
+|---------|---------|----------|----------|
+SRA-Toolkit | 3.2.0 | conda install -c bioconda sra-tools | Descarga de lecturas desde el repositorio SRA. |
+SeqKit | 2.9.0 | conda install bioconda::seqkit | Subselección de lecturas en una muestra. |
+Bedops | 2.4.41 | conda install -c bioconda bedops | Conversión de archivos. |
+RseQC | 5.0.4 | conda install bioconda::rseqc | Evualuación de datos de RNAseq. |
+FastQC | 0.12.1 | conda install -c bioconda fastqc | Análisis de calidad de archivos FASTQ. |
+MultiQC | 1.27 | conda install -c bioconda multiqc | Creación de reportes. Capaz de aglomerar los resultados de otras herramientas en un único informe interactivo. |
+Cutadapt | 5.0 | conda install cutadapt | Búsqueda y recorte de adaptadores de las lecturas secuenciadas. |
+Trim-Galore | 0.6.10 | conda install -c bioconda trim-galore | Recorte de adaptadores y de calidad en archivos FASTQ. |
+HISAT2 | 2.2.1 | conda install -c bioconda hisat2 | Mapeador de lecturas. |
+Samtools | 1.21  | conda install -c bioconda samtools | Manejo de archivos SAM/BAM. |
+HTSeq | 2.0.5 | conda install -c bioconda htseq | Anotación de características genómicas. |
+
+### 1.3 Estructura de directorios  
+  
+Para llevar a cabo el análisis transcriptómico a partir de las lecturas crudas hasta la obtención de genes diferencialmente expresados, empleamos la siguiente estructura de directorios. Siguiendo esta misma estructura, se podrán ejecutar todos los comandos especificados más adelante en el manual.  
+  
+Dentro del directorio _home_ de nuestro ordenador creamos la siguiente estructura de archivos:  
 ```console
 RNAseq_analysis
 |-- Code
@@ -49,57 +112,11 @@ RNAseq_analysis
 |   `-- Supplementary
 `-- Results
 ```
-
-## Instalación de las herramientas a través de conda
-Instalación de miniconda
-Por defecto el programa se instala en el directorio *home*
-```console
-# Descarga de miniconda desde la terminal
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-# Instalación de miniconda
-bash miniconda.sh -b -u -p $HOME/miniconda
-# Ejecución de conda por defecto en la terminal
-HOME/miniconda/bin/conda init bash
-# Actualización de conda
-conda update -q conda
-```
-
-Establecimiento de los canales de instalación
-```console
-conda config --add channels default
-conda config --add channels bioconda
-conda config --add channels conda-forge
-# Mostrar la preferencia de repositorios
-conda config --show-sources
-```
-
-Creación de un nuevo entorno y activación
-```console
-# Creación de un nuevo entorno denominada genomic_analysis
-conda create -n genomic_analysis
-# Activación del entorno
-conda activate genomic_analysis
-```
-
-Herramientas a instalar dentro del entorno:  
-| Programa | Versión | Comando de instalación | Utilidad | 
-|---------|---------|----------|----------|
-sratools | 3.2.0 | conda install -c bioconda sra-tools | Descarga de lecturas desde el repositorio NCBI |
-seqkit | 2.9.0 | conda install bioconda::seqkit | Subselección de lecturas en una muestra |
-bedops | 2.4.41 | conda install -c bioconda bedops | Conversión de archivos |
-RseQC | 5.0.4 | conda install bioconda::rseqc | Análsis de calidad |
-fastqc | 0.12.1 | conda install -c bioconda fastqc | Análisis de calidad |
-multiqc | 1.27 | conda install -c bioconda multiqc | Análisis de calidad |
-cutadapt | 5.0 | conda install cutadapt | Recorte de adaptadores |
-trim-galore | 0.6.10 | conda install -c bioconda trim-galore | Procesado de lecturas |
-hisat2 | 2.2.1 | conda install -c bioconda hisat2 | Mapeador de lecturas |
-samtools | 1.21  | conda install -c bioconda samtools | Manejo de archivos BAM |
-htseq | 2.0.5 | conda install -c bioconda htseq | Anotación de características genómicas |
-
-
-
-## Decarga del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*
-**Descarga del genoma de referencia humano (GRcH38) indexado desde la página web HISAT2**   
+ 
+### 1.4 Obtención del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*  
+  
+* **Descarga del genoma de referencia humano (GRcH38) indexado desde la página web HISAT2**
+  
 _HISAT2_ es un programa de alineamiento rápido y eficiente capaz de alinear lecturas obtenidas tras la secuenciación contra diferentes genomas.  Desde su [repositorio online](http://daehwankimlab.github.io/hisat2/), se pueden descargar directamente diversos genomas indexados. En el caso de que el genoma de interés no esté indexado, la herramienta _HISAT2_ permite realizar una indexación manual con la función `hisat2-build`, aunque es un proceso lento y costoso.  
 
 Es por ello, que descargamos directamente el genoma humano indexado desde su página web.
@@ -122,8 +139,8 @@ tar -xvf grch38_genome.tar.gz
 > Con el comando `mkdir` creamos un nuevo directorio para el genoma de referencia dentro de nuestra carpeta 4_Alignment. El comando `cd $_` permite movernos a esta nueva carpeta dónde descargamos el archivo de interés con el comando `wget`.  
 > Tras la descompresión del archivo, se genera el directorio `/grch38/` con el genoma de referencia y los archivos necesarios para la indexación. Esta indexación permitirá al alineador _HISAT2_, llevar a cabo un alineamiento de las lecturas más eficiente.    
 
-**Descarga del archivo de anotaciones de referencia GRCh38 desde el repositorio _ENSEMBLE_**  
-
+* **Descarga del archivo de anotaciones de referencia GRCh38 desde el repositorio _ENSEMBLE_**  
+  
 Para descargar el archivo de anotaciones de referencia de la especie _H.sapiens_, se emplea el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon). Por otro lado, es importante que el archivo de anotaciones tenga ciertas características específicas necesarias para la correcta ejecución de programas posteriores. Es por ello, que se emplea la herramienta _File Chamaleon_ con el fin de formatear el archivo de anotaciones.  
 
 Una vez seleccionado el genoma de interés (GRCh38.p14), se descarga el archivo de anotaciones en formato GTF y se marca la casilla de _transcript_id_ para incluir este campo en el archivo descargado.  
@@ -286,22 +303,20 @@ La sección con el alineamiento, a su vez, se divide en 11 campos obligatorios y
 
 | Campo | Descripción |
 | ---| ---|
-|1. QNAME | Nombre de las lecturas |
-|2. FLAG | Identificadores específicos para indicar cómo es el mapeo |
-|3. RNAME | Nombre de la secuencia de referencia. En este caso indica el cromosoma donde mapea la lectura. Si la lectura no mapea se muestra "*". |
-|4. POS | Primera posición del mapeo |
-|5. MAPQ | Calidad del Mapeo |
-|6. CIGAR | Indica el alineamiento. describe inserciones y deleciones |
-| 7. RNEXT | Reference name of the mate/next read
-| 8. PNEXT |  Position of the mate/next read |
-| 9. TLEN | observed template length
-| 10. SEQ | Secuencia de la lectura | 
-| 11. QUAL | ASCII of Phred-scaled base QUAlity+33
-| 12. TAGS | Información adicional
-
-
-
-Para conocer el significado de cada FLAG, podemos usar el siguiente [enlace](https://broadinstitute.github.io/picard/explain-flags.html)  
+|1. QNAME | Representa un identificador único para cada una de las lecturas. |
+|2. FLAG |  Indica un valor de puntuación en base a las características del alineamiento de cada lectura.  |
+|3. RNAME | Nombre de la secuencia de referencia dónde mapea la lectura. En nuestro caso, representa el número de cromosoma. Si la lectura no mapea se representa "*". |
+|4. POS | Posición de la primera base de la lectura que mapea contra el genoma de referencia. |
+|5. MAPQ | Calidad del mapeo. Indica cómo de correcto o incorrecto es el alineamiento. |
+|6. CIGAR | Secuencia de números y letras que indica el alineamiento, inserciones y deleciones. |
+| 7. RNEXT | Análogo al campo 3, pero con la información relativa al otro par de la lectura en el caso de lecturas pareadas. |
+| 8. PNEXT | Análogo al campo 4, pero con la información relativa al otro par de la lectura en el caso de lecturas pareadas. |
+| 9. TLEN | Longitud  de la secuencia de referencia dónde mapean las lecturas. |
+| 10. SEQ | Secuencia de la lectura actual, corresponde a la misma secuencia especificada en el archivo FASTQ. | 
+| 11. QUAL | Calidad de la lectura actual, corresponde a la calidad asociada a cada una de las bases en formato _Phred score_ y también esta especificada en el archivo FASTQ. |
+| 12. TAGS | Etiquetas específicas con información adicional del alineamiento o de la lectura. |
+  
+Además, existen diferentes recursos online que permiten conocer el significado de los distintos identificadores. Por ejemplo, para conocer el significado de los valores del campo FLAG, se puede usar el siguiente [enlace](https://broadinstitute.github.io/picard/explain-flags.html).  
 
 Una vez realizado el alineamiento, se emplea el archivo de anotaciones y la herramienta _RseQC_ para derminar la direccionalidad de las lecturas. El archivo de anotaciones a emplear lo descargamos previamente en formato GTF y activamos la opción para incluir los identificadores de los transcritos (_transcript_id_). Sin embargo, para emplear a herramienta _RseQC_, se necesita el archivo de anotaciones en formato BED, por lo que primero convertimos el archivo de anotaciones al nuevo formato con el paquete de herramientas _Bedops_.  
 
@@ -311,8 +326,10 @@ cd ~/RNAseq_analysis/Data/5_Annotation
 # Empleo del script convert2bed del paquete bedops
 convert2bed --input=gtf < Homo_sapiens.gtf > Homo_sapiens.bed
 ```
-> NOTA  
+> NOTA   
 > Es importante que el archivo de anotaciones en formato GTF contenga los idenficadores de los transcritos ya que si no el programa de conversión no funciona. Este campo se puede adicionar manualmente, o bien, se puede descargar directamente el archivo de anotaciones como describimos previamente.  
+
+El formato BED representa regiones específicas del genoma y puede tener diferentes elementos, aunque en su forma más básica incluye solamente 3 columnas para indicar el cromosoma, la posición inicial y la posición final de una región concreta.  Sin embargo, pueden contar con hasta 9 campos adicionales y opcionales, tales como los nombres de los elementos, las puntuaciones, la hebra del genoma y el número de exones, entre otros.
 
 Una vez el archivo de anotaciones presenta el formato correcto, se emplea el resultado del alineamiento de la submuestra (`subsampled_alignment.bam`) y la herramienta _infer_experiment.py_ de _RseQC_.  En este caso, la herramienta infer_experiment.py selecciona unos pocos miles de lecturas del archivo de alineamiento BAM/SAM y representa la proporción de la dirección de las hebras en el experimento.   
 ```console
@@ -591,7 +608,7 @@ Finalmente, los resultados obtenidos tras el alineamiento de todas las muestras 
 
 Como explicamos previamente, el genoma de anotaciones de la especie humana (GRCh38.p14) en formato GTF se descargó desde el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon).  
 
-La estructura del archivo es la siguiente:  
+La estructura del archivo es la siguiente:   
 ```console
 #!genome-build GRCh38.p14
 #!genome-version GRCh38
@@ -604,17 +621,19 @@ La estructura del archivo es la siguiente:
 1	havana		CDS		3069260	3069296	.	+	.	protein_version "1"; protein_id "ENSP00000426975"; transcript_name "PRDM16-206"; transcript_biotype "protein_coding"; gene_id "ENSG00000142611"; transcript_version "5"; tag "gencode_primary"; gene_source "ensembl_havana"; transcript_support_level "5"; gene_name "PRDM16"; transcript_id "ENST00000511072"; gene_version "17"; transcript_source "havana"; exon_number "1"; gene_biotype "protein_coding"
 1	havana		start_codon	3069260	3069262	.	+	.	gene_version "17"; transcript_id "ENST00000511072"; gene_name "PRDM16"; gene_biotype "protein_coding"; transcript_source "havana"; exon_number "1"; gene_id "ENSG00000142611"; transcript_biotype "protein_coding"; transcript_version "5"; transcript_name "PRDM16-206"; transcript_support_level "5"; gene_source "ensembl_havana"; tag "gencode_primary"
 ```
+  
 El formato GTF representa las características y anotaciones específicas para un genoma de referencia.  Cada línea representa una región particular del genoma, y el número de columnas puede variar. Se pueden tener hasta 10 columnas, las cuales representan los siguientes indicadores:  
 ```
 [cromosoma] [fuente] [característica] [posición.inicio] [posición.final] [puntuación] [hebra] [marco] [atributos] [comentarios]
 ```
+   
 | Columna | Significado |
 | -------| ------------|
 1. Cromosoma | Indica el cromosoma donde se localiza la anotación. |
-2. Fuente | Fuente de la anotación. Hace referencia al programa de predicción empleado o a la base de datos de anotaciones |
+2. Fuente | Fuente de la anotación. Hace referencia al programa de predicción empleado o a la base de datos de anotaciones. |
 3. Característica | Indica el tipo de característica: gen, transcrito, exón, CDS, etc. |
-4. Posición de inicio | Posición de inicio de la característica en el genoma de referencia |
-5. Posición final |  Posición final de la característica en el genoma de referencia |
+4. Posición de inicio | Posición de inicio de la característica en el genoma de referencia. |
+5. Posición final |  Posición final de la característica en el genoma de referencia. |
 6. Puntuación | Puntuación asociada a la característica. Si no hay puntuación, se presenta solamente un '.' |
 7. Hebra | Permite indicar la hebra de procedencia de la característica.  Puede ser '+' , '-' o '.' (si  la hebra es desconocida o no aplicable |
 8. Marco | Puede presentarse como '0', '1' o '2' |
@@ -646,6 +665,25 @@ for SAMPLE in $SAMPLES; do
 	
 done
 ```
+
+Estructura ejemplo SRR28380565:
+```console
+ENSG00000000003	0
+ENSG00000000005	0
+ENSG00000000419	1207
+ENSG00000000457	702
+.
+.
+.
+ENSG00000310556	0
+ENSG00000310557	0
+__no_feature	3102207
+__ambiguous	1097442
+__too_low_aQual	1595129
+__not_aligned	165990
+__alignment_not_unique	0
+```
+
 
 **2.3.3 Obtención de la matriz de recuentos** 
 
