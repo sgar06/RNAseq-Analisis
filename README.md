@@ -54,13 +54,13 @@ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/
 # Instalación de miniconda
 bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
 # Ejecución de conda por defecto en la terminal
-~/miniconda/bin/conda init bash
+~/miniconda3/bin/conda init bash
 ```
 > NOTA
-> El comando `conda init` permite inicializar conda por defecto en la terminal. Seguidamente, finalizamos la sesión en el servidor y comenzamos una nueva, de forma que observamos la palabra (base) en nuestra terminal indicando que nos encontramos en el entorno 'base' de cona.
+> El comando `conda init` permite inicializar conda por defecto en la terminal bash. Seguidamente, finalizamos la sesión en el servidor y comenzamos una nueva, de forma que observamos la palabra (base) en nuestra terminal indicando que nos encontramos en el entorno 'base' de conda.
   
 Una vez tenemos conda instalado por defecto en la terminal, podemos instalar nuevas herramientas o paquetes con el comando `conda install`, de forma que conda verifica si el programa está disponible dentro sus repositorios o canales, y si está  disponible, descargará el _software_ y las dependencias necesarias para su buen funcionamiento. 
-Para la correcta instalación de herramientas, debemos especificar a conda los canales o repositorios dónde buscar, asi cómo el orden de preferencia. De esta forma, nos aseguramos de la correcta instalación de los programas así como de sus dependendencias con las versiones adecuadas. 
+Para la correcta instalación de herramientas, debemos especificar a conda los canales o repositorios dónde buscar, asi cómo el orden de preferencia. De esta forma, nos aseguramos de la correcta instalación de los programas y de sus dependendencias con las versiones adecuadas. 
 
 Para configurar los canales o repositorios de preferencia y el orden jerárquico de búsqueda, empleamos los siguientes comandos, de forma que el último repositorio añadido tiene mayor prioridad que el anterior.  
   
@@ -70,7 +70,7 @@ conda config --add channels bioconda
 conda config --add channels conda-forge
 ```
 
-Una vez establecidos los parámetros para el buen funcionamiento de conda, creamos un entorno específico dónde trabajaremos e instalaremos los paquetes o herramientas para el análisis RNA-seq.  
+Una vez establecidos los parámetros de conda, creamos un entorno específico dónde trabajaremos e instalaremos los paquetes o herramientas para el análisis RNA-seq.  
 ```console
 # Creación de un nuevo entorno denominado genomic_analysis
 conda create -n genomic_analysis
@@ -87,7 +87,7 @@ SeqKit | 2.9.0 | conda install bioconda::seqkit | Subselección de lecturas en u
 Bedops | 2.4.41 | conda install -c bioconda bedops | Conversión de archivos. |
 RseQC | 5.0.4 | conda install bioconda::rseqc | Evualuación de datos de RNAseq. |
 FastQC | 0.12.1 | conda install -c bioconda fastqc | Análisis de calidad de archivos FASTQ. |
-MultiQC | 1.27 | conda install -c bioconda multiqc | Creación de reportes. Capacidad paraaglomerar los resultados de otras herramientas en un único informe interactivo. |
+MultiQC | 1.27 | conda install -c bioconda multiqc | Creación de reportes. Capacidad para aglomerar los resultados de otras herramientas en un único informe interactivo. |
 Cutadapt | 5.0 | conda install cutadapt | Búsqueda y recorte de adaptadores de las lecturas secuenciadas. |
 Trim-Galore | 0.6.10 | conda install -c bioconda trim-galore | Recorte de adaptadores y de calidad en archivos FASTQ. |
 HISAT2 | 2.2.1 | conda install -c bioconda hisat2 | Mapeador de lecturas. |
@@ -113,9 +113,9 @@ RNAseq_analysis
 `-- Results
 ```
 > NOTA
-> La carpeta Code....
-> La carprta Data....
-> La carpeta Results ....  
+> La carpeta Code....  
+> La carprta Data....  
+> La carpeta Results ....   
  
 ### 1.4 Obtención del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*  
   
