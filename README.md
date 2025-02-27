@@ -298,13 +298,13 @@ samtools view -Sbh > subsampled_alignment.bam
 > * `-k` permite determinar el número de ubicaciones diferentes en las que una misma lectura puede alinearse dentro del genoma de referencia. En nuestro caso especificamos el valor 1, para impedir los alineamientos múltiples.  
 > * `-x` indica la ruta de directorios hasta llegar al genoma de referencia indexado, así como la palabra común de todos los archivos de indexación sin la extensión final (.1.ht2, .2.ht2, etc).  
 > * `-1` y `-2` permite indicar las lecturas filtradas _forward_ y _reverse_ de la submuestra.  
-> Como resultado del alineamiento, el comando `hisat2` genera un archivo SAM. Sin embargo, como se trata de un archivo muy pesado, la salida del comando `hisat2` se concatena directamente a la herramienta `samtools` a través de una tubería `|` con el fin evitar la creación de archivos intermedios. De esta forma el comando `samtools view -Sbh > subsampled_alignment.bam`  permite crear directamente el archivo BAM en código binario, ocupando menos espacio. La opción `-Sbh` permite indicar el  formato de tipo SAM que se usa como entrada (`S`), el archivo de salida en formato BAM (`b`) y el mantenimiento de la cabecera (`h`).  
+> * Como resultado del alineamiento, el comando `hisat2` genera un archivo SAM. Sin embargo, como se trata de un archivo muy pesado, la salida del comando `hisat2` se concatena directamente a la herramienta `samtools` a través de una tubería `|` con el fin evitar la creación de archivos intermedios. De esta forma el comando `samtools view -Sbh > subsampled_alignment.bam`  permite crear directamente el archivo BAM en código binario, ocupando menos espacio. La opción `-Sbh` permite indicar el  formato de tipo SAM que se usa como entrada (`S`), el archivo de salida en formato BAM (`b`) y el mantenimiento de la cabecera (`h`).  
 
 Para visualizar el resultado del alineamiento en formato binario (BAM), se puede emplear la herramienta `samtools`.  
 ```console
 samtools view subsampled_alignment.bam | head
 ```
-Como resultado, se muestran las primeras 10 líneas del alineamiento contenidos en el archivo BAM en la salida por pantalla de la terminal:  
+Como resultado, se muestran las primeras 10 líneas del alineamiento contenidos en el archivo **BAM** en la salida por pantalla de la terminal:  
 ```console
 SRR28380565.3	83	1	184595	1	101M	=	14009	-170687	 CTCTCAACCACTTGAG[...]	 FFFFF:FFFFFFFF[...]	AS:i:0	ZS:i:0	XN:i:0	XM:i:0[...]
 SRR28380565.3	163	1	14009	1	101M	=	184595	170687	 CACAGCCTTGCCTGGA[...]	 FFFFFFFFFFFFFF[...]	AS:i:0	ZS:i:0	XN:i:0	XM:i:0[...]
