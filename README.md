@@ -92,6 +92,7 @@ Trim-Galore | 0.6.10 | conda install -c bioconda trim-galore | Recorte de adapta
 HISAT2 | 2.2.1 | conda install -c bioconda hisat2 | Mapeador de lecturas. |
 Samtools | 1.21  | conda install -c bioconda samtools | Manejo de archivos SAM/BAM. |
 HTSeq | 2.0.5 | conda install -c bioconda htseq | Anotación de características genómicas. |
+
   
 ### 1.3 Estructura de directorios  
   
