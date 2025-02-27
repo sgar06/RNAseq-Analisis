@@ -56,7 +56,7 @@ bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
 # Ejecución de conda por defecto en la terminal
 ~/miniconda3/bin/conda init bash
 ```
-> NOTA
+> NOTA  
 > El comando `conda init` permite inicializar conda por defecto en la terminal de _bash_. Seguidamente, para que el cambio tenga efecto, se cierra y abre una nueva terminal de _bash_, y nos encontraremos en el entorno 'base' de conda.
   
 Una vez tenemos conda instalado por defecto en la terminal, podemos instalar nuevas herramientas o paquetes con el comando `conda install`, de forma que conda verifica si el programa está disponible dentro sus repositorios o canales, y si está  disponible, descargará el _software_ y las dependencias necesarias para su buen funcionamiento. 
