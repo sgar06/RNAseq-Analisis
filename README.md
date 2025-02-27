@@ -43,9 +43,9 @@
 ### 1.1 Linux y Bash
 ### 1.2 Conda e instalación de herramientas para el análisis RNA-seq  
   
-[Conda](https://docs.conda.io/en/latest/) es un gestor de paquetes y entornos de código abierto. Además, cuenta con grandes repositorios de _software_ o canales, que permiten la instalación y actualización de paquetes o herramientas, así como sus dependencias. Para emplear Conda, descargaremos la distribución de [Miniconda](https://docs.anaconda.com/miniconda/), un instalador gratuito de conda más ligero que incluye solamente conda, Python, y un pequeño número de paquetes o softwares.  
+[Conda](https://docs.conda.io/en/latest/) es un gestor de paquetes y entornos de código abierto. Además, cuenta con grandes repositorios de _software_ o canales, que permiten la instalación y actualización de paquetes o herramientas, así como sus dependencias. Para emplear Conda, descargaremos la distribución de [Miniconda](https://docs.anaconda.com/miniconda/), un instalador gratuito de conda más ligero que incluye solamente conda, Python, y un pequeño número de paquetes o _softwares_.  
   
-Para la instalación empleamos el siguiente bloque de comandos.
+Para la instalación empleamos el siguiente bloque de comandos.  
 ```console
 # Creación de la carpeta miniconda3 para almacenar el contenido del software
 mkdir ~/miniconda3
@@ -57,19 +57,19 @@ bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
 ~/miniconda3/bin/conda init bash
 ```
 > NOTA
-> El comando `conda init` permite inicializar conda por defecto en la terminal bash. Seguidamente, finalizamos la sesión en el servidor y comenzamos una nueva, de forma que observamos la palabra (base) en nuestra terminal indicando que nos encontramos en el entorno 'base' de conda.
+> El comando `conda init` permite inicializar conda por defecto en la terminal de _bash_. Seguidamente, para que el cambio tenga efecto, se cierra y abre una nueva terminal de _bash_, y nos encontraremos en el entorno 'base' de conda.
   
 Una vez tenemos conda instalado por defecto en la terminal, podemos instalar nuevas herramientas o paquetes con el comando `conda install`, de forma que conda verifica si el programa está disponible dentro sus repositorios o canales, y si está  disponible, descargará el _software_ y las dependencias necesarias para su buen funcionamiento. 
-Para la correcta instalación de herramientas, debemos especificar a conda los canales o repositorios dónde buscar, asi cómo el orden de preferencia. De esta forma, nos aseguramos de la correcta instalación de los programas y de sus dependendencias con las versiones adecuadas. 
+Para la correcta instalación de herramientas, debemos especificar a conda los canales o repositorios donde buscar, asi cómo el orden de preferencia. De esta forma, nos aseguramos de la instalación adecuada de los programas y de sus dependendencias con las versiones necesarias. 
 
-Para configurar los canales o repositorios de preferencia y el orden jerárquico de búsqueda, empleamos los siguientes comandos, de forma que el último repositorio añadido tiene mayor prioridad que el anterior.  
+Para configurar los canales o repositorios de preferencia y el orden jerárquico de búsqueda, empleamos los siguientes comandos, de forma que el último repositorio añadido tiene mayor prioridad que el anterior.  El orden de preferencia para la búsqueda de paquetes será, por tanto, _conda-forge_, seguido de _bioconda_ y finalmente _default_.  
   
 ```console
 conda config --add channels default
 conda config --add channels bioconda
 conda config --add channels conda-forge
 ```
-
+  
 Una vez establecidos los parámetros de conda, creamos un entorno específico dónde trabajaremos e instalaremos los paquetes o herramientas para el análisis RNA-seq.  
 ```console
 # Creación de un nuevo entorno denominado genomic_analysis
@@ -88,17 +88,16 @@ Bedops | 2.4.41 | conda install -c bioconda bedops | Conversión de archivos. |
 RseQC | 5.0.4 | conda install bioconda::rseqc | Evualuación de datos de RNAseq. |
 FastQC | 0.12.1 | conda install -c bioconda fastqc | Análisis de calidad de archivos FASTQ. |
 MultiQC | 1.27 | conda install -c bioconda multiqc | Creación de reportes. Capacidad para aglomerar los resultados de otras herramientas en un único informe interactivo. |
-Cutadapt | 5.0 | conda install cutadapt | Búsqueda y recorte de adaptadores de las lecturas secuenciadas. |
-Trim-Galore | 0.6.10 | conda install -c bioconda trim-galore | Recorte de adaptadores y de calidad en archivos FASTQ. |
+Trim-Galore | 0.6.10 | conda install -c bioconda trim-galore | Recorte de adaptadores con la herramienta Cutadapt (v5.0) y de bases de mala calidad en archivos FASTQ. |
 HISAT2 | 2.2.1 | conda install -c bioconda hisat2 | Mapeador de lecturas. |
 Samtools | 1.21  | conda install -c bioconda samtools | Manejo de archivos SAM/BAM. |
 HTSeq | 2.0.5 | conda install -c bioconda htseq | Anotación de características genómicas. |
-
+  
 ### 1.3 Estructura de directorios  
   
 Para llevar a cabo el análisis transcriptómico a partir de las lecturas crudas hasta la obtención de genes diferencialmente expresados, empleamos la siguiente estructura de directorios. Siguiendo esta misma estructura, se podrán ejecutar todos los comandos especificados más adelante en el manual.  
   
-Dentro del directorio _home_ de nuestro ordenador creamos la siguiente estructura de archivos:  
+Dentro del directorio _home_ de nuestro ordenador creamos la siguiente estructura de archivos:   
 ```console
 RNAseq_analysis
 |-- Code
@@ -112,19 +111,18 @@ RNAseq_analysis
 |   `-- Supplementary
 `-- Results
 ```
-> NOTA
-> La carpeta Code....  
-> La carprta Data....  
-> La carpeta Results ....   
- 
+> NOTA  
+> La carpeta **Code**, contendrá los _scripts_ necesarios para la ejecución de herramientas.  
+> La carpeta **Data**, contendrá las lecturas crudas y procesadas, losarchivos necesarios para la deducción de la direccionalidad de la librería y los resultados tras el alineamiento, entre otros.  
+> La carpeta **Results**, se empleará para almacenar los recuentos de características genómicas para cada muestra y la matriz de recuentos final.  
+  
 ### 1.4 Obtención del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*  
   
-* **Descarga del genoma de referencia desde la página web de HISAT2**
+* **Descarga del genoma de referencia GRCh38 desde la página web de _HISAT2_**  
   
-_HISAT2_ es un programa de alineamiento rápido y eficiente capaz de alinear lecturas resultantes de la secuenciación contra diferentes genomas.  Desde su [repositorio online](http://daehwankimlab.github.io/hisat2/), se tienen disponibles para su descarga diversos genomas indexados. En el caso de que el genoma de interés no esté indexado, la herramienta _HISAT2_ permite realizar una indexación manual con la función `hisat2-build`, aunque es un proceso lento y costoso.   **La indexacion del genoma permite...**.  
-
-Es por ello, que descargamos directamente el genoma de referencia humano (GRcH38) indexado desde su página web.
-Para ello, primero, es necesario acceder a la sección de descargas y, posteriormente, en la sección _Index_ encontramos diferentes _links_ según el genoma de interés, siendo en nuestro caso el genoma perteneciente a la especie _H.sapiens_.  
+_HISAT2_ es un programa de alineamiento rápido y eficiente capaz de alinear lecturas resultantes de la secuenciación contra diferentes genomas.  Desde su [repositorio online](http://daehwankimlab.github.io/hisat2/), se cuenta con diversos genomas indexados disponibles para su descarga. La indexación del genoma permite al alineador llevar a cabo su función de manera mucho más dinámica. En el caso de que el genoma de interés no esté indexado, la herramienta _HISAT2_ permite realizar una indexación manual con la función `hisat2-build`, aunque es un proceso lento y costoso. Es por ello, que descargaremos directamente el genoma de referencia humano (GRcH38) indexado desde su página web.  
+  
+Para descargar el genoma, primero, es necesario acceder a la sección de descargas y, posteriormente, en la sección _Index_ encontramos diferentes _links_ según el genoma de interés, siendo en nuestro caso el genoma perteneciente a la especie _H.sapiens_.   
 
 ![image](https://github.com/user-attachments/assets/ddfb3af8-1e12-4a78-be2b-753cf76d5133)  
   
@@ -132,32 +130,36 @@ Dentro de la sección _H.sapiens_, encontramos diferentes genomas de referencia 
   
 ![image](https://github.com/user-attachments/assets/2a07a735-3247-4f0a-92fd-9e0da1b8994e)
   
-Una vez conocido el _link_ de nuestro genoma de referencia, lo descargamos directamente a través de la terminal. Este nuevo archivo se almacena en una nueva carpeta.  
+Una vez conocido el _link_ de nuestro genoma de referencia, lo descargamos directamente a través de la terminal y lo almacenamos en una nueva carpeta dentro de la ruta `~RNAseq_analysis/Data/4_Alignment`.   
 ```console
+# Creación de la carpeta Reference_genome y cambio de directorio a la nueva carpeta
 mkdir ~/RNAseq_analysis/Data/4_Alignment/Reference_genome && cd $_
+# Descarga del genoma de referencia de interés
 wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
 # Descomprisión del archivo descargado
 tar -xvf grch38_genome.tar.gz
 ```
-> NOTA  
+> NOTA   
 > Con el comando `mkdir` creamos un nuevo directorio para el genoma de referencia dentro de nuestra carpeta 4_Alignment. El comando `cd $_` permite movernos a esta nueva carpeta dónde descargamos el archivo de interés con el comando `wget`.  
-> Tras la descompresión del archivo, se genera el directorio `/grch38/` con el genoma de referencia y los archivos necesarios para la indexación. Esta indexación permitirá al alineador _HISAT2_, llevar a cabo un alineamiento de las lecturas más eficiente.    
-
-* **Descarga del archivo de anotaciones de referencia GRCh38 desde el repositorio _ENSEMBLE_**  
+> Tras la descompresión del archivo, se genera el directorio `/grch38/` con el genoma de referencia, el script `make_grch38.sh` y los archivos necesarios para la indexación identificados por la palabra `genome` seguidos de la terminación `.1.ht2, .2.ht2`, etc.  
   
-Para descargar el archivo de anotaciones de referencia de la especie _H.sapiens_, se emplea el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon). Por otro lado, es importante que el archivo de anotaciones tenga ciertas características específicas necesarias para la correcta ejecución de programas posteriores. Es por ello, que se emplea la herramienta _File Chamaleon_ con el fin de formatear el archivo de anotaciones.  
-
+* **Descarga del archivo de anotaciones de referencia GRCh38 desde el repositorio _ENSEMBLE_**   
+  
+Para descargar el archivo de anotaciones de referencia de la especie _H.sapiens_, se emplea el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon). Además, es importante que el archivo de anotaciones tenga ciertas características específicas necesarias para la correcta ejecución de programas posteriores. Es por ello, que se emplea la herramienta _File Chamaleon_ con el fin de formatear el archivo de anotaciones.  
+  
 Una vez seleccionado el genoma de interés (GRCh38.p14), se descarga el archivo de anotaciones en formato GTF y se marca la casilla de _transcript_id_ para incluir este campo en el archivo descargado.  
   
 ![image](https://github.com/user-attachments/assets/5141e4d9-41f4-4362-a1b2-ec78c2e01690)  
   
-A continuación descargamos y descomprimimos el archivo de anotaciones en formato GTF en nuestra computadora, y ya podemos almacenarlo en el directorio de interés.  
+A continuación descargamos y descomprimimos el archivo de anotaciones en formato GTF en nuestra computadora, y lo almacenamos en la ruta `~/RNAseq_analysis/Data/5_Annotation/`.  
 ```console
+# Descomprisión del archivo descargado
 gunzip Homo_sapiens.gtf.gz
+# Almacenaje del archivo de anotaciones en la ruta de interés
 mv Homo_sapiens.gtf ~/RNAseq_analysis/Data/5_Annotation/
 ```
- 
-Una vez realizados todos los pasos anteriores, la estructura de directorios dentro de nuestro proyecto _RNAseq_analysis_ resulta de la siguiente manera:  
+  
+Una vez realizados todos los pasos anteriores, la estructura de directorios dentro de nuestro proyecto _RNAseq_analysis_ resulta de la siguiente manera:    
 ```console
 RNAseq_analysis
 |-- Code
@@ -185,22 +187,24 @@ RNAseq_analysis
 
 ```
 
-
+  
 ### 1.5  Descarga de los datos de RNA-seq del repositorio público SRA  
-
-Para llevar a cabo el análisis, se emplean lecturas crudas depositadas en el repositorio público _Gene Expression Omnibus _(GEO) bajo el índice [GSE261866](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261866). En esta página encontramos distinta información relativa al estudio, tales como el número de muestras, el organismo, el tipo de experimento o la plataforma de secuenciación. Además, en el apartado de _Supplementary file_ se encuentra un enlace hacia el repositorio _SRA Run selector_.   
+  
+Para llevar a cabo el análisis, se emplean lecturas crudas depositadas en el repositorio público _Gene Expression Omnibus_ (GEO) bajo el índice [GSE261866](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261866). En esta página encontramos distinta información relativa al estudio, tales como el número de muestras, el organismo, el tipo de experimento o la plataforma de secuenciación. Además, en el apartado de _Supplementary file_ se encuentra un enlace hacia el repositorio _SRA Run selector_.   
   
 ![image](https://github.com/user-attachments/assets/d6a8b328-8015-441d-9369-3c9876b0c39f)
   
 A partir del repositorio _SRA Run selector_ se pueden descargar tanto las lecturas crudas como los metadatos de las muestras. Además, existe una herramienta implementada por NCBI denominada _SRA-toolkit_ que permite descargar las lecturas directamente en la computadora.  
-
-En el presente tutorial, se emplean las muestras de un estudio de RNAseq de neutrófilos aislados de pacientes con lupus eritematoso sistémico y controles sanos. Para llevar a cabo el flujo de trabajo, solamente se emplean 6 muestras de cada grupo seleccionadas aleatoriamente.  
-
-Secuenciador: Illumina Novaseq 6000   
-Librería: lecturas pareadas con información específica de hebra  
-Longitud: 101 pb  
   
-| Nombre de la muestra | Identificador de Lecturas | Estado | Lecturas (M) | Bases | Tamaño |
+En el presente tutorial, se emplean las muestras de un estudio de RNAseq de neutrófilos aislados de pacientes con lupus eritematoso sistémico y controles sanos. Sin embargo, en lugar de emplear las 27 muestras totales de la investigación, solamente se emplean 6 muestras seleccionadas aleatoriamente para cada grupo.     
+
+**Diseño del experimento**  
+Secuenciador: Illumina Novaseq 6000   
+Librería: lecturas pareadas con información específica de hebra   
+Longitud de las lecturas: 101 pb   
+  
+**Muestras seleccionadas para el análisis de genes diferencialmente expresados**    
+| Nombre de la muestra | ID de las Lecturas | Estado | Número de Lecturas por Millón | Número de Bases | Tamaño |
 |---------|---------|----------|----------|----------|----------|
 GSM8153253 | SRR28380565 | Sano | 28.5 | 5.7G | 1.8 Gb |
 GSM8153252 | SRR28380566 | Sano | 50.8 | 10.3G | 3.1Gb |
@@ -209,82 +213,97 @@ GSM8153248 | SRR28380570 | Sano | 52.7 | 10.6G	| 3.3Gb |
 GSM8153246 | SRR28380572 | Sano | 33.4 | 6.8G | 2.1Gb |
 GSM8153245 | SRR28380573 | Sano | 33.2 | 6.7G |	2.1Gb |
 GSM8153238 | SRR28380580 | LES | 31.1M	| 6.3G | 2.0Gb |
-GSM8153236 | SRR28380582 | LES | 47.8M  | 9.6G	| 2.9Gb
-GSM8153234 | SRR28380584 | LES | 39.8M	| 8.0G	| 2.6Gb
-GSM8153232 | SRR28380586 | LES | 39.5M	| 8.0G	| 2.5Gb
-GSM8153230 | SRR28380588 | LES | 29.6M	| 6.0G	| 1.9Gb
-GSM8153229 | SRR28380589 | LES | 31.5M	| 6.4G	| 2.0Gb
-
+GSM8153236 | SRR28380582 | LES | 47.8M  | 9.6G	| 2.9Gb |
+GSM8153234 | SRR28380584 | LES | 39.8M	| 8.0G	| 2.6Gb |
+GSM8153232 | SRR28380586 | LES | 39.5M	| 8.0G	| 2.5Gb |
+GSM8153230 | SRR28380588 | LES | 29.6M	| 6.0G	| 1.9Gb |
+GSM8153229 | SRR28380589 | LES | 31.5M	| 6.4G	| 2.0Gb |
   
 Para descargar la lista con los identificadores de las lecturas en formato de texto plano, primero se seleccionan las muestras de interés, se filtran y se descarga la lista con los identificadores o _Accesion list_.   
   
 ![image](https://github.com/user-attachments/assets/afbcce1d-228e-4994-ba4e-32d585c77471)  
   
-Una vez descargado el archivo de texto plano _SRR_Acc_List.txt_ con los identificadores, se gurada en la ruta `~/RNAseq_analysis/Data/Supplementary` y se emplea el comando ``fastq-dump` de la herramienta _SRA-toolkit_ desde la terminal para obtener las lecturas crudas en nuestra computadora.  
-Las lecturas crudas se almacenan en el directorio `1_Raw` de nustra estructura de archivos.  
+Una vez descargado el archivo de texto plano _SRR_Acc_List.txt_ con los identificadores, se guarda en la ruta `~/RNAseq_analysis/Data/Supplementary` y se emplea el comando `fastq-dump` de la herramienta _SRA-toolkit_ desde la terminal para obtener las lecturas crudas en nuestra computadora, que se almacenarán en la carpeta `1_Raw`.  
+  
 ```console
+# Cambio de directorio
 cd ~/RNAseq_analysis/Data/1_Raw
-```  
-Una vez situados en la carpeta de interés, empleamos el siguiente comando para descargar las lecturas:  
-```console 
+# Descarga de las lecturas crudas a partir del archivo SRR_Acc_List.txt
 xargs -n1 fastq-dump --gzip --split-3 < ../Supplementary/SRR_Acc_List.txt
 ```  
 > NOTA  
 > * `xargs -n1` ejecuta el comando `fastq-dump` en las lecturas cuyos nombres figuran en el archivo _SRR_Acc_List.txt_.  Para llegar al archivo, indicamos la ruta relativa desde el directorio dónde nos encontramos.  
-> * `fastq-dump` permite la descarga de lecturas desde el repositorio SRA en formato FASTQ y de forma comprimida con la opcción `--gzip`. Al tratarse de lecturas pareadas, la opción `--split-3` separa las lecturas _forward_ y _reverse_ en diferentes archivos, y en el caso de que alguna lectura no esté pareada, estas se anotan en un tercer archivo que contiene las lecturas desparejadas.  
-
-El **formato FASTQ** contiene la secuencia de las lecturas, así como la puntuación de calidad asociada para cada una de las bases anotadas. Estas puntuaciones de calidad se conocen como "_phred quality score"_ y surgieron en los años 90 para la secuenciación de Sanger, aunque posteriormente se expandieron para su uso en las tecnologías de Secuenciación de Nueva Generación o NGS.  
+> * `fastq-dump` permite la descarga de lecturas desde el repositorio _SRA_ en formato FASTQ y de forma comprimida con la opcción `--gzip`. Además, al tratarse de lecturas pareadas, la opción `--split-3` separa las lecturas _forward_ y _reverse_ en diferentes archivos, y en el caso de que alguna lectura no esté pareada, estas se anotan en un tercer archivo que contiene las lecturas desparejadas.  
+   
+El **formato FASTQ** contiene la secuencia de las lecturas, así como la puntuación de calidad asociada para cada una de las bases anotadas. Estas puntuaciones de calidad se conocen como "_phred quality score"_ y surgieron en los años 90 para la secuenciación de Sanger, aunque posteriormente se expandieron para su uso en las tecnologías de Secuenciación de Nueva Generación o NGS.    
   
-Si nos fijamos en la estructura del archivo de secuenciación SRR28380565, obtenido para la muestra GSM8153253, y observamos la estructura de sus primeras 4 líneas, observamos lo siguiente:  
+Por ejemplo, si nos fijamos en uno de los archivos **FASTQ** correspondiente a las lecturas obtenidas con el identificador SRR28380565 (muestra GSM8153253), y analizamos la estructura de sus primeras 4 líneas, observamos lo siguiente:  
 ```console
-
+# Comando empleado para visualizar las 4 primeras líneas
+zcat SRR28380565_1.fastq.gz | head -n 4
+# Resultado
+@SRR28380565.1 A00177:787:HG2KYDMXY:1:1488:15980:33927 length=101
+CCTAACCCTAACCCTAACCCTAACCCTAACCCTAACCCTAACACTAACCCTAACCCTAACCCTAACCCTAACCCTAACACAAAACAAAAGCAAAACACATA
++SRR28380565.1 A00177:787:HG2KYDMXY:1:1488:15980:33927 length=101
+FF:FFFF::FF,FFFFFF,F:FFF,F,FFFF:FFFFFFFFFF,F,FF,FF,FFF,F,FFF:FFFFF,F,FF:FF:FFF::,::,,FFFF,F,:F:,::,,F
 ```
-
-Cada lectura contiene 4 líneas: la primera, que contiene el símbolo @ seguido del identificador de la secuencia; la segunda, que contiene la lectura; la tercera, que comienza por + seguido del identificador; y la cuarta, que contiene la calidad asociada a esa lectura.
-
-
+  
+Los resultados de la secuenciación para cada lectura vienen dados por 4 líneas: la primera, representa el símbolo @ seguido del identificador de la lectura; la segunda, contiene la secuencia de la lectura; la tercera, comienza por el símbolo '+' seguido del identificador nuevamente; y la cuarta, contiene la calidad asociada a cada base anotada para dicha lectura.  
+  
 ## 2 Procesamiento de los datos RNA-seq  
+  
+### 2.1 Determinación de la direccionalidad de las lecturas  
+  
+Para determinar si las lecturas RNA-seq contienen información de hebra específica, se emplea inicialmente una sola muestra y se realiza una selección aleatoria de entorno al 10% de lecturas totales incluyendo ambos extremos gracias a la herramienta _Seqkit_, y los resultados se almancena en la ruta `~/RNAseq_analysis/Data/2_Infer_strandedness`.  
+  
+En este paso solamente nos interesa determinar el tipo de librería empleada en el estudio y la especificidad de hebra, por lo que se realiza un selección de lecturas a partir de una de las muestras con el fin de aumentar la eficiencia y rapidez en los pasos posteriores. Con la herramienta `seqkit` se seleccionan de forma aleatoria las lecturas tanto _forward_ como _reverse_ contenidas en los archivos `{sample}_1.fastq.gz` y `{sample}_2.fastq.gz`, respectivamente. Además, es importante que a la hora de realizar el filtrado aleatorio, se incluyan ambos extremos de cada par de lecturas, tanto  *forward* como *reverse* en el orden correcto por lo que se deben emplear los mismos parámetros en ambos procesos.   
 
-### 2.1.1 Determinación de la direccionalidad de las lecturas
-Para determinar si las lecturas RNA-seq contienen información de hebra específica, se emplea inicialmente una sola muestra y se realiza una selección aleatoria de entorno al 10% de lecturas totales incluyendo ambos extremos gracias a la herramienta _Seqkit_. Los reslutados los guardamos en el directorio `2_Infer_strandedness`.  
-
-En este paso solamente nos interesa determinar el tipo de librería empleada en el estudio y la especificidad de hebra, por lo que se realiza un *subsampling* de lecturas a partir de una de las muestras con el fin de aumentar la eficiencia en el paso posterior. Con la herramienta `seqkit` se selccionan de forma aleatoria las lecturas tanto en el archivo `{sample}_1.fastq.gz` como `{sample}_2.fastq.gz`. Es importante que en el caso del *subsampling* aleatorio se seleccionen ambos extremos de cada par de lecturas, tanto  *Forward* como *Reverse* en el orden correcto por lo que se emplean los mismos parámetros.  
-
+Para la realizar la submuestra, se emplean las lecturas correspondientes al identificador SRR28380565.  
 ```console
+# Cambio de directorio
 cd ~/RNAseq_analysis/Data/2_Infer_strandedness
-seqkit sample -p 0.1 -s 100 {sample}_1.fastq.gz -o subsampled_{sample}_1.fastq.gz
-seqkit sample -p 0.1 -s 100 {sample}_2.fastq.gz -o subsampled_{sample}_2.fastq.gz
+# Creación de submuestras
+seqkit sample -p 0.1 -s 100 SRR28380565_1.fastq.gz -o subsampled_SRR28380565_1.fastq.gz
+seqkit sample -p 0.1 -s 100 SRR28380565_2.fastq.gz -o subsampled_SRR28380565_2.fastq.gz
 ```
 > NOTA  
-> * `-p` permite determinar la proporción de lecturas a seleccionar. En nuestro caso el 10% de lecturas totales.   
-> * `-s` permite determinar el random _seed_. En este caso, se especifica el valor de 100, permitiendo que las lecturas aleatorias sean las mismas en ambos archivos.  
-> Ambos parametros tanto `-p`como `-s` tienen que ser los mismos en ambos archivos R1 y R2 para seleccionar las mismas lecturas aleatorias.  
-
-Para comprobar el número de pares de lecturas seleccionadas en la submuestra, se puede especificar el siguiente comando:   
+> * `-p` permite determinar la proporción de lecturas a seleccionar. En nuestro caso, se selecciona el 10% de lecturas totales.   
+> * `-s` permite determinar una semilla aleatoria específica para generar resultados idénticos. En este caso, se especifica el valor de 100, permitiendo que las lecturas aleatorias sean las mismas en ambos archivos.
+  
+Posteriomente, para comprobar el número de pares de lecturas seleccionadas en cada submuestra, se puede especificar el siguiente comando:  
 ```console
-zcat subsampled_{sample}_1.fastq.gz | grep -c @SRR
-zcat subsampled_{sample}_2.fastq.gz | grep -c @SRR
+# Comando para determinar el número de lecturas totales en la submuestra 1 con las lecturas forward
+zcat subsampled_SRR28380565_1.fastq.gz | grep -c @SRR
+# Resultado
+2846460
+# Comando para determinar el número de lecturas totales en la submuestra 2 con las lecturas reverse
+zcat subsampled_SRR28380565_2.fastq.gz | grep -c @SRR
+# Resultado
+2846460
 ```
-En nuestro caso, como la submuestra se obtiene a partir de la muestra SRR28380565, cuyo contenido de lecturas iniciales era de 28.5 millones, al llevar a cabo la selección del 10% de lecturas, obtenemos archivos con 2.8 millones de lecturas.  
+  
+En nuestro caso, como la submuestra se obtiene a partir del identificador SRR28380565, cuyo contenido de lecturas iniciales era de 28.5 millones, al llevar a cabo la selección del 10% de lecturas, obtenemos archivos con 2.8 millones de lecturas.  
+  
 Una vez preparada la submuestra, se lleva a cabo un alineamiento rápido contra el genoma de referencia usando el mapeador _HISAT2_ y los resultados del alineamiento se comparan respecto al archivo de anotación de referencia mediante la herramienta `infer_experiment.py` del paquete _RseQC_ con el fin de determinar la direccionalidad de la librería.  
-
-Como se ha comentado previamente, para realizar el mapeo se emplea la herramienta _HISAT2_ y el genoma de referencia humano indexado descargado previamente (_grch38_genome.tar.gz_). El resultado del alineamiento en formato `.bam` lo guardamos en la carpeta `2_Infer_strandedness`.  
+  
+Para realizar el mapeo se emplea la herramienta _HISAT2_, las lecturas de la submuestra, y el genoma de referencia humano indexado descargado previamente (_grch38_genome.tar.gz_), y como resultado, se obtiene un archivo con la información del alineamiento de las lecturas en formato BAM.  
 ```console
+# Alineamiento de las lecturas filtradas con HISAT2
 hisat2 -k1 -x ../4_Alignment/Reference_genome/grch38/genome \
--1 subsampled_{sample}_1.fastq.gz -2 subsampled_{sample}_2.fastq.gz |\
+-1 subsampled_SRR28380565_1.fastq.gz -2 subsampled_SRR28380565_2.fastq.gz |\
 samtools view -Sbh > subsampled_alignment.bam
 ```  
 > NOTA   
-> * `-k` permite determinar el número de veces que se permite que una misma lectura pueda alinear en varias ubicaciones dentro del genoma de referencia. En nuestro caso especificamos el valor 1, para impedir los alineamientos múltiples.  
-> * `-x` sirve para indicar la ruta de directorios hasta llegar al genoma de referencia indexado.  
+> * `-k` permite determinar el número de ubicaciones diferentes en las que una misma lectura puede alinearse dentro del genoma de referencia. En nuestro caso especificamos el valor 1, para impedir los alineamientos múltiples.  
+> * `-x` indica la ruta de directorios hasta llegar al genoma de referencia indexado, así como la palabra común de todos los archivos de indexación sin la extensión final (.1.ht2, .2.ht2, etc).  
 > * `-1` y `-2` permite indicar las lecturas filtradas _forward_ y _reverse_ de la submuestra.  
-> La salida del comando `hisat2` genera un archivo SAM con los resultados del alineamiento. Sin embargo, como se trata de un archivo muy pesado, la salida del comando de `hisat2` se concatena directamente a la herramienta `samtools` a través de una tubería `|` con el fin evitar la creación de archivos intermedios. De esta forma el comando `samtools view -Sbh > subsampled_alignment.bam`  permite crear directamente el archivo BAM en código binario, ocupando menos espacio. La opción `-Sbh` permite indicar el  formato de tipo SAM que se usa como entrada (`S`), el archivo de salida en formato BAM (`b`) y el mantenimiento del encabezado (`h`).  
+> Como resultado del alineamiento, el comando `hisat2` genera un archivo SAM. Sin embargo, como se trata de un archivo muy pesado, la salida del comando `hisat2` se concatena directamente a la herramienta `samtools` a través de una tubería `|` con el fin evitar la creación de archivos intermedios. De esta forma el comando `samtools view -Sbh > subsampled_alignment.bam`  permite crear directamente el archivo BAM en código binario, ocupando menos espacio. La opción `-Sbh` permite indicar el  formato de tipo SAM que se usa como entrada (`S`), el archivo de salida en formato BAM (`b`) y el mantenimiento de la cabecera (`h`).  
 
 Para visualizar el resultado del alineamiento en formato binario (BAM), se puede emplear la herramienta `samtools`.  
 ```console
 samtools view subsampled_alignment.bam | head
 ```
-Los resultados de las primeras 10 líneas del alineamiento contenidos en el archivo BAM se muestran en la salida por pantalla de la terminal:  
+Como resultado, se muestran las primeras 10 líneas del alineamiento contenidos en el archivo BAM en la salida por pantalla de la terminal:  
 ```console
 SRR28380565.3	83	1	184595	1	101M	=	14009	-170687	 CTCTCAACCACTTGAG[...]	 FFFFF:FFFFFFFF[...]	AS:i:0	ZS:i:0	XN:i:0	XM:i:0[...]
 SRR28380565.3	163	1	14009	1	101M	=	184595	170687	 CACAGCCTTGCCTGGA[...]	 FFFFFFFFFFFFFF[...]	AS:i:0	ZS:i:0	XN:i:0	XM:i:0[...]
@@ -297,85 +316,91 @@ SRR28380565.44	147	1	14678	60	2S99M	=	14678	-103	GAAAGGTGTCATGGAGCC[...]  F:,FFF
 SRR28380565.47	99	1	14630	60	101M	=	14693	164	TGGCTGTGTCCATGTCAG[...]  FFFFFFFFFFFFFF[...]	AS:i:-5	ZS:i:-5	XN:i:0	XM:i:1[...]
 SRR28380565.47	147	1	14693	60	101M	=	14630	-164	CCCCTACGATTCCCAGTC[...]  FFFFFFFFF:FFFFF[...]	AS:i:0	ZS:i:-7	XN:i:0	XM:i:0[...]
 ```
-Como podemos ver, al tratarse de una submuestra en la cual las lecturas han sido seleccionadas aleatoriamente, observamos que el número especificado después del ID de las lecturas (SRR28380565) no está ordenado, sino que representa pares de lecturas aleatorias (3, 11, 43, 44, 47...).  
-
-El **formato BAM** incluye una parte de encabezado opcional, y una otra parte con los resultados del alineamiento. La parte del encabezado se diferencia porque incluye el símbolo de '@' al comienzo de cada línea, e incluye información como el nombre de la muestra o el método de alineamiento, entre otras. En este caso, al usar el comando `samtools view` se muestra directamente la sección con el alineamiento, sin mostrar el encabezado. 
-
-La sección con el alineamiento, a su vez, se divide en 11 campos obligatorios y, en general, cada línea representa el alineamiento para un segmento dentro del genoma de referencia. Sin embargo, algunas lecturas pueden ocupar varias líneas del alineamiento, cuando se permiten los alineamientos múltiples contra el genoma de referencia.
+  
+Al tratarse de una submuestra, en la cual las lecturas han sido seleccionadas aleatoriamente, observamos que el número especificado después del ID de las lecturas (SRR28380565) no está ordenado, sino que representa pares de lecturas aleatorias (3, 11, 43, 44, 47...).  
+  
+El **formato BAM** incluye una parte de encabezado opcional, y otra parte con los resultados del alineamiento. La parte del encabezado se diferencia porque incluye el símbolo de '@' al comienzo de cada línea, e incluye informaciones como el nombre de la muestra o el método de alineamiento, entre otras. En este caso, al usar el comando `samtools view` se muestra directamente la sección con el alineamiento, sin mostrar el encabezado.  
+  
+A su vez, la sección con el alineamiento, se divide en 11 campos obligatorios y, en general, cada línea representa el alineamiento para un segmento dentro del genoma de referencia. Sin embargo, algunas lecturas pueden ocupar varias líneas del alineamiento, cuando se permiten los alineamientos múltiples contra el genoma de referencia.  
 
 | Campo | Descripción |
 | ---| ---|
 |1.QNAME | Representa un identificador único para cada una de las lecturas. |
 |2.FLAG |  Indica un valor de puntuación en base a las características del alineamiento de cada lectura.  |
-|3.RNAME | Nombre de la secuencia de referencia dónde mapea la lectura. En nuestro caso, representa el número de cromosoma. Si la lectura no mapea se representa "*". |
-|4.POS | Posición de la primera base de la lectura que mapea contra el genoma de referencia. |
+|3.RNAME | Nombre de la secuencia de referencia dónde mapea la lectura. En nuestro caso, representa el número de cromosoma. Si no hay información del mapeo, se representa el símbolo "*". |
+|4.POS | Posición de la primera base de la lectura que mapea en el genoma de referencia. |
 |5.MAPQ | Calidad del mapeo. Indica cómo de correcto o incorrecto es el alineamiento. |
-|6.CIGAR | Secuencia de números y letras que indica el alineamiento, inserciones y deleciones. |
+|6.CIGAR | Secuencia de números y letras que describen el alineamiento, inserciones y deleciones. |
 | 7.RNEXT | Análogo al campo 3, pero con la información relativa al otro par de la lectura en el caso de lecturas pareadas. |
 | 8.PNEXT | Análogo al campo 4, pero con la información relativa al otro par de la lectura en el caso de lecturas pareadas. |
 | 9.TLEN | Longitud  de la secuencia de referencia dónde mapean las lecturas. |
 | 10.SEQ | Secuencia de la lectura actual, corresponde a la misma secuencia especificada en el archivo FASTQ. | 
 | 11.QUAL | Calidad de la lectura actual, corresponde a la calidad asociada a cada una de las bases en formato _Phred score_ y también esta especificada en el archivo FASTQ. |
 | 12.TAGS | Etiquetas específicas con información adicional del alineamiento o de la lectura. |
+   
+Además, existen diferentes recursos online que permiten conocer el significado de los distintos identificadores. Por ejemplo, para conocer el significado de los valores del campo FLAG, se puede usar el siguiente [enlace](https://broadinstitute.github.io/picard/explain-flags.html).   
   
-Además, existen diferentes recursos online que permiten conocer el significado de los distintos identificadores. Por ejemplo, para conocer el significado de los valores del campo FLAG, se puede usar el siguiente [enlace](https://broadinstitute.github.io/picard/explain-flags.html).  
-
-Una vez realizado el alineamiento, se emplea el archivo de anotaciones y la herramienta _RseQC_ para derminar la direccionalidad de las lecturas. El archivo de anotaciones a emplear lo descargamos previamente en formato GTF y activamos la opción para incluir los identificadores de los transcritos (_transcript_id_). Sin embargo, para emplear a herramienta _RseQC_, se necesita el archivo de anotaciones en formato BED, por lo que primero convertimos el archivo de anotaciones al nuevo formato con el paquete de herramientas _Bedops_.  
+Una vez realizado el alineamiento, se emplea el archivo de anotaciones y la herramienta _RseQC_ para determinar la direccionalidad de las lecturas. El archivo de anotaciones a emplear lo descargamos previamente en formato GTF y activamos la opción para incluir los identificadores de los transcritos (_transcript_id_). Sin embargo, para emplear la herramienta _RseQC_, se necesita el archivo de anotaciones en formato BED, por lo que primero convertimos el archivo de anotaciones al nuevo formato con el paquete de herramientas _Bedops_.  
 
 ```console
 # Cambio del directorio de trabajo al directorio con el archivo de anotaciones
 cd ~/RNAseq_analysis/Data/5_Annotation
-# Empleo del script convert2bed del paquete bedops
+# Empleo de la herramienta convert2bed del paquete Bedops
 convert2bed --input=gtf < Homo_sapiens.gtf > Homo_sapiens.bed
 ```
 > NOTA   
-> Es importante que el archivo de anotaciones en formato GTF contenga los idenficadores de los transcritos ya que si no el programa de conversión no funciona. Este campo se puede adicionar manualmente, o bien, se puede descargar directamente el archivo de anotaciones como describimos previamente.  
-
-El formato BED representa regiones específicas del genoma y puede tener diferentes elementos, aunque en su forma más básica incluye solamente 3 columnas para indicar el cromosoma, la posición inicial y la posición final de una región concreta.  Sin embargo, pueden contar con hasta 9 campos adicionales y opcionales, tales como los nombres de los elementos, las puntuaciones, la hebra del genoma y el número de exones, entre otros.
-
-Una vez el archivo de anotaciones presenta el formato correcto, se emplea el resultado del alineamiento de la submuestra (`subsampled_alignment.bam`) y la herramienta _infer_experiment.py_ de _RseQC_.  En este caso, la herramienta infer_experiment.py selecciona unos pocos miles de lecturas del archivo de alineamiento BAM/SAM y representa la proporción de la dirección de las hebras en el experimento.   
+> Para llevar a cabo la conversión, es importante que el archivo de anotaciones, en formato GTF, contenga los identificadores de los transcritos, ya que si no el programa de conversión no funciona. Este campo se puede adicionar manualmente, o bien, se puede descargar directamente el archivo de anotaciones como describimos previamente.    
+  
+El **formato BED** representa regiones específicas del genoma y puede tener diferentes elementos, aunque en su forma más básica incluye solamente 3 columnas para indicar el cromosoma, la posición inicial y la posición final de una región concreta.  Sin embargo, pueden contar con hasta 9 campos adicionales y opcionales, tales como los identificadores, los nombres de los elementos, las puntuaciones, la hebra del genoma y el número de exones, entre otros.  
+  
 ```console
+head Homo_sapiens.bed
+1	11120	11211	ENSG00000290825	.	+	havana_tagene	exon	.	transcript_version "1"; transcript_biotype "lncRNA"; exon_version "1"; gene_id "ENSG00000290825"; transcript_name "DDX11L16-260"; gene_source "havana"; exon_id "ENSE00004248723"; gene_version "2"; gene_name "DDX11L16"; transcript_id "ENST00000832824"; gene_biotype "lncRNA"; exon_number "1"; transcript_source "havana_tagene"
+1	11120	14413	ENSG00000290825	.	+	havana_tagene	transcript	.	gene_biotype "lncRNA"; gene_source "havana"; transcript_source "havana_tagene"; transcript_version "1"; transcript_biotype "lncRNA"; gene_id "ENSG00000290825"; gene_version "2"; transcript_id "ENST00000832824"; transcript_name "DDX11L16-260"; gene_name "DDX11L16"
+```
+   
+Una vez el archivo de anotaciones presenta el formato correcto, se emplea el resultado del alineamiento de la submuestra (`subsampled_alignment.bam`) y la herramienta `infer_experiment.py` de _RseQC_.  En este caso, la herramienta `infer_experiment.py` selecciona unos pocos miles de lecturas del archivo de alineamiento BAM/SAM y representa la proporción de la dirección de las hebras en el experimento.   
+  
+```console
+# Cambio de directorio
 cd ~/RNAseq_analysis/Data/2_Infer_strandedness
+# Deducción de la direccionalidad de las hebras
 infer_experiment.py -r ../5_Annotation/Homo_sapiens.bed  -i subsampled_alignment.bam | tee infer_strand.txt
 ```
 > NOTA  
-> * `-r` : archivo de anotaciones de referencia en formato BED.  
-> * `-i` : resultado del archivo de alineammiento en formato SAM o BAM.   
-> La salida del comando se concatena con el comando `tee` que permite mostrar los resultados en pantalla y a la vez generar un nuevo archivo `infer_strand.txt`con la información mostrada.  
-  
+> * `-r` : indica el archivo de anotaciones de referencia en formato BED.  
+> * `-i` : indica el archivo resultante tras el alineamiento en formato SAM o BAM.    
+> La salida del comando se concatena con el comando `tee` que permite mostrar los resultados en la salida por pantalla, y a su vez generar un nuevo archivo `infer_strand.txt` con la información visualizada.    
+   
 Como resultado se pueden dar diferentes escenarios según la forma de preparación de la librería: lecturas pareadas o de extremo único, lecturas con información de hebra específica o no, y a su vez, dentro de los experimentos de hebra específica, se pueden diferenciar:  
 * Librerias sentido: Lecturas *forward* o R1 situadas en la misma dirección que el transcrito.  
 * Librerias antisentido: Lecturas *reverse* o R2 situadas en la misma dirección que el transcrito.  
   
-infer_experiment.py samples a few hundred thousand reads from your bam/sam and tells you the portion that would be explained by each type of strandedness, e.g  
-[Stranded or non-stranded reads](https://eclipsebio.com/eblogs/stranded-libraries/)  
-![image](https://github.com/user-attachments/assets/fc97efa9-a336-4203-b60d-3a4602b8c204)  
-
-Según los resultados obtenidos, se deben especificar diferentes paramétros en las herramientas posteriores.   
-
-| Tipo de Librería | Infer experiment | HISAT2 | htseq-count | 
+![image](https://github.com/user-attachments/assets/a7046b80-04b2-4e10-aca4-9e97654c851d)  
+  
+Según los resultados obtenidos, existen diferentes parámetros que se deben especificar en los análisis posteriores.  
+  
+| Tipo de Librería | Dirección de las lecturas | Paramétros para la herramienta HISAT2 | Parámentros para la herramienta HTseq | 
 |---------|---------|----------|----------|
-Paired-End (PE) - SF (sense Forward) | 1++,1–,2+-,2-+ | Second Strand F/FR | yes |
-PE-SR (Sense-Reverse) | 1+-,1-+,2++,2– | First Strand R/RF | reverse |
-Single-End (SE) - SF |	+,– | Second Strand F/FR | yes
-SE - SR |	+-,-+ |	First Strand R/RF |	reverse
-PE, SE - U |	undecided |	default	| no  
-
-
-
-
-Resultados de la ejecución de la herramienta `infer_experiment.py` para la submuestra SRR28380565:  
+Lecturas pareadas y con Sentido Forward | 1++,1–-,2+-,2-+ | -rna-strandness FR | --stranded=yes |
+Lecturas pareadas y con Sentido Reverse o Antisentido | 1+-,1-+,2++,2-- | --rna-strandness RF |  --stranded=reverse |
+Lecturas únicas y con sentido Forward |	+,– | -rna-strandness F | --stranded=yes |
+Lecturas únicas y con Sentido Reverse o Antisentido |	+-,-+ |	--rna-strandness R | --stranded=reverse |
+Lecturas pareas o únicas sin información de heabra | Sin determinar | parámetros por defecto | --stranded=no  |
+  
+Tras la ejecución de la herramienta `infer_experiment.py`, se obtienen los siguientes resultados para la submuestra SRR28380565, indicando que la librería del experimento se trata de una librería con **lecturas pareadas antisentido** (1+-,1-+,2++,2--).  
 ```console
 This is PairEnd Data
 Fraction of reads failed to determine: 0.3406
 Fraction of reads explained by "1++,1--,2+-,2-+": 0.0185
 Fraction of reads explained by "1+-,1-+,2++,2--": 0.6409
 ```
+Determinar la direccionalidad de las lecturas, es importante  espeacialmente en genomas complejos con genes solapantes en direcciones opuestas, ya que de esta forma es posible conocer la hebra de ADN con la información codificante para cada transcrito.  
+  
+### 2.2 Control de calidad, recorte de adaptadores y extremos de baja calidad  
 
-Como resultado se obtuvo un experimento de tipo **LIBRERIA ANTISENTIDO**   
-
-### 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad  
-FastQC es una herramienta que permite hacer un control de calidad de las lecturas generando un reporte gráfico con diferentes aspectos del alineamiento. Genera una salida html y un archivo .zip con los datos de calidad.  
+La herramienta FastQC permite hacer un control de calidad de las lecturas generando un reporte gráfico con diferentes aspectos del alineamiento, además de generar una salida html y un archivo .zip con los datos de calidad.  
+  
 Para lanzar la herramienta, primero nos situamos en el directorio con las lecturas crudas y creamos una nueva carpeta para almacenar los resultados de FastQC.  
 ```console
 cd ~/RNAseq_analysis/Data/1_Raw
