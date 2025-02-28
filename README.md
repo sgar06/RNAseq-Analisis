@@ -687,16 +687,16 @@ El formato GTF representa las características y anotaciones específicas para u
    
 | Columna | Significado |
 |-------|-------|  
-1. Cromosoma | Indica el cromosoma donde se localiza la anotación. |
-2. Fuente | Fuente de la anotación. Hace referencia al programa de predicción empleado o a la base de datos de anotaciones. |
-3. Característica | Indica el tipo de característica: gen, transcrito, exón, CDS, etc. |
-4. Posición de inicio | Posición de inicio de la característica en el genoma de referencia. |
-5. Posición final |  Posición final de la característica en el genoma de referencia. |
-6. Puntuación | Puntuación asociada a la característica. Si no hay puntuación, se presenta solamente un '.' |
-7. Hebra | Permite indicar la hebra de procedencia de la característica.  Puede ser '+' , '-' o '.' (si  la hebra es desconocida o no aplicable |
-8. Marco | Puede presentarse como '0', '1' o '2' |
-9. Atributos | Incluyen identificadores y otras información suplementaria |
-10. Comentarios | Es una columna con información complementaria |
+| 1. Cromosoma | Indica el cromosoma donde se localiza la anotación. |
+| 2. Fuente | Fuente de la anotación. Hace referencia al programa de predicción empleado o a la base de datos de anotaciones. |
+| 3. Característica | Indica el tipo de característica: gen, transcrito, exón, CDS, etc. |
+| 4. Posición de inicio | Posición de inicio de la característica en el genoma de referencia. |
+| 5. Posición final |  Posición final de la característica en el genoma de referencia. |
+| 6. Puntuación | Puntuación asociada a la característica. Si no hay puntuación, se presenta solamente un '.' |
+| 7. Hebra | Permite indicar la hebra de procedencia de la característica.  Puede ser '+' , '-' o '.' (si  la hebra es desconocida o no aplicable |
+| 8. Marco | Puede presentarse como '0', '1' o '2' |
+| 9. Atributos | Incluyen identificadores y otras información suplementaria |
+| 10. Comentarios | Es una columna con información complementaria |
   
 
 #### 2.4.2 Recuento de características con htseq-count
