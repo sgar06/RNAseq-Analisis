@@ -385,7 +385,7 @@ Como resultado se pueden dar diferentes escenarios según la forma de preparaci�
 * Librerias sentido: Lecturas *forward* o R1 situadas en la misma dirección que el transcrito.  
 * Librerias antisentido: Lecturas *reverse* o R2 situadas en la misma dirección que el transcrito.  
   
-![image](https://github.com/user-attachments/assets/a7046b80-04b2-4e10-aca4-9e97654c851d)  
+![image](https://github.com/user-attachments/assets/8d01c7a5-26a2-4a6c-ae81-bd2a8a0458f3)  
   
 Según los resultados obtenidos, existen diferentes parámetros que se deben especificar en los análisis posteriores.  
   
