@@ -544,19 +544,19 @@ done
 Los archivos resultantes con el alineamiento en formato BAM se almacenan en la carpeta `~/RNAseq_analysis/Data/4_Alignment/`, junto con los archivos de texto plano `${SAMPLE}_alignment.summary.txt`, que contienen la información resumen derivada del mapeo. Para ilustrar esta información, podemos observar alguno de los archivos de texto plano generados, tal como `SRR28380565_alignment.summary.txt`, de forma que se muestran los siguientes resultados:
   
 ```console
-28427141 reads; of these:      # Lecturas totales (x2= 56854282)
+28427141 reads; of these:      				   # Lecturas totales (x2= 56854282)
   28427141 (100.00%) were paired; of these:
     1123549 (3.95%) aligned concordantly 0 times           # Lecturas no conformes (x2 = 2247098)
     27303592 (96.05%) aligned concordantly exactly 1 time  # Lecuturas con mapeo conforme y con una ubicación (x2 = 54607184)
     0 (0.00%) aligned concordantly >1 times		   # Lecturas con mapeo conforme y con más de una ubicación
     ----
     1123549 pairs aligned concordantly 0 times; of these:
-      88122 (7.84%) aligned discordantly 1 time     # Lecturas mapeadas pero discordantes (x2 = 176244)
+      88122 (7.84%) aligned discordantly 1 time    	   # Lecturas mapeadas pero discordantes (x2 = 176244)
     ----
     1035427 pairs aligned 0 times concordantly or discordantly; of these:
       2070854 mates make up the pairs; of these:   
-        1094218 (52.84%) aligned 0 times	    # Lecturas sin mapear
-        976636 (47.16%) aligned exactly 1 time      # Lecturas con solo un extremo alineado 
+        1094218 (52.84%) aligned 0 times	   	   # Lecturas sin mapear
+        976636 (47.16%) aligned exactly 1 time     	   # Lecturas con solo un extremo alineado 
         0 (0.00%) aligned >1 times
 98.08% overall alignment rate
 ```
