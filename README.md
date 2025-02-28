@@ -686,7 +686,7 @@ El formato GTF representa las características y anotaciones específicas para u
 ```
    
 | Columna | Significado |
-| -------| ------------|
+|-------|-------|  
 1. Cromosoma | Indica el cromosoma donde se localiza la anotación. |
 2. Fuente | Fuente de la anotación. Hace referencia al programa de predicción empleado o a la base de datos de anotaciones. |
 3. Característica | Indica el tipo de característica: gen, transcrito, exón, CDS, etc. |
