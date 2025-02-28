@@ -255,7 +255,7 @@ Los resultados de la secuenciación para cada lectura vienen dados por 4 líneas
   
 ### 2.1 Determinación de la direccionalidad de las lecturas  
   
-Para determinar si las lecturas RNA-seq contienen información de hebra específica, se emplea inicialmente una sola muestra y se realiza una selección aleatoria de entorno al 10% de lecturas totales incluyendo ambos extremos gracias a la herramienta _Seqkit_, y los resultados se almancena en la ruta `~/RNAseq_analysis/Data/2_Infer_strandedness`.  
+Para determinar si las lecturas RNA-seq contienen información de hebra específica, se emplea inicialmente una sola muestra y se realiza una selección aleatoria de entorno al 10% de lecturas totales incluyendo ambos extremos gracias a la herramienta **_Seqkit_**, y los resultados se almancenan en la ruta `~/RNAseq_analysis/Data/2_Infer_strandedness`.  
   
 En este paso solamente nos interesa determinar el tipo de librería empleada en el estudio y la especificidad de hebra, por lo que se realiza un selección de lecturas a partir de una de las muestras con el fin de aumentar la eficiencia y rapidez en los pasos posteriores. Con la herramienta `seqkit` se seleccionan de forma aleatoria las lecturas tanto _forward_ como _reverse_ contenidas en los archivos `{sample}_1.fastq.gz` y `{sample}_2.fastq.gz`, respectivamente. Además, es importante que a la hora de realizar el filtrado aleatorio, se incluyan ambos extremos de cada par de lecturas, tanto  *forward* como *reverse* en el orden correcto por lo que se deben emplear los mismos parámetros en ambos procesos.   
 
@@ -287,7 +287,7 @@ En nuestro caso, como la submuestra se obtiene a partir del identificador SRR283
   
 Una vez preparada la submuestra, se lleva a cabo un alineamiento rápido contra el genoma de referencia usando el mapeador _HISAT2_ y los resultados del alineamiento se comparan respecto al archivo de anotación de referencia mediante la herramienta `infer_experiment.py` del paquete _RseQC_ con el fin de determinar la direccionalidad de la librería.  
   
-Para realizar el mapeo se emplea la herramienta _HISAT2_, las lecturas de la submuestra, y el genoma de referencia humano indexado descargado previamente (_grch38_genome.tar.gz_), y como resultado, se obtiene un archivo con la información del alineamiento de las lecturas en formato BAM.  
+Para realizar el mapeo se emplea la herramienta **_HISAT2_**, las lecturas de la submuestra, y el genoma de referencia humano indexado descargado previamente (_grch38_genome.tar.gz_), y como resultado, se obtiene un archivo con la información del alineamiento de las lecturas en formato BAM.  
 ```console
 # Alineamiento de las lecturas filtradas con HISAT2
 hisat2 -k1 -x ../4_Alignment/Reference_genome/grch38/genome \
@@ -341,7 +341,7 @@ A su vez, la sección con el alineamiento, se divide en 11 campos obligatorios y
    
 Además, existen diferentes recursos online que permiten conocer el significado de los distintos identificadores. Por ejemplo, para conocer el significado de los valores del campo FLAG, se puede usar el siguiente [enlace](https://broadinstitute.github.io/picard/explain-flags.html).   
   
-Una vez realizado el alineamiento, se emplea el archivo de anotaciones y la herramienta _RseQC_ para determinar la direccionalidad de las lecturas. El archivo de anotaciones a emplear lo descargamos previamente en formato GTF y activamos la opción para incluir los identificadores de los transcritos (_transcript_id_). Sin embargo, para emplear la herramienta _RseQC_, se necesita el archivo de anotaciones en formato BED, por lo que primero convertimos el archivo de anotaciones al nuevo formato con el paquete de herramientas _Bedops_.  
+Una vez realizado el alineamiento, se emplea el archivo de anotaciones y la herramienta **_RseQC_** para determinar la direccionalidad de las lecturas. El archivo de anotaciones a emplear lo descargamos previamente en formato GTF y activamos la opción para incluir los identificadores de los transcritos (_transcript_id_). Sin embargo, para emplear la herramienta _RseQC_, se necesita el archivo de anotaciones en formato BED, por lo que primero convertimos el archivo de anotaciones al nuevo formato con el paquete de herramientas _Bedops_.  
 
 ```console
 # Cambio del directorio de trabajo al directorio con el archivo de anotaciones
@@ -368,7 +368,7 @@ head Homo_sapiens.bed
 1	11425	11671	ENSG00000290825	.	+	havana_tagene	exon	.	transcript_id "ENST00000832828"; gene_name "DDX11L16"; exon_id "ENSE00004248702"; gene_version "2"; exon_number "1"; transcript_source "havana_tagene"; gene_biotype "lncRNA"; transcript_name "DDX11L16-264"; transcript_version "1"; transcript_biotype "lncRNA"; exon_version "1"; gene_id "ENSG00000290825"; tag "gencode_basic"; gene_source "havana"
 ```
    
-Una vez el archivo de anotaciones presenta el formato correcto, se emplea el resultado del alineamiento de la submuestra (`subsampled_alignment.bam`) y la herramienta `infer_experiment.py` de _RseQC_.  En este caso, la herramienta `infer_experiment.py` selecciona unos pocos miles de lecturas del archivo de alineamiento BAM/SAM y representa la proporción de la dirección de las hebras en el experimento.   
+Una vez el archivo de anotaciones presenta el formato correcto, se emplea el resultado del alineamiento de la submuestra (`subsampled_alignment.bam`) y la herramienta `infer_experiment.py` de **_RseQC_**.  En este caso, la herramienta `infer_experiment.py` selecciona unos pocos miles de lecturas del archivo de alineamiento BAM/SAM y representa la proporción de la dirección de las hebras en el experimento.   
   
 ```console
 # Cambio de directorio
@@ -404,156 +404,173 @@ Fraction of reads failed to determine: 0.3406
 Fraction of reads explained by "1++,1--,2+-,2-+": 0.0185
 Fraction of reads explained by "1+-,1-+,2++,2--": 0.6409
 ```
-Determinar la direccionalidad de las lecturas, es importante  espeacialmente en genomas complejos con genes solapantes en direcciones opuestas, ya que de esta forma es posible conocer la hebra de ADN con la información codificante para cada transcrito.  
+Determinar la direccionalidad de las lecturas, es importante  especialmente en genomas complejos con genes solapantes en direcciones opuestas, ya que de esta forma es posible conocer la hebra de ADN con la información codificante para cada transcrito.  
   
 ### 2.2 Control de calidad, recorte de adaptadores y extremos de baja calidad  
-
-La herramienta FastQC permite hacer un control de calidad de las lecturas generando un reporte gráfico con diferentes aspectos del alineamiento, además de generar una salida html y un archivo .zip con los datos de calidad.  
+#### 2.2.1 Control de calidad 
+Para comprobar la calidad de la secuenciación, se empea la herramienta **FastQC** que permite hacer un control de calidad de las lecturas generando un reporte gráfico con diferentes aspectos del alineamiento, además de generar una salida html y un archivo .zip con los datos de calidad.  
   
-Para lanzar la herramienta, primero nos situamos en el directorio con las lecturas crudas y creamos una nueva carpeta para almacenar los resultados de FastQC.  
+Para lanzar la herramienta, primero nos situamos en el directorio con las lecturas crudas y creamos una nueva carpeta para almacenar los resultados generados por FastQC.   
 ```console
+# Cambio de directorio
 cd ~/RNAseq_analysis/Data/1_Raw
+# Creación de una nueva carpeta
 mkdir qc_raw_reads
+# Análisis de calidad de las lecturas crudas con FastQC
 fastqc -o qc_raw_reads *.fastq.gz
 ```
 > NOTA  
-> La opción `-o` permite indicar el directorio de salido dónde almacenar los reportes generados.
+> * La opción `-o` de fastqc permite indicar el directorio de salida dónde almacenar los reportes generados.  
   
-Al tratarse de muchas muestras, la herramienta MultiQC permite aunar los reportes generados por FastQC y comparar los resultados para todas las muestras en un mismo informe html.  
+Además, al tratarse de varias muestras, la herramienta **MultiQC** permite aunar los reportes generados por FastQC y comparar los resultados para todas las muestras en un mismo informe html.  
 ```console
-cd ~/RNAseq_analysis/Data/1_Raw/qc_raw_reads
+# Cambio de directorio
+cd ./qc_raw_reads
+# Generación de un único reporte con MultiQC
 multiqc .
 ```
 > NOTA  
-> Con el (`.`) indicamos el  directorio actual dónde MultiQC busca los archivos resultantes de FastQC o de otros programas para aunarlos y generar un informe `multiqc_report.html`. Además, genera una carpeta `multiqc_data` con archivos con información complementaria del análisis.  
-
-**Recorte de adaptadores y de bases anotadas de mal calidad**
-Seguidamente se lleva a cabo el recorte de adaptadores y filtrado por calidad, con el fin de eliminar artefactos técnicos. Para ello, empleamos la herramienta TrimGalore y procesamos las lecturas crudas almacenadas en la ruta (`~/RNAseq_analysis/Data/1_Raw`). Los resultaos los almacenamos en el direcctorio (`3_Processed`).    
+> * Con el símbolo '.' indicamos el directorio actual, donde MultiQC busca los ficheros resultantes de FastQC u otros programas para unirlos y generar tanto un informe `multiqc_report.html`, como una nueva carpeta `multiqc_data` que contiene información complementaria del análisis.  
+  
+#### 2.2.2 Recorte de adaptadores y de bases anotadas de mala calidad  
+A continuación, se lleva a cabo el recorte de adaptadores y filtrado por calidad, con el fin de eliminar artefactos técnicos. Para ello, empleamos la herramienta **TrimGalore** para procesar las lecturas crudas, y las lecturas procesadas las almacenamos en el directorio `~/RNAseq_analysis/Data/3_Processed`.  
   
 ```console
+# Cambio de directorio a la ruta con las lecturas crudas 
 cd ~/RNAseq_analysis/Data/1_Raw
+# Procesamiento de lecturas con la herramienta TrimGalore
 trim_galore --paired {sample}_1.fastq.gz {sample}_2.fastq.gz -o ../3_Processed/
 ```
 > NOTA  
-> Con la opción `--paired` indicamos que se trata de lecturas pareadas y seguidamente indicamos los archivos con las lecturas _forward_ y _reverse_.  
-
-El programa TrimGalore recorta los extremos de las lecturas en función a su calidad (Phred Q<20), detecta adaptadores y filtra las lecturas con longitud menor a 20pb. Al tratarse de lecturas pareadas, el programa procesa primero cada archivo con las lecturas _forward_ y _reverse_ de forma independiente generando archivos intermedios `*_trimmed.fq.gz` y, una vez completado el recorte, se genera una etapa de validación de los archivos intermedios que serán eliminados, generando los archivos finales validados `*_val_1.fq.gz` y `*_val_2.fq.gz`.  Además, para cada archivo FASTQ, se genera un reporte `trimming_report.txt`con los resultados del recorte y filtrado.  
-
-En cuanto al procesamiento, TrimGalore primero recorta las bases con mala calidad del extremo 3' eliminado las partes de las lecturas con poca calidad (Phred-score < 20). Seguidamente, la herramienta Cutadapt contenida en TrimGalore, encuentra y elimina las secuencias de adaptadores de los extremos 3' de  las lecturas y, finalmente, aquellas lecturas que tras el recorte de bases y adaptadores contengan una longitud inferior a 20pb por defecto son eliminadas.  
-
+> * La opción `--paired` de TrimGalore permite indicar que se trata de lecturas pareadas, y seguidamente, se indican los archivos con las lecturas _forward_ y _reverse_.  
+  
+El programa TrimGalore recorta los extremos de las lecturas en función a su calidad (Phred Q<20), detecta adaptadores y filtra las lecturas con longitud menor a 20pb. Al tratarse de lecturas pareadas, el programa procesa primero cada archivo con las lecturas _forward_ y _reverse_ de forma independiente generando archivos intermedios `*_trimmed.fq.gz`, y una vez completado el recorte, se genera una etapa de validación de los archivos intermedios, que serán eliminados, generando los archivos finales validados `*_val_1.fq.gz` y `*_val_2.fq.gz`.  Además, para cada archivo FASTQ, se genera un reporte `trimming_report.txt` con los resultados del recorte y filtrado.  
+  
+En cuanto al procesamiento, TrimGalore primero recorta las bases con mala calidad del extremo 3' eliminado las partes de las lecturas con baja calidad (Phred-score < 20). Seguidamente, la herramienta Cutadapt, empaquetada dentro del programa TrimGalore, encuentra y elimina las secuencias de adaptadores en los extremos 3' de  las lecturas y, finalmente, aquellas lecturas que tras el recorte de bases y adaptadores contengan una longitud inferior a 20pb por defecto, son eliminadas.  
+  
 Se puede encontrar más información del funcionamiento de TrimGalore en la página de sus creadores, pinchando [aquí](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md).  
-
-Para procesar todos los archivos `.fastq.gz` con las lecturas crudas simultaneamente, se puede emplear el script siguiente, denominado `trimgalore.sh` para ejecutar el comando anterior sobre varios archivos.  
+  
+En el caso de querer optimizar el proceso o contar con varias muestras, se pueden procesar todos los archivos FASTQ con las lecturas crudas empleando el siguiente script, denominado `trimgalore.sh`, desde el directorio  ~/RNAseq_analysis/Code.  
 ```console
 #! /usr/bin/bash
 # Versión de Bash: 4.2.46(2)
 # Fecha: 2025
 # Nombre del proyecto: RNAseq_analysis
 
-# Script de bash para la herramienta TrimGalore; recorte de bases de mala calidad y adaptadores para los archivos .fastq.gz.
+# Script de bash para la herramienta TrimGalore; recorte de bases de mala calidad y adaptadores de las lecturas crudas
 # Almacenamiento de los resultados en el directorio ~/RNAseq_analysis/Data/3_Processed/
 
 cd ~/RNAseq_analysis/Data/1_Raw
 
-SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568
-	SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+SAMPLES="SRR28380565 SRR28380566 SRR28380568 SRR28380570 SRR28380572 SRR28380573
+	SRR28380580 SRR28380582	SRR28380584 SRR28380586	SRR28380588 SRR28380589"
 
 for SAMPLE in $SAMPLES; do
 	trim_galore --paired ${SAMPLE}_1.fastq.gz ${SAMPLE}_2.fastq.gz -o ../3_Processed/
 done
 ```
-El script `trimgalore.sh` se almacena en la ruta  ~/RNAseq_analysis/Code/ y para ejecutarlo se usa el comando `. trimgalore.sh`.  
+> NOTA  
+> * Dentro del script, se crea una nueva variable denominada `SAMPLES` con la lista de los identificadores de todas las lecturas a procesar, y con el bucle `for` se recorre cada elemento de la lista y se ejecuta la herramienta Trimgalore para cada uno de ellos.    
   
-Para observar los nuevos resultados, se emplea FastQC y MultiQC nuevamente sobre las lecturas filtradas, de forma que podemos comparar los resultados antes y después del empleo de la herramienta Trimgalore.  
+Todos los script `.sh` generados se almacenan en la ruta  `~/RNAseq_analysis/Code/`, y para ejecutarlo se usa el comando `. {nombre_script}.sh` desde el directorio `Code`.  
+    
+Para analizar los resultados tras el procesamiento de las lecturas, se realiza de nuevo un análisis de calidad con FastQC y MultiQC, de forma que comparamos los resultados antes y después del empleo de la herramienta TrimGalore.  
 ``` console
+# Cambio de directorio
 cd ~/RNAseq_analysis/Data/3_Processed
+# Creación de una nueva carpeta
 mkdir qc_processed_reads
+# Análisis de calidad de las lecturas procesadas con FastQC
 fastqc -o qc_processed_reads *.fq.gz
 cd ./qc_processed_reads
+# Generación de un único reporte con MultiQC
 mutliqc .
 ```
-Tras el filtrado nos quedan los siguientes resultados:   
-![image](https://github.com/user-attachments/assets/307556a3-8a03-4141-a91c-c5f10e02e243)
-    
-  
-### 2.2 Alineamiento de las lecturas procesadas contra el genoma de referencia con HISAT2  
-Una vez que las lecturas son procesadas, se alinean contra el genoma de referencia con el fin de asignar la posición y coordenadas cromosómicas para cada una de ellas.  
-![image](https://github.com/user-attachments/assets/6f42b6c5-30d6-41b0-b99a-8e57c317e667)  
+Tras el procesamiento y filtrado de las lecturas se obtienen los siguientes resultados:   
+![image](https://github.com/user-attachments/assets/307556a3-8a03-4141-a91c-c5f10e02e243)  
 
-**2.2.1 Preparación del genoma de referencia**  
+Además, los informes generados por la herramienta MultiQC, están disponibles para su visualización en la carpeta **MultiQC** del presente manual.  
+      
+### 2.3 Alineamiento de las lecturas procesadas contra el genoma de referencia con HISAT2   
+Una vez que se tienen las lecturas procesadas, se alinean contra el genoma de referencia con el fin de asignar la posición y coordenadas cromosómicas para cada una de ellas.  
+  
+#### 2.3.1 Preparación del genoma de referencia  
 Como explicamos previamente, el genoma de referencia indexado se descarga desde el repositorio de _HISAT2_ y, una vez tenemos el genoma en nuestra computadora, se lleva a cabo el alineamiento.  
   
-**2.2.2 Alineamiento de las lecturas**  
-Hoy en día, existen diferentes alineadores o mapeadores que se pueden emplear. Entre los más conocidos se encuentran HISAT2 y STAR. Algunas de las diferencias entre ellos son la cantidad  de recursos necesarios, siendo menos en el caso de HISAT2; o la precisión de los resultados, siendo más precisos en el caso de STAR. 
-En el presente trabajo, se emplea el alineador HISAT2.  
+#### 2.3.2 Alineamiento de las lecturas
+Hoy en día, existen diferentes alineadores o mapeadores que se pueden emplear. Entre los más conocidos se encuentran HISAT2 y STAR. Algunas de las diferencias entre ellos son la cantidad de recursos necesarios o la precisión de los resultados. HISAT2 es un alineador menos preciso en comparación con STAR, aunque es adecuado cuando hay menos recursos disponibles.  
   
-Para llevar a cabo el alineamiento de las lecturas pareadas con HISAT2, empleamos el siguiente comando:  
+En el presente manual, se emplea el alineador HISAT2, y para llevar a cabo el alineamiento de las lecturas procesadas, se utiliza el siguiente comando:  
 ```console
-#Paired-end reads
+# Cambio de directorio
 cd ~/RNAseq_analysis/Data/4_Alignment
+# Alineamiento de las lecturas con HISAT2
 hisat2 -k1 --summary-file {sample}.summary.txt  --rna-strandness {STRING} 
--x (./Reference_genome/grch38/genome) \
+-x ./Reference_genome/grch38/genome \
 -1 ../3_Processed/{sample}_1_val_1.fq.gz -2 ../3_Processed/{sample}_2_val_2.fq.gz |\
 samtools view -Sbh > {sample}.bam 
 ````
 > NOTA  
 > * `-k`: permite establecer el número máximo de alineamientos permitidos por lectura. El valor 1 impide la existencia de alineamientos múltiples.  
-> * `--summary-file`: crea un nuevo archivo con los resultados del alineamiento.  
-> * ` --rna-strandness {STRING}`: permite indicar cómo se espera que alineen las lecturas en función de la direccionalidad de la librería. En nuestro caso, al tratarse de una librería pareada antisentido, se usa la opción `RF` para indicar que la lectura 2 o _reverse_ tiene la misma orientación que el transcrito a partir del cual se genera (2++ o 2--).  
-> * `-x` : ruta relativa y nombre principal de los archivos indexados para el genoma de referencia. El nombre principal incluye el nombre de los archivos indexados sin incluir el final (.1.ht2, .2.ht2, .3.ht2 etc).  
+> * `--summary-file`: crea un nuevo archivo de texto plano con los resultados del alineamiento.  
+> * ` --rna-strandness {STRING}`: permite indicar cómo se espera que alineen las lecturas en función de la direccionalidad de la librería. En nuestro caso, al tratarse de una librería pareada antisentido, se usa la opción `RF` para indicar que la lectura 2 o _reverse_ tiene la misma orientación que el transcrito a partir del cual se genera (1+-,1-+,2++,2--).  
+> * `-x` : ruta relativa y nombre común de los archivos indexados para el genoma de referencia. El nombre común incluye el nombre de los archivos indexados sin incluir la extensión final (.1.ht2, .2.ht2, .3.ht2 etc).  
 > * `-1` y `-2`: lecturas _forward_ y _reverse_, respectivamente.  
 > *`| samtools view -Sbh > {sample}.bam`: permite crear el archivo BAM con los resultados del alineamiento de forma directa, sin necesidad de crear el archivo SAM intermedio.  
-
-Para mapear todos los archivos `.fq.gz` con las lecturas procesadas, se puede emplear el script siguiente, denominado `hisat2_algignment.sh` para ejecutar el comando anterior sobre varios archivos.  
-
+  
+Para mapear todos los archivos FASTQ con las lecturas procesadas, se puede emplear el script siguiente, denominado `hisat2_alignment.sh` para ejecutar el comando anterior sobre varios archivos.  
+  
 ```console
 #! /usr/bin/bash
 # Versión de Bash: 4.2.46(2)
 # Fecha: 2025
 # Nombre del proyecto: RNAseq_analysis
 
-# Script de bash para el programa hisat2; alineamiento de los archivos fq.gz al genoma de referencia indexado
+# Script de bash para el programa hisat2; alineamiento de las lecturas procesadas al genoma de referencia indexado
 # Creación de archivos BAM como resultado
 
-SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568
-	SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+SAMPLES="SRR28380565 SRR28380566 SRR28380568 SRR28380570 SRR28380572 SRR28380573
+	SRR28380580 SRR28380582	SRR28380584 SRR28380586	SRR28380588 SRR28380589"
 
 cd  ~/RNAseq_analysis/Data/4_Alignment/
 
 for SAMPLE in $SAMPLES; do
-	hisat2 -k1 --summary-file ${SAMPLE}_align.summary.txt  --rna-strandness RF \
+	hisat2 -k1 --summary-file ${SAMPLE}_alignment.summary.txt  --rna-strandness RF \
 	-x ./Reference_genome/grch38/genome \
 	-1 ../3_Processed/${SAMPLE}_1_val_1.fq.gz -2 ../3_Processed/${SAMPLE}_2_val_2.fq.gz |\
  	samtools view -Sbh > ${SAMPLE}.bam
 done
-```
-Los resultados se guardan en la carpeta `~/RNAseq_analysis/Data/4_Alignment/` y, dentro de los archivos `${SAMPLE}_align.summary.txt`, se tiene la información del resultado del alineamiento.  
-Por ejemplo, en el caso del archivo `SRR28380566_align.summary.txt` se tienen los siguientes resultados:  
+```  
+Los archivos resultantes con el alineamiento en formato BAM se almacenan en la carpeta `~/RNAseq_analysis/Data/4_Alignment/`, junto con los archivos de texto plano `${SAMPLE}_alignment.summary.txt`, que contienen la información resumen derivada del mapeo. Para ilustrar esta información, podemos observar alguno de los archivos de texto plano generados, tal como `SRR28380565_alignment.summary.txt`, de forma que se muestran los siguientes resultados:
+  
 ```console
-28427141 reads; of these:
+28427141 reads; of these:      # Lecturas totales (x2= 56854282)
   28427141 (100.00%) were paired; of these:
-    1123549 (3.95%) aligned concordantly 0 times
-    27303592 (96.05%) aligned concordantly exactly 1 time
-    0 (0.00%) aligned concordantly >1 times
+    1123549 (3.95%) aligned concordantly 0 times           # Lecturas no conformes (x2 = 2247098)
+    27303592 (96.05%) aligned concordantly exactly 1 time  # Lecuturas con mapeo conforme y con una ubicación (x2 = 54607184)
+    0 (0.00%) aligned concordantly >1 times		   # Lecturas con mapeo conforme y con más de una ubicación
     ----
     1123549 pairs aligned concordantly 0 times; of these:
-      88122 (7.84%) aligned discordantly 1 time
+      88122 (7.84%) aligned discordantly 1 time     # Lecturas mapeadas pero discordantes (x2 = 176244)
     ----
     1035427 pairs aligned 0 times concordantly or discordantly; of these:
-      2070854 mates make up the pairs; of these:
-        1094218 (52.84%) aligned 0 times
-        976636 (47.16%) aligned exactly 1 time
+      2070854 mates make up the pairs; of these:   
+        1094218 (52.84%) aligned 0 times	    # Lecturas sin mapear
+        976636 (47.16%) aligned exactly 1 time      # Lecturas con solo un extremo alineado 
         0 (0.00%) aligned >1 times
 98.08% overall alignment rate
 ```
-  
-Seguidamente, empleamos la herramienta samtools para ordenar las lecturas según sus coordenadas genómicas.  
+Como se puede observar, se genera un resumen del alineamiento con las lecturas mapeadas y no mapeadas. Los comentarios anexados a la derecha de los parámetros describen qué representan cada uno. En el caso de las lecturas mapeadas de manera discordante o no conforme (7.84%), hacen referencia a pares de lecturas con mapeos únicos pero que no cumplen las expectitivas para un alineamiento de lecturas pareadas, como puede ser la orientación esperada de las lecturas o el rango de distancia esperado entre ambas lecturas.  
+El total de lecturas alineadas se calcula a partir de la suma de las lecturas con mapeo conforme y una ubicación (54607184), lecturas con mapeo discordantes (176244) y lecturas con un solo extremo alineado (976636), haciendo un total de 55.760.064 lecturas alineadas y 98.08% de tasa total de alineamiento.  
+   
+Una vez realizado el alineamiento y obtenidos los archivos BAM, se emplea la herramienta **Samtools** para ordenar las lecturas según sus coordenadas genómicas.  
   
 ```console
+# Ordenación de los archivos BAM con la herramienta samtools
 samtools sort {sample}.bam -o {sample}.sorted.bam 
 ```
-
-Para ordenar todos los archivos resutlantes del alineamiento, se puede emplear el siguiente script `bam_order.sh`.  
+  
+Para ordenar todos los archivos resultantes del alineamiento formato BAM, se puede emplear el siguiente script `bam_order.sh` desde el directorio  ~/RNAseq_analysis/Code.   
 ```console
 #! /usr/bin/bash
 # Versión de Bash: 4.2.46(2)
@@ -562,8 +579,8 @@ Para ordenar todos los archivos resutlantes del alineamiento, se puede emplear e
 
 # Script de bash para el programa samtools; ordenación por posición genómica de los archivos .bam
 
-SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568
-	SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+SAMPLES="SRR28380565 SRR28380566 SRR28380568 SRR28380570 SRR28380572 SRR28380573
+	SRR28380580 SRR28380582	SRR28380584 SRR28380586	SRR28380588 SRR28380589"
 
 cd  ~/RNAseq_analysis/Data/4_Alignment/
 
@@ -571,23 +588,31 @@ for SAMPLE in $SAMPLES; do
 	samtools sort ./${SAMPLE}.bam -o ./${SAMPLE}.sorted.bam
 done
 ```
-  
-Finalmente, los archivos .bam ordenados almacenados en el directorio `~/RNAseq_analysis/Data/4_Alignment/` se indexan.  
+   
+Finalmente, se lleva a cabo la indexación de los archivos BAM ordenados y almacenados en el directorio `~/RNAseq_analysis/Data/4_Alignment/`.   
 ```console
+# Indexación de los archivos BAM ordenados
 find . -name "*sorted.bam" | xargs -n1 samtools index
 ```
-**BAM files are often accompanied by a BAM index file also known as a BAI file with a similar name. This file will always be much smaller than the BAM file and acts as a “table of contents” for the BAM file, indicating where in the BAM file a specific read or set of reads can be found. Because the location of reads within the file is likely to change with sorting, it is important to generate or regenerate the BAM index file after the companion BAM file is sorted. The creation of the BAM index file can again be done using Samtools or Picard. Most software that expects a BAM file as input also expects a companion BAI file with a similar name to be available in the same folder as the BAM.** 
+> NOTA  
+> * El comando `find` busca y lista en el directorio actual ('.') todos los archivos en cuyo nombre se contiene la terminación `*sorted.bam`, y el resultado se concatena al comando `xargs -n1 samtools index`, que para cada archivo identificado, ejecuta el comando de indexación.  
+> * Como resultado, el comando `samtools index` genera un archivo `sample.sorted.bam.bai`, dónde la terminación BAI hace referencia al archivo índice para cada BAM.  
   
-Una vez alineadas las lecturas procesadas contra el genoma de referencia, se puede comprobar la calidad de este alineamiento. Para ello, vamos a emplear el programa _RseQC_, dentro del cual existen diferentes funciones y scripts creados para analizar el alineamiento.  
+La indexación de los archivos BAM, genera un archivo índice complementario con un tamaño mucho menor, que actúa como una tabla de contenidos y permite identificar dónde se localizan las lecturas. Esto es importante en la ejecución de algunas programas, ya que permite localizar partes específicas del archivo BAM manera más rápida.  
+
+#### 2.3.3 Calidad del alineamiento   
+Una vez alineadas las lecturas procesadas contra el genoma de referencia, existen herramientas para comprobar la calidad de dicho alineamiento. Para ello, vamos a emplear el programa _RseQC_, dentro del cual existen diferentes funciones y scripts creados para analizar el alineamiento.  
 En concreto, vamos a emplear el script `bam_stat.py`, para obtener un resumen de las estadísticas del mapeo del archivo BAM. Primero, se determina una calidad de mapeo para cada lectura y seguidamente se calcula la probabilidad de que esa lectura esté mal posicionada en función de un umbral mínimo.   
 
 Para emplear la herramienta usamos el siguiente comando:  
 ```console
+# Creación de un nuevo directorio dentro de la carpeta 4_Alignment
 mkdir ./statistics
+# Calidad del alineamiento con RseQC
 bam_stat.py -i ./{sample}.sorted.bam > statistics/{sample}.bamstats.txt
 ```
   
-Para comprobar la calidad del alineamiento para cada uno de los archivos BAM resultantes, se puede emplear el siguiente script `bam_stats.sh` desdeel directorio  ~/RNAseq_analysis/Code.  
+Para comprobar la calidad del alineamiento para cada uno de los archivos BAM resultantes, se puede emplear el siguiente script `bam_stats.sh` desde el directorio  ~/RNAseq_analysis/Code.  
 ```console
 #! /usr/bin/bash
 # Versión de Bash: 4.2.46(2)
@@ -596,8 +621,8 @@ Para comprobar la calidad del alineamiento para cada uno de los archivos BAM res
 
 # Script de bash para el programa RseQC; estadísticas de la calidad del alineamiento con la herramienta bam_stats.py
 
-SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568
-	SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+SAMPLES="SRR28380565 SRR28380566 SRR28380568 SRR28380570 SRR28380572 SRR28380573
+	SRR28380580 SRR28380582	SRR28380584 SRR28380586	SRR28380588 SRR28380589"
 
 cd ~/RNAseq_analysis/Data/4_Alignment/
 
@@ -605,7 +630,7 @@ for SAMPLE in $SAMPLES; do
 	bam_stat.py -i ${SAMPLE}.sorted.bam > ./statistics/${SAMPLE}.bamstats.txt
 done
 ```
-Como resultado se obtiene un archivo de texto plano con diferentes estadísticos del alineamiento. Por ejemplo, en el caso del archivo SRR28380565 se obtienen los siguientes resultados:  
+Como resultado se obtiene un archivo de texto plano con diferentes estadísticos del alineamiento. Por ejemplo, en el caso del archivo SRR28380565 se obtienen los siguientes resultados:   
 ```console
 #==================================================
 #All numbers are READ count
@@ -635,9 +660,9 @@ Finalmente, los resultados obtenidos tras el alineamiento de todas las muestras 
 ![image](https://github.com/user-attachments/assets/0b49ef3a-0d83-4844-8ac0-034608e37af9)
   
   
-### 2.3 Identificación y recuento de features o características  
+### 2.4 Identificación y recuento de features o características  
 
-**2.3.1 Preparación del archivo de anotaciones GTF**  
+#### 2.4.1 Preparación del archivo de anotaciones GTF
 
 Como explicamos previamente, el genoma de anotaciones de la especie humana (GRCh38.p14) en formato GTF se descargó desde el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon).  
 
@@ -674,7 +699,7 @@ El formato GTF representa las características y anotaciones específicas para u
 10. Comentarios | Es una columna con información complementaria |
   
 
-**2.3.2 Recuento de características con htseq-count**  
+#### 2.4.2 Recuento de características con htseq-count
 
 Una vez visualizada la estructura del archivo de anotaciones (_Homo_sapiens.gtf_), este se emplea para anotar las características de las lecturas según la posición del genoma dónde alineen. Para ello, se debe comprobar que la forma de nombrar los cromosomas en ambos archivos es la misma, ya que si no esto puede conducir a errores.
 
@@ -718,7 +743,7 @@ __alignment_not_unique	0
 ```
 
 
-**2.3.3 Obtención de la matriz de recuentos** 
+#### 2.4.3 Obtención de la matriz de recuentos
 
 Finalmente 
 ```console
