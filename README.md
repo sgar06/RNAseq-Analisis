@@ -498,7 +498,7 @@ Una vez que se tienen las lecturas procesadas, se alinean contra el genoma de re
 Como explicamos previamente, el genoma de referencia indexado se descarga desde el repositorio de _HISAT2_ y, una vez tenemos el genoma en nuestra computadora, se lleva a cabo el alineamiento.  
   
 #### 2.3.2 Alineamiento de las lecturas
-Hoy en día, existen diferentes alineadores o mapeadores que se pueden emplear. Entre los más conocidos se encuentran HISAT2 y STAR. Algunas de las diferencias entre ellos son la cantidad de recursos necesarios o la precisión de los resultados. HISAT2 es un alineador menos preciso en comparación con STAR, aunque es adecuado cuando hay menos recursos disponibles.  
+Hoy en día, existen diferentes alineadores o mapeadores que se pueden emplear. Entre los más conocidos se encuentran TopHat2, HISAT2 o STAR, y algunas de las diferencias entre ellos son la cantidad de recursos necesarios o la precisión de los resultados. TopHat2 es el alineador menos eficiente de los tres, ya que puede tomar varios días en procesar los experimentos de ARNseq, mientras que HIAST2 y STAR son alineadores mucho más eficaces. Sin embargo, HISAT2 es un alineador menos preciso en comparación con STAR, aunque es adecuado cuando hay menos recursos disponibles ya que necesita menos menoria RAM disponible.  
   
 En el presente manual, se emplea el alineador HISAT2, y para llevar a cabo el alineamiento de las lecturas procesadas, se utiliza el siguiente comando:  
 ```console
@@ -570,7 +570,7 @@ Una vez realizado el alineamiento y obtenidos los archivos BAM, se emplea la her
 samtools sort {sample}.bam -o {sample}.sorted.bam 
 ```
   
-Para ordenar todos los archivos resultantes del alineamiento formato BAM, se puede emplear el siguiente script `bam_order.sh` desde el directorio  ~/RNAseq_analysis/Code.   
+Para ordenar todos los archivos resultantes del alineamiento en formato BAM, se puede emplear el siguiente script `bam_order.sh` desde el directorio  ~/RNAseq_analysis/Code.   
 ```console
 #! /usr/bin/bash
 # Versión de Bash: 4.2.46(2)
@@ -598,12 +598,12 @@ find . -name "*sorted.bam" | xargs -n1 samtools index
 > * El comando `find` busca y lista en el directorio actual ('.') todos los archivos en cuyo nombre se contiene la terminación `*sorted.bam`, y el resultado se concatena al comando `xargs -n1 samtools index`, que para cada archivo identificado, ejecuta el comando de indexación.  
 > * Como resultado, el comando `samtools index` genera un archivo `sample.sorted.bam.bai`, dónde la terminación BAI hace referencia al archivo índice para cada BAM.  
   
-La indexación de los archivos BAM, genera un archivo índice complementario con un tamaño mucho menor, que actúa como una tabla de contenidos y permite identificar dónde se localizan las lecturas. Esto es importante en la ejecución de algunas programas, ya que permite localizar partes específicas del archivo BAM manera más rápida.  
-
+La indexación de los archivos BAM, genera un archivo índice complementario con un tamaño mucho menor, que actúa como una tabla de contenidos y permite identificar dónde se localizan las lecturas. Esto es importante en la ejecución de algunos programas, ya que permite localizar partes específicas del archivo BAM de manera más rápida.  
+  
 #### 2.3.3 Calidad del alineamiento   
-Una vez alineadas las lecturas procesadas contra el genoma de referencia, existen herramientas para comprobar la calidad de dicho alineamiento. Para ello, vamos a emplear el programa _RseQC_, dentro del cual existen diferentes funciones y scripts creados para analizar el alineamiento.  
-En concreto, vamos a emplear el script `bam_stat.py`, para obtener un resumen de las estadísticas del mapeo del archivo BAM. Primero, se determina una calidad de mapeo para cada lectura y seguidamente se calcula la probabilidad de que esa lectura esté mal posicionada en función de un umbral mínimo.   
-
+Una vez alineadas las lecturas procesadas contra el genoma de referencia, existen herramientas para comprobar la calidad de dicho alineamiento. Para ello, vamos a emplear el programa _RseQC_, dentro del cual existen diferentes módulos y scripts creados para analizar el alineamiento.  
+En concreto, vamos a emplear el script `bam_stat.py`, para obtener un resumen de las estadísticas del mapeo del archivo BAM. Primero, se determina la calidad del mapeo para cada lectura y seguidamente se calcula la probabilidad de que esa lectura esté mal posicionada en función de un umbral mínimo.   
+  
 Para emplear la herramienta usamos el siguiente comando:  
 ```console
 # Creación de un nuevo directorio dentro de la carpeta 4_Alignment
@@ -619,7 +619,7 @@ Para comprobar la calidad del alineamiento para cada uno de los archivos BAM res
 # Fecha: 2025
 # Nombre del proyecto: RNAseq_analysis
 
-# Script de bash para el programa RseQC; estadísticas de la calidad del alineamiento con la herramienta bam_stats.py
+# Script de bash para el programa RseQC; calidad del alineamiento con la herramienta bam_stats.py
 
 SAMPLES="SRR28380565 SRR28380566 SRR28380568 SRR28380570 SRR28380572 SRR28380573
 	SRR28380580 SRR28380582	SRR28380584 SRR28380586	SRR28380588 SRR28380589"
@@ -630,32 +630,34 @@ for SAMPLE in $SAMPLES; do
 	bam_stat.py -i ${SAMPLE}.sorted.bam > ./statistics/${SAMPLE}.bamstats.txt
 done
 ```
-Como resultado se obtiene un archivo de texto plano con diferentes estadísticos del alineamiento. Por ejemplo, en el caso del archivo SRR28380565 se obtienen los siguientes resultados:   
+Como resultado se obtiene un archivo de texto plano con diferentes estadísticas del alineamiento. Por ejemplo, en el caso del archivo SRR28380565 se obtienen los siguientes resultados:   
 ```console
 #==================================================
 #All numbers are READ count
 #==================================================
 
-Total records:                          56854282
+Total records:                          56854282  # Lecturas totales
 
 QC failed:                              0
 Optical/PCR duplicate:                  0
 Non primary hits                        0
-Unmapped reads:                         1094218
-mapq < mapq_cut (non-unique):           1663991
+Unmapped reads:                         1094218   # Lecturas no mapeadas
+mapq < mapq_cut (non-unique):           1663991   # Lecturas con mapeo de baja calidad
 
-mapq >= mapq_cut (unique):              54096073
-Read-1:                                 27138442
-Read-2:                                 26957631
-Reads map to '+':                       27053055
-Reads map to '-':                       27043018
-Non-splice reads:                       40899546
-Splice reads:                           13196527
+mapq >= mapq_cut (unique):              54096073  # Lecturas con mapeo de alta calidad
+Read-1:                                 27138442  # Lecturas foward
+Read-2:                                 26957631  # Lecturas reverse
+Reads map to '+':                       27053055 
+Reads map to '-':                       27043018  
+Non-splice reads:                       40899546  # Lecturas mapeadas en un único exón
+Splice reads:                           13196527  # Lecturas mapeadas en diferentes exones
 Reads mapped in proper pairs:           53037578
 Proper-paired reads map to different chrom:0
 ```
 
-Finalmente, los resultados obtenidos tras el alineamiento de todas las muestras son los siguientes:  
+Dentro del resumen anterior, podemos observar diferentes estadísticas del mapeo. Además, cabe destacar que el genoma de referencia humano contiene intrones y exones dentro de sus genes, y que los transcritos de ARNm se pueden obtener a partir del empalme de varios exones, es por ello que es importante que el alineador empleado sea capaz de tener en cuenta la presencia de intrones para alinear las lecturas correctamente.   
+  
+Finalmente, los resultados obtenidos tras el alineamiento de todas las muestras son los siguientes:   
   
 ![image](https://github.com/user-attachments/assets/0b49ef3a-0d83-4844-8ac0-034608e37af9)
   
@@ -664,9 +666,8 @@ Finalmente, los resultados obtenidos tras el alineamiento de todas las muestras 
 
 #### 2.4.1 Preparación del archivo de anotaciones GTF
 
-Como explicamos previamente, el genoma de anotaciones de la especie humana (GRCh38.p14) en formato GTF se descargó desde el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon).  
-
-La estructura del archivo es la siguiente:   
+Como explicamos al principio del manual, el archivo de anotaciones de la especie humana (GRCh38.p14) en formato GTF se descargó desde el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon), y su estructura es la siguiente:   
+   
 ```console
 #!genome-build GRCh38.p14
 #!genome-version GRCh38
@@ -680,9 +681,9 @@ La estructura del archivo es la siguiente:
 1	havana		start_codon	3069260	3069262	.	+	.	gene_version "17"; transcript_id "ENST00000511072"; gene_name "PRDM16"; gene_biotype "protein_coding"; transcript_source "havana"; exon_number "1"; gene_id "ENSG00000142611"; transcript_biotype "protein_coding"; transcript_version "5"; transcript_name "PRDM16-206"; transcript_support_level "5"; gene_source "ensembl_havana"; tag "gencode_primary"
 ```
   
-El formato GTF representa las características y anotaciones específicas para un genoma de referencia.  Cada línea representa una región particular del genoma, y el número de columnas puede variar. Se pueden tener hasta 10 columnas, las cuales representan los siguientes indicadores:  
+El **formato GTF** representa las características y anotaciones específicas para un genoma de referencia.  Cada línea representa una región particular del genoma, y el número de columnas puede variar. Se pueden tener hasta 10 columnas, las cuales representan los siguientes indicadores:   
 ```
-[cromosoma] [fuente] [característica] [posición.inicio] [posición.final] [puntuación] [hebra] [marco] [atributos] [comentarios]
+[cromosoma] [fuente] [característica] [posición.inicio] [posición.final] [puntuación] [hebra] [marco] [atributos][comentarios]
 ```
    
 | Columna | Significado |
@@ -693,29 +694,43 @@ El formato GTF representa las características y anotaciones específicas para u
 | 4. Posición de inicio | Posición de inicio de la característica en el genoma de referencia. |
 | 5. Posición final |  Posición final de la característica en el genoma de referencia. |
 | 6. Puntuación | Puntuación asociada a la característica. Si no hay puntuación, se presenta solamente un '.' |
-| 7. Hebra | Permite indicar la hebra de procedencia de la característica.  Puede ser '+' , '-' o '.' (si  la hebra es desconocida o no aplicable |
-| 8. Marco | Puede presentarse como '0', '1' o '2' |
-| 9. Atributos | Incluyen identificadores y otras información suplementaria |
-| 10. Comentarios | Es una columna con información complementaria |
-  
+| 7. Hebra | Permite indicar la hebra de procedencia de la característica.  Puede ser '+' , '-' o '.' (si la hebra es desconocida o no aplicable). |
+| 8. Marco | Puede presentarse como '0', '1' o '2', e indica la fase o el marco donde empieza un codón. |
+| 9. Atributos | Incluyen identificadores y otra información suplementaria. |
+| 10. Comentarios | Es una columna con comentarios adicionales. |
 
+  
 #### 2.4.2 Recuento de características con htseq-count
 
-Una vez visualizada la estructura del archivo de anotaciones (_Homo_sapiens.gtf_), este se emplea para anotar las características de las lecturas según la posición del genoma dónde alineen. Para ello, se debe comprobar que la forma de nombrar los cromosomas en ambos archivos es la misma, ya que si no esto puede conducir a errores.
-
+Una vez visualizada la estructura del archivo de anotaciones (_Homo_sapiens.gtf_), este se emplea para anotar las características de las lecturas según la posición del genoma dónde alineen. Para ello, se debe comprobar que la forma de nombrar los cromosomas, tanto en los archivos BAM como en el archivo de anotaciones GTF, es la misma, ya que si no esto puede conducir a errores.  
+  
 ```console
+# Cambio de directorio
 cd ~RNAseq_analysis/Data/
-
-htseq-count -t exon -i gene_id --stranded=reverse -f bam -r pos 4_Alignment/{SAMPLE}.sorted.bam \
-5_Annotation/Homo_sapiens.gtf > ../Results/{SAMPLE}_counts.tsv
+# Anotación de las características de las lecturas mapeadas con HTseq
+htseq-count -t exon -i gene_id --stranded=reverse -f bam -r pos \
+4_Alignment/{sample}.sorted.bam 5_Annotation/Homo_sapiens.gtf > ../Results/{saple}_counts.tsv
 ```
-> NOTA Con la opción -t exon indicamos que cuente las lecturas alineadas específicamente contra los exones y, con la opción -i gene_id, indicamos que agrupe las diferentes > lecturas atendiendo al identificador del gen al que pertenecen. Con la opción --stranded=no y -s no, determinamos que las lecturas no provienen de un experimento de hebra > específica y, por tanto, la lectura puede mapear en ambas hebras del genoma.  
-> Finalmente, las opciones `–f` y `–r` , las usamos para indicar el formato del archivo a emplear (bam) y cómo están ordenados los alineamientos, en este caso por posición > o coordenadas genómicas (pos).  
-> Una vez hemos definido todas las opciones, indicamos la ruta de los archivos BAM y el archivo de anotaciones (GTF), así como la ruta de salida y el nombre del nuevo > archivo que contendrá la información.
+> NOTA  
+> * Con la opción `-t exon` indicamos que anote aquellas lecturas alineadas específicamente contra la característica exón y, con la opción `-i gene_id`, indicamos que agrupe las diferentes lecturas atendiendo al identificador del gen al que pertenecen.  
+> * Con la opción `--stranded=reverse`, determinamos que las lecturas provienen de una librería de hebra específica antisentido y, por tanto, las lecturas _forward_ mapean en la dirección contraria a la característica, mientras que las lecturas _reverse_ mapean en la misma dirección que la hebra con la caracterísitca (1+-,1-+,2++,2--).   
+> * Finalmente, las opciones `–f` y `–r` , las usamos para indicar el formato del archivo de entrada (`bam`) y el orden de los alineamientos, en este caso por posición o coordenadas genómicas (`pos`).  
+> * Una vez especificadas todas las opciones, indicamos la rutas relativas para llegar a los archivos BAM y al archivo de anotaciones (GTF), así como la ruta de salida y el nombre del nuevo archivo que contendrá la información.  
 
+Para anotar las características de cada uno de los archivos BAM, se puede emplear el siguiente script `htseqcount_features.sh` desde el directorio  ~/RNAseq_analysis/Code.   
 ```console
-SAMPLES="SRR28380566 SRR28380565 SRR28380570 SRR28380572 SRR28380573 SRR28380568 SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589"
+#! /usr/bin/bash
+# Versión de Bash: 4.2.46(2)
+# Fecha: 2025
+# Nombre del proyecto: RNAseq_analysis
+
+# Script de bash para el programa HTseq; anotación de las características genómicas para las lecturas alineadas
+
+SAMPLES="SRR28380565 SRR28380566 SRR28380568 SRR28380570 SRR28380572 SRR28380573
+	SRR28380580 SRR28380582	SRR28380584 SRR28380586	SRR28380588 SRR28380589"
+
 cd  ~RNAseq_analysis/Data/
+
 for SAMPLE in $SAMPLES; do
 	htseq-count -t exon -i gene_id --stranded=reverse -f bam -r pos \
 	4_Alignment/${SAMPLE}.sorted.bam \
@@ -724,15 +739,17 @@ for SAMPLE in $SAMPLES; do
 done
 ```
 
-Estructura ejemplo SRR28380565:
+En el caso de lecturas superpuestas en varias características genómicas, existen distintos modos que se pueden especificar en el comando `htseq-count`, según como queramos que resuelva esta información. Por defecto, se emplea el modo `union`, aunque existen otros modos diferentes según se muestra en la imágen siguiente. Para cambiar el modo se emplea la opción `-m <mode>` y se pueden especificar cualquiera de los 3 modos: `union`, `intersection-strict` o `intersection-nonempty`, aunque se recomienda trabajar con el modo por defecto (`union`).  
+
+![image](https://github.com/user-attachments/assets/b75eb615-535e-47ae-9fe1-c2cabb82a8e8)
+
+Finalmente, podemos observar los resultados obtenidos tras la anotación para cada una de las muestras. En el caso del archivo `SRR28380565_counts.tsv`, se obtiene la siguiente  estructura:    
 ```console
 ENSG00000000003	0
 ENSG00000000005	0
 ENSG00000000419	1207
 ENSG00000000457	702
-.
-.
-.
+[...]
 ENSG00000310556	0
 ENSG00000310557	0
 __no_feature	3102207
@@ -741,11 +758,19 @@ __too_low_aQual	1595129
 __not_aligned	165990
 __alignment_not_unique	0
 ```
+> NOTA  
+> El archivo resultante muestra una tabla con los conteos para cada característica, seguido por 5 grupos que contienen las lecturas que no han sido anotadas a ninguna característica.   
+> `__no_feature`, hace referencia a los pares de lecturas que no se han asignado a ninguna característica.   
+> `__ambiguous`, lecturas que pueden ser asignadas a más de una característica y que por tanto en el modo `union` no son asignadas.  
+> `__too_low_aQual, lecturas con un mapeo de baja calidad y que no se tienen en cuenta en el análisis.   
+> `__not_aligned`, lecturas no alineadas.   
+> `__alignment_not_unique`, lecturas con mapeos múltiples. En este caso, el valor es 0 puesto que restringimos el alineamiento a posiciones únicas con HISAT2.
 
-
-#### 2.4.3 Obtención de la matriz de recuentos
-
-Finalmente 
+Las lecturas anotadas como ambiguas, son aquellas que mapean en regiones del genoma con genes solapantes, ya sea en la misma hebra o en hebras opuestas. Sin embargo, en nuestro caso, al tratarse de una librería con información específica de hebra, somos capacez de distinguir los genes solapantes de hebras contrarias, y por tanto, las lecturas anotadas como ambiguas pertenecen a genes solapamentes dentro de la misma hebra que tienen un sitio de comienzo y final de transcripción diferente.   
+  
+#### 2.4.3 Obtención de la matriz de recuentos  
+  
+Finalmente, juntamos todas las anotaciones de cada muestra, en un archivo común para obtener la matriz de recuentos final.  
 ```console
 #!/usr/bin/bash
 
