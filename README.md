@@ -822,16 +822,51 @@ Cambiamos los nombres de las muestras, para que sean los mismos que los especifi
 ```R
 y <- DGEList(seqdata)
 ```
-los nombres de las filas representan los identificadores de los genes en formato **(??)**, correspondiente a la base de  datos **(??)**
-Para cada identificador del genoma Homo sapiens,  vamos a buscar los identificadores para estos mismos genes en formato Symbol. 
+```R
+head(y)
+An object of class "DGEList"
+$counts
+                GSM8153253 GSM8153252 GSM8153250 GSM8153248 GSM8153246 GSM8153245 GSM8153238 GSM8153236
+ENSG00000000003          0          0          5          0          0          1          0          2
+ENSG00000000005          0          0          0          0          0          0          0          0
+ENSG00000000419       1207       1885       1501       1535        832       1002       1410       1370
+ENSG00000000457        702        726        823       1175        620        690        656        729
+ENSG00000000460         70         64        103        128         91         80         55         70
+ENSG00000000938      20342      45609      81968      44188      25032      28710      17354      36541
+                GSM8153234 GSM8153232 GSM8153230 GSM8153229
+ENSG00000000003          2          1          0          1
+ENSG00000000005          0          0          0          0
+ENSG00000000419       1122       1234        954        488
+ENSG00000000457       1018       1345        495        773
+ENSG00000000460        121        138         55         46
+ENSG00000000938      19381      18132      18277      22895
+
+$samples
+           group lib.size norm.factors
+GSM8153253     1 22466408            1
+GSM8153252     1 40491330            1
+GSM8153250     1 42397848            1
+GSM8153248     1 40694703            1
+GSM8153246     1 24028088            1
+7 more rows ...
+```
+los nombres de las filas representan los identificadores de los genes en formato **ENSEMBLE**.
+Para cada identificador del genoma Homo sapiens,  vamos a buscar los identificadores para estos mismos genes en formato **GENENAME**. 
 
 Objeto DGElist: 2 apartados: $counts, $sample  +añadimos $genes  
+```R
+y$genes <- geneID.edbv86
+```
+
 modificación de la columna sample$group para especificar grupo ctrl o enfermos (conversion primero a una variable categórica group <- as.factor(group)
+```R
+y$samples$group <- disease
+```
 
 **3.1.3 Eliminación de genes con recuentos bajos**
 ```R
-keep <- filterbyExpr(y)
-y <- y[keep, keep.lib.sizes=F]
+keep.genes <- filterbyExpr(y)
+y <- y[keep.genes, keep.lib.sizes=F]
 ```
 Se eliminan los genes sin expresar o con expresión muy baja (0-10) 
 ```R
@@ -880,16 +915,44 @@ $genes
 
 ```
 **3.1.4 Normalización de librerias y recuentos**
-Los recuentos filtrados y obtenidos previamente para cada gen se tienen que normalizar para corregir las diferencias debido a las profundidades de secuenciación irregular en cada muestra
+Los recuentos filtrados y obtenidos previamente para cada gen se tienen que normalizar para corregir las diferencias debido a las profundidades de secuenciación irregular en cada muestra. Necesitamos calcular los tamaños de librerías efectivos mediante el empleo de factores de normalización para llevar a cabo comparaciones precisas. Para ello usamos la función calcNormFactors() del paquete edgeR.   
 ```R
 y <- calcNormFactors(y)
 ```
+Los factores de normalización calculados estarán contenidos dentro del objeto “y” en el apartado muestras.  
+```R
+> y$samples
+                        group lib.size norm.factors
+65.GSM8153253.healthy healthy 22443109    0.9462243
+66.GSM8153252.healthy healthy 40411595    1.0450250
+68.GSM8153250.healthy healthy 42316106    1.0706549
+70.GSM8153248.healthy healthy 40636040    1.0167785
+72.GSM8153246.healthy healthy 23994900    0.9328915
+73.GSM8153245.healthy healthy 24810656    0.9682306
+80.GSM8153238.LES         LES 23787855    0.9871341
+82.GSM8153236.LES         LES 34659877    1.0637101
+84.GSM8153234.LES         LES 30280095    0.9769371
+86.GSM8153232.LES         LES 30454394    0.9879841
+88.GSM8153230.LES         LES 22574501    0.9503878
+89.GSM8153229.LES         LES 24480946    1.0677673
+```
+![image](https://github.com/user-attachments/assets/dd629f17-f7ba-44fb-b544-882d26e7aea1)  
+
 **3.1.5 Estimacion de la variabilidad biologica entre muestras y réplicas**
 Another way to check similarities between samples is to use dimension reduction techniques.  
 ```R
 plotMDS(y) / PCA
 ```
 Para estimar la variabilidad biológica podemos usar un gráfico de escala multidimensional (MDS), con la función plotMDS del paquete limma. Este gráfico nos permite ver las relaciones entre muestras, de forma que las muestras con perfiles de expresión de genes similares estarán más cerca en el gráfico.
+![image](https://github.com/user-attachments/assets/2ad47d0e-c24d-4aff-abcd-49696b5c88e1)
+
+```
+ The first dimension represents the leading-fold-change that best separates samples and explains the largest proportion of variation in the data, with subsequent dimensions having a smaller effect and being orthogonal to the ones before it. When experimental design involves multiple factors, it is recommended that each factor is examined over several dimensions. If samples cluster by a given factor in any of these dimensions, it suggests that the factor contributes to expression differences and is worth including in the linear modelling. On the other hand, factors that show little or no effect may be left out of downstream analysis.  
+
+In this dataset, samples can be seen to cluster well within experimental groups over dimension 1 and 2, and then separate by sequencing lane (sample batch) over dimension 3 (shown in the plot below). Keeping in mind that the first dimension explains the largest proportion of variation in the data, notice that the range of values over the dimensions become smaller as we move to higher dimensions.
+
+Distances on the plot correspond to the leading fold-change, which is the average (root-mean-square) log2-fold-change for the 500 genes most divergent between each pair of samples by default.
+```
 
 PCA: prcomp function considers rows as samples and columns as features.  
 **3.1.6 Estudio de la dispersión de los genes**  
