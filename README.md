@@ -788,7 +788,15 @@ done
 
 ## 3 Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados
 ### 3.1 Instalación de edgeR  
-
+Pipeline de R  
+| Pasos | Funciones de edgeR |
+|-------|-----------------|
+| Importacion de los datos | DGEList |
+| Preprocesamiento | filterbyExpr / calcNormFactors |
+| Diseño experimental y estimacion de dispersion NB | estimateDisp / plotBCV |
+| Analisis diferencial | QL pipeline: glmQLFit / glmQLFTest |
+| Resultados | Analisis de expresión diferencial: topTags / decideTest / plotMD |
+https://academic.oup.com/nar/article/53/2/gkaf018/7973897 
 edgeR is implemented as R packages in Bioconductor. It expects the raw count matrix without normalization.  
 ```R
 BiocManager::install("edgeR")
@@ -807,7 +815,8 @@ BiocManager::install("edgeR")
 library(edgeR)
 
 #Librerias complementarias
-```  
+```
+
 
 **3.1.1 Importación de la matriz de recuentos y metadatos**
 ```R
@@ -952,6 +961,7 @@ Para estimar la variabilidad biológica podemos usar un gráfico de escala multi
 In this dataset, samples can be seen to cluster well within experimental groups over dimension 1 and 2, and then separate by sequencing lane (sample batch) over dimension 3 (shown in the plot below). Keeping in mind that the first dimension explains the largest proportion of variation in the data, notice that the range of values over the dimensions become smaller as we move to higher dimensions.
 
 Distances on the plot correspond to the leading fold-change, which is the average (root-mean-square) log2-fold-change for the 500 genes most divergent between each pair of samples by default.
+The number of genes (top) chosen for this exercise should roughly correspond to the number of differentially expressed genes with materially large fold-changes. The default setting of 500 genes is widely effective and suitable for routine use, but a smaller value might be chosen for when the samples are distinguished by a specific focused molecular pathway. Very large values (greater than 1000) are not usually so effective.
 ```
 
 PCA: prcomp function considers rows as samples and columns as features.  
