@@ -833,7 +833,52 @@ modificación de la columna sample$group para especificar grupo ctrl o enfermos 
 keep <- filterbyExpr(y)
 y <- y[keep, keep.lib.sizes=F]
 ```
-Se eliminan los genes sin expresar o con expresión muy baja (0-10)  
+Se eliminan los genes sin expresar o con expresión muy baja (0-10) 
+```R
+> head(y)
+An object of class "DGEList"
+$counts
+                65.GSM8153253.healthy 66.GSM8153252.healthy 68.GSM8153250.healthy 70.GSM8153248.healthy
+ENSG00000000419                  1207                  1885                  1501                  1535
+ENSG00000000457                   702                   726                   823                  1175
+ENSG00000000460                    70                    64                   103                   128
+ENSG00000000938                 20342                 45609                 81968                 44188
+ENSG00000001036                    76                   287                   273                   242
+ENSG00000001084                    64                   153                   125                   160
+                72.GSM8153246.healthy 73.GSM8153245.healthy 80.GSM8153238.LES 82.GSM8153236.LES
+ENSG00000000419                   832                  1002              1410              1370
+ENSG00000000457                   620                   690               656               729
+ENSG00000000460                    91                    80                55                70
+ENSG00000000938                 25032                 28710             17354             36541
+ENSG00000001036                    59                    66               206               173
+ENSG00000001084                    63                    88               117               141
+                84.GSM8153234.LES 86.GSM8153232.LES 88.GSM8153230.LES 89.GSM8153229.LES
+ENSG00000000419              1122              1234               954               488
+ENSG00000000457              1018              1345               495               773
+ENSG00000000460               121               138                55                46
+ENSG00000000938             19381             18132             18277             22895
+ENSG00000001036               200               109                78               182
+ENSG00000001084               152               139                70               126
+
+$samples
+                        group lib.size norm.factors
+65.GSM8153253.healthy healthy 22443109            1
+66.GSM8153252.healthy healthy 40411595            1
+68.GSM8153250.healthy healthy 42316106            1
+70.GSM8153248.healthy healthy 40636040            1
+72.GSM8153246.healthy healthy 23994900            1
+7 more rows ...
+
+$genes
+           GENEID GENENAME
+3 ENSG00000000419     DPM1
+4 ENSG00000000457    SCYL3
+5 ENSG00000000460 C1orf112
+6 ENSG00000000938      FGR
+8 ENSG00000001036    FUCA2
+9 ENSG00000001084     GCLC
+
+```
 **3.1.4 Normalización de librerias y recuentos**
 Los recuentos filtrados y obtenidos previamente para cada gen se tienen que normalizar para corregir las diferencias debido a las profundidades de secuenciación irregular en cada muestra
 ```R
