@@ -798,57 +798,84 @@ Pipeline de R
 | Resultados | Analisis de expresión diferencial: topTags / decideTest / plotMD |
 https://academic.oup.com/nar/article/53/2/gkaf018/7973897 
 edgeR is implemented as R packages in Bioconductor. It expects the raw count matrix without normalization.  
-```R
-BiocManager::install("edgeR")
-```
 cargamos todas las librerías necesarias para el análisis y establecemos el directorio de trabajo.  
 ```R
-# Libreria para la anotacion del gneoma humano
-#no se si esta bien
-BiocManager::install("Homo.sapiens")
-library(Homo.sapiens)
-
-#Innstalacion de  edgeR
+#Instalacion de  edgeR
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install("edgeR")
 library(edgeR)
 
-#Librerias complementarias
+# Libreria para la anotacion del gneoma humano
+#no se si esta bien
+BiocManager::install("ensembldb")
+BiocManager::install("EnsDb.Hsapiens.v86")
+
+# Librerías complementarias
+## Análisis de datos de RNA-seq: edgeR
+## Librerías del paquete Tidyverse: ggplot2, dplyr, tidyr, ggrepel
+## Modelado estadístico: statmod
+## Paletas de colores: colorspace
+## Visualización de datos solapantes entre grupos: UpSetR
+## Creación de mapas de calor: pheatmap
+## Categoriacicón de los genes y sus productos génicos: Go.db, limma
+
+# Creación de una variable con todas las librerías necesarias
+list_packages <- c("edgeR",  "ggplot2", "dplyr", "tidyr", "ggrepel", "tibble",
+                   "statmod", "colorspace", "UpSetR", "pheatmap", "goana", "limma",
+                   "ensembldb", "EnsDb.Hsapiens.v86")
+
+# Comprobación de las librerías instaladas e instalación de las librerías faltantes
+new_packages <- list_packages[!(list_packages %in% installed.packages())]
+if(length(new_packages)>0) 
+  install.packages(new_packages)
+
+# Carga en memoria de todas las librerías especificadas
+invisible(lapply(list_packages, FUN=library, character.only =TRUE))
 ```
 
 
-**3.1.1 Importación de la matriz de recuentos y metadatos**
+**3.2 Importación de la matriz de recuentos y metadatos**
 ```R
-seqdata <- read.csv(file, sep=",", header=T)
+# Establecer directorio
+setwd("C:/Users/sonni/OneDrive/Escritorio/2024-MASTER/TFM/RNAseq_analysis/")
+
+# Importacion matriz de conteos
+seqdata = read.delim(file = "Results/matriz_conteos.tsv", sep = " ")
+# Importacion metadatos 
+metadatos <- read.csv(file ="Results/Matadata.csv")
 ```
 
 With the example data set, we see 61852 rows and 25 columns, meaning 61852 annotated genes and 25 samples. That's a large number of genes, but are they all actually informative? We can firstly check their average expression levels.
 
 Cambiamos los nombres de las muestras, para que sean los mismos que los especificados en el archivo de metadatos.
 
-**3.1.2 Conversión de la matriz de recuentos al objeto DGEList**
+**3.3 Grafico de anotaciones con las != categorias**
+```R
+```
+
+**3.4 Anotacion de los genes**
+```R
+geneID.edbv86 <- AnnotationDbi::select(EnsDb.Hsapiens.v86,   #EnsDb.Hsapiens.v86 for GRCh38
+                                       keys = row.names(seqdata),
+                                       keytype = "GENEID",
+                                       columns = c("GENEID", "GENENAME"))
+```
+**3.5 Conversión de la matriz de recuentos al objeto DGEList**
 ```R
 y <- DGEList(seqdata)
 ```
 ```R
-head(y)
+> head(y)
 An object of class "DGEList"
 $counts
-                GSM8153253 GSM8153252 GSM8153250 GSM8153248 GSM8153246 GSM8153245 GSM8153238 GSM8153236
-ENSG00000000003          0          0          5          0          0          1          0          2
-ENSG00000000005          0          0          0          0          0          0          0          0
-ENSG00000000419       1207       1885       1501       1535        832       1002       1410       1370
-ENSG00000000457        702        726        823       1175        620        690        656        729
-ENSG00000000460         70         64        103        128         91         80         55         70
-ENSG00000000938      20342      45609      81968      44188      25032      28710      17354      36541
-                GSM8153234 GSM8153232 GSM8153230 GSM8153229
-ENSG00000000003          2          1          0          1
-ENSG00000000005          0          0          0          0
-ENSG00000000419       1122       1234        954        488
-ENSG00000000457       1018       1345        495        773
-ENSG00000000460        121        138         55         46
-ENSG00000000938      19381      18132      18277      22895
+                GSM8153253 GSM8153252 GSM8153250 GSM8153248 GSM8153246 GSM8153245 GSM8153238 GSM8153236 GSM8153234 GSM8153232 GSM8153230 GSM8153229
+ENSG00000000003          0          0          5          0          0          1          0          2          2          1          0          1
+ENSG00000000005          0          0          0          0          0          0          0          0          0          0          0          0
+ENSG00000000419       1207       1885       1501       1535        832       1002       1410       1370       1122       1234        954        488
+ENSG00000000457        702        726        823       1175        620        690        656        729       1018       1345        495        773
+ENSG00000000460         70         64        103        128         91         80         55         70        121        138         55         46
+ENSG00000000938      20342      45609      81968      44188      25032      28710      17354      36541      19381      18132      18277      22895
 
 $samples
            group lib.size norm.factors
@@ -869,7 +896,46 @@ y$genes <- geneID.edbv86
 
 modificación de la columna sample$group para especificar grupo ctrl o enfermos (conversion primero a una variable categórica group <- as.factor(group)
 ```R
+disease <- rep(c("Sano","LES"),each=6)
+disease <- factor(disease, levels =c('Sano','LES')) #conversión de la variable disease a una variable categórica
 y$samples$group <- disease
+```
+```R
+> head(y)
+An object of class "DGEList"
+$counts
+                GSM8153253 GSM8153252 GSM8153250 GSM8153248 GSM8153246 GSM8153245 GSM8153238 GSM8153236 GSM8153234 GSM8153232 GSM8153230 GSM8153229
+ENSG00000000003          0          0          5          0          0          1          0          2          2          1          0    	  1
+ENSG00000000005          0          0          0          0          0          0          0          0          0          0          0   	  0
+ENSG00000000419       1207       1885       1501       1535        832       1002       1410       1370       1122       1234        954	488
+ENSG00000000457        702        726        823       1175        620        690        656        729       1018       1345        495	773
+ENSG00000000460         70         64        103        128         91         80         55         70        121        138         55	 46
+ENSG00000000938      20342      45609      81968      44188      25032      28710      17354      36541      19381      18132      18277      22895
+
+$samples
+           group lib.size norm.factors
+GSM8153253  Sano 22466408            1
+GSM8153252  Sano 40491330            1
+GSM8153250  Sano 42397848            1
+GSM8153248  Sano 40694703            1
+GSM8153246  Sano 24028088            1
+7 more rows ...
+
+$genes
+           GENEID GENENAME
+1 ENSG00000000003   TSPAN6
+2 ENSG00000000005     TNMD
+3 ENSG00000000419     DPM1
+4 ENSG00000000457    SCYL3
+5 ENSG00000000460 C1orf112
+6 ENSG00000000938      FGR
+```
+
+```R
+> nrow(y$counts)
+[1] 78932
+> nrow(y$genes)
+[1] 78932
 ```
 
 **3.1.3 Eliminación de genes con recuentos bajos**
@@ -879,49 +945,10 @@ y <- y[keep.genes, keep.lib.sizes=F]
 ```
 Se eliminan los genes sin expresar o con expresión muy baja (0-10) 
 ```R
-> head(y)
-An object of class "DGEList"
-$counts
-                65.GSM8153253.healthy 66.GSM8153252.healthy 68.GSM8153250.healthy 70.GSM8153248.healthy
-ENSG00000000419                  1207                  1885                  1501                  1535
-ENSG00000000457                   702                   726                   823                  1175
-ENSG00000000460                    70                    64                   103                   128
-ENSG00000000938                 20342                 45609                 81968                 44188
-ENSG00000001036                    76                   287                   273                   242
-ENSG00000001084                    64                   153                   125                   160
-                72.GSM8153246.healthy 73.GSM8153245.healthy 80.GSM8153238.LES 82.GSM8153236.LES
-ENSG00000000419                   832                  1002              1410              1370
-ENSG00000000457                   620                   690               656               729
-ENSG00000000460                    91                    80                55                70
-ENSG00000000938                 25032                 28710             17354             36541
-ENSG00000001036                    59                    66               206               173
-ENSG00000001084                    63                    88               117               141
-                84.GSM8153234.LES 86.GSM8153232.LES 88.GSM8153230.LES 89.GSM8153229.LES
-ENSG00000000419              1122              1234               954               488
-ENSG00000000457              1018              1345               495               773
-ENSG00000000460               121               138                55                46
-ENSG00000000938             19381             18132             18277             22895
-ENSG00000001036               200               109                78               182
-ENSG00000001084               152               139                70               126
-
-$samples
-                        group lib.size norm.factors
-65.GSM8153253.healthy healthy 22443109            1
-66.GSM8153252.healthy healthy 40411595            1
-68.GSM8153250.healthy healthy 42316106            1
-70.GSM8153248.healthy healthy 40636040            1
-72.GSM8153246.healthy healthy 23994900            1
-7 more rows ...
-
-$genes
-           GENEID GENENAME
-3 ENSG00000000419     DPM1
-4 ENSG00000000457    SCYL3
-5 ENSG00000000460 C1orf112
-6 ENSG00000000938      FGR
-8 ENSG00000001036    FUCA2
-9 ENSG00000001084     GCLC
-
+> nrow(y$counts)
+[1] 14617
+> nrow(y$genes)
+[1] 14617
 ```
 **3.1.4 Normalización de librerias y recuentos**
 Los recuentos filtrados y obtenidos previamente para cada gen se tienen que normalizar para corregir las diferencias debido a las profundidades de secuenciación irregular en cada muestra. Necesitamos calcular los tamaños de librerías efectivos mediante el empleo de factores de normalización para llevar a cabo comparaciones precisas. Para ello usamos la función calcNormFactors() del paquete edgeR.   
@@ -931,19 +958,19 @@ y <- calcNormFactors(y)
 Los factores de normalización calculados estarán contenidos dentro del objeto “y” en el apartado muestras.  
 ```R
 > y$samples
-                        group lib.size norm.factors
-65.GSM8153253.healthy healthy 22443109    0.9462243
-66.GSM8153252.healthy healthy 40411595    1.0450250
-68.GSM8153250.healthy healthy 42316106    1.0706549
-70.GSM8153248.healthy healthy 40636040    1.0167785
-72.GSM8153246.healthy healthy 23994900    0.9328915
-73.GSM8153245.healthy healthy 24810656    0.9682306
-80.GSM8153238.LES         LES 23787855    0.9871341
-82.GSM8153236.LES         LES 34659877    1.0637101
-84.GSM8153234.LES         LES 30280095    0.9769371
-86.GSM8153232.LES         LES 30454394    0.9879841
-88.GSM8153230.LES         LES 22574501    0.9503878
-89.GSM8153229.LES         LES 24480946    1.0677673
+ group lib.size norm.factors
+GSM8153253  Sano 22443109    0.9462243
+GSM8153252  Sano 40411595    1.0450250
+GSM8153250  Sano 42316106    1.0706549
+GSM8153248  Sano 40636040    1.0167785
+GSM8153246  Sano 23994900    0.9328915
+GSM8153245  Sano 24810656    0.9682306
+GSM8153238   LES 23787855    0.9871341
+GSM8153236   LES 34659877    1.0637101
+GSM8153234   LES 30280095    0.9769371
+GSM8153232   LES 30454394    0.9879841
+GSM8153230   LES 22574501    0.9503878
+GSM8153229   LES 24480946    1.0677673
 ```
 ![image](https://github.com/user-attachments/assets/dd629f17-f7ba-44fb-b544-882d26e7aea1)  
 
@@ -1048,6 +1075,7 @@ ggplot(de_CvsL, aes(x=logFC , y = -log10(FDR), color = DEgene) +  geom_point(siz
 
 ## 4 Anotación de los genes
 we need to figure out that those different groups of DEGs mean biologically. This is not a simple task, as we need to know the functions of every gene within the gene set, summarize them together, and then compare with genes outside of the gene set and see whether the gene set is significantly enriched in participating or representing certain functions, processes, pathways, components or other biological features.  
+
 ### 4.1 Gene Ontology
 Bioconductor as the R package GO.db. databases providing functional annotation of genes.  The Gene Ontology project provides an ontology of defined terms representing gene product properties.
 GO ontology information is available in Bioconductor as the R package GO.db  
