@@ -1051,7 +1051,7 @@ Se genera un objeto de tipo TopTags que contiene los resultados de la prueba de 
 ![image](https://github.com/user-attachments/assets/c5167d7d-1afe-4f9f-99e7-645e81239917)  
   
 El dataset contenido en el elemento “table” lo almacenamos en una nueva variable, denominada de_data.
-```R
+```R 
 de_CvsL <- res_correct_CvsL$table
 ```
 Esta función topTags aplica la corrección de los P valores y crea una nueva columna con los valores corregidos (FDR).  
