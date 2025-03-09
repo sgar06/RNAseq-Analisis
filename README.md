@@ -793,9 +793,10 @@ Pipeline de R
 |-------|-----------------|
 | Importacion de los datos | DGEList |
 | Preprocesamiento | filterbyExpr / calcNormFactors |
-| Diseño experimental y estimacion de dispersion NB | estimateDisp / plotBCV |
+| Diseño experimental y estimacion de dispersion NB | estimateDisp /plotBCV |
 | Analisis diferencial | QL pipeline: glmQLFit / glmQLFTest |
-| Resultados | Analisis de expresión diferencial: topTags / decideTest / plotMD |
+| Resultados | Analisis de expresión diferencial: topTags/decideTest/plotMD |  
+  
 https://academic.oup.com/nar/article/53/2/gkaf018/7973897 
 edgeR is implemented as R packages in Bioconductor. It expects the raw count matrix without normalization.  
 cargamos todas las librerías necesarias para el análisis y establecemos el directorio de trabajo.  
