@@ -863,6 +863,7 @@ geneID.edbv86 <- AnnotationDbi::select(EnsDb.Hsapiens.v86,   #EnsDb.Hsapiens.v86
                                        columns = c("GENEID", "GENENAME"))
 ```
 **3.5 Conversión de la matriz de recuentos al objeto DGEList**
+Data import produces an object of class ‘DGEList’, which stores the read counts and associated information (Fig. 4A). The essential components of a ‘DGEList’ object are the matrix of raw counts and a data-frame containing the sample information. Other optional components include gene annotation and a design matrix.
 ```R
 y <- DGEList(seqdata)
 ```
@@ -940,6 +941,7 @@ $genes
 ```
 
 **3.1.3 Eliminación de genes con recuentos bajos**
+Normalization adds library-size normalization factors or offsets to the ‘DGEList’ object and dispersion estimation adds NB-dispersion estimates
 ```R
 keep.genes <- filterbyExpr(y)
 y <- y[keep.genes, keep.lib.sizes=F]
