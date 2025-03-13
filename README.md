@@ -853,55 +853,88 @@ Cambiamos los nombres de las muestras, para que sean los mismos que los especifi
 
 **3.3 Grafico de anotaciones con las != categorias**
 ```R
+
+
 ```
 
 **3.4 Anotacion de los genes**
 ```R
+# 3. Creación de una variable con los ID de los genes en diferentes formatos
+geneID.orgHs <- AnnotationDbi::select(org.Hs.eg.db,    # paquete de anotación de Homo sapiens
+                 keys = row.names(seqdata), # identificadores de los genes en nuestros datos
+                 keytype = "ENSEMBL",       # tipo de identificador
+                 columns = c("ENSEMBL","SYMBOL")) # búsqueda de los ID equivalentes
+
+table(is.na(geneID.orgHs$SYMBOL))  #hay 42027 symbol= NA no encontrados
+# se repiten los ID ENSEML?
+n_occur.orgHs <- as.data.frame(table(geneID.orgHs$ENSEMBL))
+n_occur.orgHs[n_occur.orgHs$Freq > 1,]
+#eliminar duplicados
+geneID.orgHS.no.dup <- geneID.orgHs[!duplicated(geneID.orgHs$ENSEMBL),]
+nrow(geneID.orgHS.no.dup)
+View(geneID.orgHS.no.dup)
+
+table(is.na(geneID.orgHS.no.dup$SYMBOL))
+
+# otro programa
+BiocManager::install("ensembldb")
+BiocManager::install("EnsDb.Hsapiens.v79")
+BiocManager::install("EnsDb.Hsapiens.v86")
+BiocManager::install("EnsDb.Hsapiens.v113")  # no me funciona pq necesito la version + reciente de bioconductor 
+library(ensembldb)
+library(EnsDb.Hsapiens.v79)
+library(EnsDb.Hsapiens.v86)
+edb.v79 <- EnsDb.Hsapiens.v79
+edb.v86 <- EnsDb.Hsapiens.v86
+
+geneID.edbv79 <- AnnotationDbi::select(EnsDb.Hsapiens.v79,   #EnsDb.Hsapiens.v79 for GRCh38
+                             keys = row.names(seqdata),
+                             keytype = "GENEID",
+                             columns = c("GENEID", "GENENAME"))
+
+table(geneID.edbv79$GENEID == row.names(seqdata))   # NA son 23406. Encuentra 55.526 ID symbol
+n_occur_v79 <- as.data.frame(table(geneID.edbv79$GENEID))
+n_occur_v79[n_occur_v79$Freq == 1,]
+
 geneID.edbv86 <- AnnotationDbi::select(EnsDb.Hsapiens.v86,   #EnsDb.Hsapiens.v86 for GRCh38
                                        keys = row.names(seqdata),
-                                       keytype = "GENEID",
+                                       keytype = "GENEID",   # Encuentra solamente 56134 ID symbol
                                        columns = c("GENEID", "GENENAME"))
+
+# comprobamos que los entrezID extraídos corresponden a las filas de la matriz de conteos
+table(geneID.edbv86$GENEID == row.names(seqdata)) 
+geneID.edbv86[duplicated(geneID.edbv86$GENEID),]  # No hay ID duplicados
+
+
+#añadimos los ENS ID que faltan en el objeto geneID.edv86
+all.ensID <- row.names(seqdata)
+missing.ensID <- all.ensID[!(all.ensID %in% geneID.edbv86$GENEID)]
+missing.ensID <- as.data.frame(missing.ensID) %>% mutate(GENENAME = NA)
+
+
+missing.ensID <- missing.ensID %>% rename("missing.ensID"="GENEID")
+
+#union de los identificadores faltantes
+geneID.edbv86 <- rbind(geneID.edbv86, missing.ensID)
+
+# ordenacion de los identificadores
+geneID.edbv86 <- geneID.edbv86[order(geneID.edbv86$GENEID),]
+
+
 ```
 **3.5 Conversión de la matriz de recuentos al objeto DGEList**
 Data import produces an object of class ‘DGEList’, which stores the read counts and associated information (Fig. 4A). The essential components of a ‘DGEList’ object are the matrix of raw counts and a data-frame containing the sample information. Other optional components include gene annotation and a design matrix.
 ```R
 y <- DGEList(seqdata)
 ```
-```R
-> head(y)
-An object of class "DGEList"
-$counts
-                GSM8153253 GSM8153252 GSM8153250 GSM8153248 GSM8153246 GSM8153245 GSM8153238 GSM8153236 GSM8153234 GSM8153232 GSM8153230 GSM8153229
-ENSG00000000003          0          0          5          0          0          1          0          2          2          1          0          1
-ENSG00000000005          0          0          0          0          0          0          0          0          0          0          0          0
-ENSG00000000419       1207       1885       1501       1535        832       1002       1410       1370       1122       1234        954        488
-ENSG00000000457        702        726        823       1175        620        690        656        729       1018       1345        495        773
-ENSG00000000460         70         64        103        128         91         80         55         70        121        138         55         46
-ENSG00000000938      20342      45609      81968      44188      25032      28710      17354      36541      19381      18132      18277      22895
-
-$samples
-           group lib.size norm.factors
-GSM8153253     1 22466408            1
-GSM8153252     1 40491330            1
-GSM8153250     1 42397848            1
-GSM8153248     1 40694703            1
-GSM8153246     1 24028088            1
-7 more rows ...
-```
-los nombres de las filas representan los identificadores de los genes en formato **ENSEMBLE**.
-Para cada identificador del genoma Homo sapiens,  vamos a buscar los identificadores para estos mismos genes en formato **GENENAME**. 
-
-Objeto DGElist: 2 apartados: $counts, $sample  +añadimos $genes  
-```R
-y$genes <- geneID.edbv86
-```
-
 modificación de la columna sample$group para especificar grupo ctrl o enfermos (conversion primero a una variable categórica group <- as.factor(group)
 ```R
 disease <- rep(c("Sano","LES"),each=6)
 disease <- factor(disease, levels =c('Sano','LES')) #conversión de la variable disease a una variable categórica
 y$samples$group <- disease
 ```
+los nombres de las filas representan los identificadores de los genes en formato **ENSEMBLE**.
+
 ```R
 > head(y)
 An object of class "DGEList"
@@ -923,20 +956,10 @@ GSM8153248  Sano 40694703            1
 GSM8153246  Sano 24028088            1
 7 more rows ...
 
-$genes
-           GENEID GENENAME
-1 ENSG00000000003   TSPAN6
-2 ENSG00000000005     TNMD
-3 ENSG00000000419     DPM1
-4 ENSG00000000457    SCYL3
-5 ENSG00000000460 C1orf112
-6 ENSG00000000938      FGR
 ```
 
 ```R
 > nrow(y$counts)
-[1] 78932
-> nrow(y$genes)
 [1] 78932
 ```
 
@@ -949,8 +972,6 @@ y <- y[keep.genes, keep.lib.sizes=F]
 Se eliminan los genes sin expresar o con expresión muy baja (0-10) 
 ```R
 > nrow(y$counts)
-[1] 14617
-> nrow(y$genes)
 [1] 14617
 ```
 **3.1.4 Normalización de librerias y recuentos**
@@ -1001,17 +1022,84 @@ Creación de la matriz de diseño
 Para estimar la sobredispersión de los genes, vamos a emplear la función estimateDisp() del paquete edgeR. Esta función necesita que se le proporcione una matriz que contenga el diseño experimental que especifique cómo se asocian o agrupan las muestras.
 Por tanto, primero creamos la matriz con la función model.matrix(~0 + group). Vamos a construir una matriz a partir de la variable categórica “group” de nuestro Environment y vamos a establecer las diferentes relaciones entre los grupos con el símbolo (~). Si no queremos que se emplee ningúngrupo de ref escribimos 0 **¿QUEREMOS QUE SE USE UN GRUPO COMO REFERENCIA?**  
 ```R
-design <- model.matrix(~)
+> mdesign <- model.matrix(~0 + disease)           # Creación de la matriz con el diseño experimental
+> colnames(mdesign) <- gsub("disease","", colnames(mdesign)) # Modificación de la cabecera 
+> rownames(mdesign) <- colnames(seqdata)          # Modificación de las filas
+> mdesign
+           Sano LES
+GSM8153253    1   0
+GSM8153252    1   0
+GSM8153250    1   0
+GSM8153248    1   0
+GSM8153246    1   0
+GSM8153245    1   0
+GSM8153238    0   1
+GSM8153236    0   1
+GSM8153234    0   1
+GSM8153232    0   1
+GSM8153230    0   1
+GSM8153229    0   1
+attr(,"assign")
+[1] 1 1
+attr(,"contrasts")
+attr(,"contrasts")$disease
+[1] "contr.treatment"
 ```
+
 Dispersión de los genes
 ```R
 y <- estimateDisp(y, design, robust=T)
 ```
 robust=T protege la estimación contra los outliers  
-![image](https://github.com/user-attachments/assets/9174f674-7070-4bed-a096-783874e07bb6)  
 
 El resultado de aplicar la función estimateDisp() genera una serie de resultados estadísticos dentro del objeto “y”. La dispersión de los genes se va a evaluar desde 3 puntos de vista diferentes: “common dispersion”, “trended dispersion” y “tagwise dispersion”.
 podemos evaluar cómo se ajustan los datos y decidir el tipo de dispersión más apropiada  
+```R
+> y
+An object of class "DGEList"
+$counts
+                GSM8153253 GSM8153252 GSM8153250 GSM8153248 GSM8153246 GSM8153245 GSM8153238 GSM8153236 GSM8153234 GSM8153232 GSM8153230 GSM8153229
+ENSG00000000419       1207       1885       1501       1535        832       1002       1410       1370       1122       1234        954        488
+ENSG00000000457        702        726        823       1175        620        690        656        729       1018       1345        495        773
+14615 more rows ...
+$samples
+           group lib.size norm.factors
+GSM8153253  Sano 22443109    0.9462243
+GSM8153252  Sano 40411595    1.0450250
+10 more rows ...
+$genes
+  ensembl_gene_id hgnc_symbol entrezgene_accession external_gene_name
+1 ENSG00000000419        DPM1                 DPM1               DPM1
+2 ENSG00000000457       SCYL3                SCYL3              SCYL3
+14615 more rows ...
+$design
+           Sano LES
+GSM8153253    1   0
+GSM8153252    1   0
+10 more rows ...
+
+$common.dispersion
+[1] 0.1727263
+$trended.dispersion
+[1] 0.1261033 0.1350513 0.2065515 0.1105549 0.1858998
+14612 more elements ...
+$tagwise.dispersion
+[1] 0.09745349 0.09531198 0.15104251 0.06725113 0.15657217
+14612 more elements ...
+$AveLogCPM
+[1] 5.353583 4.796460 1.566854 9.959342 2.391398
+14612 more elements ...
+$trend.method
+[1] "locfit"
+$prior.df
+[1] 5.286141 5.286141 5.286141 5.286141 5.286141
+14612 more elements ...
+$prior.n
+[1] 0.5286141 0.5286141 0.5286141 0.5286141 0.5286141
+14612 more elements ...
+$span
+[1] 0.2938649
+```
 
 **3.1.7 Ajuste de la variabilidad de cada gen según la dispersión**  
 
@@ -1019,8 +1107,7 @@ Una vez hemos computado los valores de dispersión, edgeR usa estos valores para
 ```R
 fit <- glmQLfit(y, design, robust =T)
 ```
-El nuevo objeto creado `fit` será un objeto de tipo DGEGLM. Si observamos el objeto “fit” con la función View, vemos que tendrá diferentes parámetros computados para cada uno de nuestros genes, tales como coeficientes, valores ajustados...
-![image](https://github.com/user-attachments/assets/90c4e4ff-a3ac-4710-bc71-1f74d4642f6f)  
+El nuevo objeto creado `fit` será un objeto de tipo DGEGLM. El objeto 'fit' tendrá diferentes parámetros computados para cada uno de nuestros genes, tales como coeficientes, valores ajustados...
 
 **3.1.8 Prueba de significancia o Test de expresión diferencial**
 Control vs enfermedad  
@@ -1028,11 +1115,28 @@ Una vez computada la dispersión y ajustados los datos, vamos a llevar a cabo un
 Primero, con la función makeContrast del paquete limma, vamos a definir el tipo de comparación que vamos a hacer entre los grupos experimentales. Además, la función makeContrast, requiere de la matriz de diseño experimental para saber qué muestras se asocian con estos grupos. La función makeContrast genera una matriz numérica que representa los grupos indicados a contrastar. El valor 1 y –1 corresponderá a los grupos a comparar.  
 ```R
 # Grupos contraste a comparar
-CvsL <- makeContrast(control-lupus, leves = design)
+> mcontrast.LvsS <- makeContrasts(lupusVSsano = LES-Sano, levels = mdesign) # Creación de la matriz con los grupos contraste a comparar
+> mcontrast.LvsS
+      Contrasts
+Levels lupusVSsano
+  Sano          -1
+  LES            1
 ```
 Test de expresión diferencial con la función glmQLFTest() del paquete de edgeR y guardamos los resultados en la variable. Se genera un objeto de tipo DGELRT. Le tenemos que indicar el objeti `fit` con el modelo ajustado y la variable con los grupos de contraste
 ```R
-res_CvsL <- glmQLFTest(fit, contrast = CvsL)
+> test.LvsS <- glmQLFTest(fit, contrast = mcontrast.LvsS)  #test de expresión diferencial
+> class(test.LvsS)  #creación de un objeto DGELRT
+[1] "DGELRT"
+attr(,"package")
+[1] "edgeR"
+> head(test.LvsS$table)
+                       logFC   logCPM            F      PValue
+ENSG00000000419 -0.066630968 5.353583 7.994665e-02 0.781124674
+ENSG00000000457  0.229701188 4.796460 9.960150e-01 0.333659564
+ENSG00000000460 -0.007569388 1.566854 6.056389e-04 0.980681644
+ENSG00000000938 -0.616529724 9.959342 1.068466e+01 0.005016953
+ENSG00000001036  0.297974957 2.391398 9.517483e-01 0.344313726
+ENSG00000001084  0.430007747 1.975376 4.473338e+00 0.051073759
 ```
 El objeto res_CvsL, contendrá parámetros estadísticos comunes al objeto “fit” con el modelo ajustado. Sin embargo, aparecen unos subapartados nuevos que contendrán los resultados de la comparación. En concreto, los resultados obtenidos tras la comparación se guardarán en el subapartado “table” .
 ![image](https://github.com/user-attachments/assets/6f75917a-48cc-4b58-a31a-480b85843e59)  
