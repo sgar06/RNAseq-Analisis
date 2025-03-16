@@ -1406,7 +1406,6 @@ ggplot(toptag.LvsS, aes(x=logFC, y=-log10(FDR), color=DE, label=Annot)) +
   theme_classic(base_size = 20) 
 ```
 ![image](https://github.com/user-attachments/assets/f0406b31-67d0-46aa-9fd7-734902e78cea)
-![image](https://github.com/user-attachments/assets/3532041a-eb86-436d-a81c-75b9623ffb54)
   
 ### 4.1 Análisis de enriquecimiento funcional
 
