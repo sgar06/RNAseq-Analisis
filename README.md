@@ -794,20 +794,18 @@ En primer lugar, se cargan todas las librerías necesarias para el análisis y s
 
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install("edgeR") #Instalacion de  edgeR
-library(edgeR)
- 
+BiocManager::install("edgeR") # Análisis de genes diferencialmente expresados
 BiocManager::install("biomaRt") # Conversión de identificadores de los genes
-
+BiocManager::install("limma") #Análisis de datos, modelos lineales y expresión diferencial
+BiocManager::install("clusterProfiler") #Análisis de enriquecimiento génico
+BiocManager::install("org.Hs.eg.db") # Base de datos para la anotación humana
 
 # Librerías complementarias
-## Librerías del paquete Tidyverse: ggplot2, dplyr, tidyr, ggrepel
-## Análisis de enriquecimiento génico: clusterProfiler, limma
+## Librerías del paquete Tidyverse: ggplot2, dplyr, tidyr, ggrepel, tibble
 
 # Creación de una variable con todas las librerías necesarias
 list_packages <- c("edgeR",  "ggplot2", "dplyr", "tidyr", "ggrepel", "tibble",
-                   "statmod", "colorspace", "UpSetR", "pheatmap", "goana", "limma",
-                   "ensembldb", "EnsDb.Hsapiens.v86")
+                   "biomaRt", "limma", "clusterProfiler", "org.Hs.eg.db", "enrichplot")
 
 # Comprobación de las librerías instaladas e instalación de las librerías faltantes
 new_packages <- list_packages[!(list_packages %in% installed.packages())]
@@ -818,18 +816,17 @@ if(length(new_packages)>0)
 invisible(lapply(list_packages, FUN=library, character.only =TRUE))
 
 # Establecimiento del directorio de trabajo
-setwd("C:/Users/sonni/OneDrive/Escritorio/2024-MASTER/TFM/RNAseq_analysis/")
-
+setwd("C:/Users/sonni/OneDrive/Escritorio/2025/RNAseq_analysis/")
 ```
-
-
-**3.2 Importación de la matriz de recuentos y metadatos**.  
+  
+**3.2 Importación de la matriz de recuentos y metadatos**  
+  
 Para realizar el análisis, primero se importan los datos de interés y se ajustan los nombres de las muestras.   
 ```R
 metadatos <- read.csv(file ="Results/Matadata.csv") #carga de los metadatos
 
 seqdata = read.delim(file = "Results/matriz_conteos.tsv", sep = " ") #importación de la matriz de conteos
- colnames(seqdata) <- c("feature", metadatos$Sample.Name) #Cambio de los nombres de las columnas
+colnames(seqdata) <- c("feature", metadatos$Sample.Name) #Cambio de los nombres de las columnas
 ```
 Si observan las dimensiones de la matriz de conteos, se tienen 78937 filas y 13 columnas.  
 ```R
@@ -854,9 +851,10 @@ Si observan las dimensiones de la matriz de conteos, se tienen 78937 filas y 13 
 ```
   
 **3.3 Representación de las características genómicas anotadas**  
+  
 A partir de la matriz de conteos final, se calcula el porcentaje total de lecturas asignadas, no_feature, ambiguous, too_low_aQual y not_aligned; y el resultado se muestra en un gráfico de barras.  
 ```R
-annot <- seqdata
+annot <- seqdata  
 annot[1:78932,1] <- "gene"  #conversión de los identificadores de los genes a una categoría común
 
 annot <- annot %>% group_by(feature) %>% summarise(across(where(is.numeric), sum)) #recuento de lecturas para cada categoria
@@ -874,7 +872,7 @@ Tras la ejecución se observa el número de recuentos para cada categoría:
 5 __too_low_aQual           1595129    3221199    4157612    3383771    1924811    1925120    1683095    3203467    2386385    2391636    1854569    1919572
 6 gene                     22466408   40491330   42397848   40694703   24028088   24842924   23833401   34717738   30330906   30500265   22604489   24532419
 ```
-Posteriormente, se eliminan aquellas categorías para las cuales no tenemos información y se cambia la estructura de la tabla a un formato largo con una función del paquete tidyr.
+Posteriormente, se eliminan aquellas categorías para las cuales no se tiene información y se cambia la estructura de la tabla a un formato largo con una función del paquete tidyr.
 ```R
 annot <- annot[-1,] #eliminación de las categorías no informativas
 annot_long <- pivot_longer(annot, 
@@ -895,7 +893,7 @@ Como resultado se obtiene la siguiente estructura:
 5 __ambiguous GSM8153246 1193122
 6 __ambiguous GSM8153245 1173681
 ```
-Finalmente, se calcula el porcentaje representado para cada categoría:  
+A continuación, se calcula el total de lecturas anotadas para cada muestra:  
 ```R
 total <- annot_long %>% group_by(IDLecturas) %>% summarise(across(where(is.numeric), sum))
 ```
@@ -917,7 +915,7 @@ total <- annot_long %>% group_by(IDLecturas) %>% summarise(across(where(is.numer
 11 GSM8153252 50647861
 12 GSM8153253 28427176
 ```
-Finalmente, se lleva a cabo la creación de una nueva columna para mostrar los porcentajes de cada categoría:  
+Finalmente, se lleva a cabo la creación de una nueva columna con el porcentaje de lecturas correspondiente a cada categoría en cada una de las muestras:    
 ```R
 annot_long <- annot_long[order(annot_long$IDLecturas),] #ordenación de las muestras
 
@@ -937,18 +935,20 @@ Tras la ejecución de los comandos, se obtiene el siguiente resultado:
 5 gene            GSM8153229 24532419 31427817     78.1  
 6 __ambiguous     GSM8153230  1244623 29566675      4.21 
 ```
-Una vez se tienen los porcentajes de los recuentos para cada categoría, se crea un gráfico de frecuencias con la librería ggplot2. 
+Una vez se tienen los porcentajes de los recuentos para cada categoría, se crea un gráfico de frecuencias con la librería ggplot2.  
 ```R
 # Gráfico con la anotación de lecturas
 ggplot(annot_long, aes(x=IDLecturas, y=Porcentaje, fill=feature)) + 
-  geom_bar(stat="identity") + 
-  labs(fill="", x="") + #permite cambiar título, ejes, leyenda..
+  geom_bar(stat="identity") + #selección de la geometría
+  labs(fill="", x="") + #cambio de nombre del eje X y leyenda
   scale_fill_manual(values=c("lightblue","blue3","lightgreen","green4","lightsalmon"),
-                    labels=c('Lecturas ambiguas', 'Lecturas sin anotar', 'Lecuras sin alinear', 'Lecturas con mapeo de baja calidad', 'Lecturas anotadas como genes')) + 
-  guides(x=guide_axis(angle=90 )) +  #cambio orientación ejes
+                    labels=c('Lecturas ambiguas', 'Lecturas sin anotar', 'Lecuras sin alinear', 'Lecturas con mapeo de baja calidad', 'Lecturas anotadas como genes')) + #personalización de los colores y etiquetas
+  guides(x=guide_axis(angle=90 )) + #cambio de orientación de los ejes 
   scale_y_continuous(expand = expansion(mult = 0)) + #ajuste del grafico
-  theme_classic(base_size=20) 
+  theme_classic(base_size=20)  #selección del tema
 ```
+![image](https://github.com/user-attachments/assets/2442616f-f5d7-423c-b0dd-028887e17054)
+  
 **3.4 Análisis de los genes diferencialmente expresados con el paquete edgeR**. 
   
 Para el análisis de Genes Diferencialmente Expresados se utiliza el paquete edgeR de Bioconductor y las funciones recogidas en la tabla siguiente:    
@@ -957,26 +957,31 @@ Para el análisis de Genes Diferencialmente Expresados se utiliza el paquete edg
 |-------|-----------------|
 | Importacion de la matriz de conteos | DGEList |
 | Filtración de las lecturas con recuentos bajos o nulos | filterbyExpr | 
-|  Normalización de las librerías | calcNormFactors |
-| Estimacion de dispersion Binomial Negativa y visualización | estimateDisp /plotBCV |
-| Analisis diferencial | QL pipeline: glmQLFit / glmQLFTest |
-| Resultados | Analisis de expresión diferencial: topTags/decideTest/plotMD |  
+| Normalización de las librerías | calcNormFactors |
+| Estimacion de la dispersion y visualización | estimateDisp / plotBCV |
+| juste de los datos y test de expresión diferencial | enfoque _quasi-likelihood_ (QL): glmQLFit / glmQLFTest |
+| Resultados | decideTest / topTags |  
   
-** Conversión de la matriz de recuentos al objeto DGEList**  
+**Conversión de la matriz de recuentos al objeto DGEList**  
   
 A partir de la matriz con los recuentos crudos, se genera un objeto DGEList. Este objeto está formado por 2 componentes esenciales: la matriz de conteos y la información de las muestras.  
+  
+```R
+seqdata <- seqdata[1:78932,] # Selección de las lecturas anotadas como genes
+seqdata <- seqdata %>% tibble::column_to_rownames(var = "feature") #conversión de la columna feature a los nombres de las filas
 
-```R
-y <- DGEList(seqdata)
+y <- DGEList(seqdata) #creación del objeto DGEList
 ```
-Una vez creado el objeto DGEList, se modifica la columna `sample$group` para especificar los grupos experimentales de cada muestra: enfermo o sano.   
+  
+Una vez creado el objeto DGEList, se especifica el grupo experimental de cada muestra: sano o enfermo.   
 ```R
-disease <- rep(c("Sano","LES"),each=6)
+disease <- rep(c("Sano","LES"),each=6)  #creación de una variable con las condiciones experimentales
 disease <- factor(disease, levels =c('Sano','LES')) #conversión a una variable categórica
-y$samples$group <- disease
-```
 
-Una vez modificado el objeto DGEList, verificamos que los cambios se hayan efectuado.  
+y$samples$group <- disease #adición de los grupos experimentales al objeto DGEList
+```
+  
+Una vez modificado el objeto DGEList, se verifican que los cambios se hayan efectuado.  
 ```R
 > head(y)
 An object of class "DGEList"
@@ -997,7 +1002,6 @@ GSM8153250  Sano 42397848            1
 GSM8153248  Sano 40694703            1
 GSM8153246  Sano 24028088            1
 7 more rows ...
-
 ```
 Además, se puede comprobar el número de genes totales incluidos en la matriz de conteos.  
 ```R
@@ -1006,18 +1010,24 @@ Además, se puede comprobar el número de genes totales incluidos en la matriz d
 ```
   
 **3.1.3 Eliminación de genes con recuentos bajos**  
+  
 Sin embargo, pese a tener tantos genes no todos se expresan por lo que se filtran los genes con recuentos nulos o inferiores a 10. 
 ```R
-keep.genes <- filterbyExpr(y)
-y <- y[keep.genes, keep.lib.sizes=F]
+keep.genes <- filterbyExpr(y)  #filtrado de genes con expresión baja o nula
+y <- y[keep.genes, keep.lib.sizes=F] #seleccion de genes y cálculo de nuevo del tamaño de librería
 ```
-Ahora también se puede comprobar el número de genes mantenidos tras el filtrado.  
+Para comprobar el número de genes mantenidos tras el filtrado, se emplea el siguiente comando:  
 ```R
 > nrow(y$counts)
 [1] 14617
+> nrow(y$counts) / nrow(seqdata)*100 #Porcentaje de genes mantenidos respecto al número de genes iniciales
+[1] 18.51847
 ```
-**3.1.4 Normalización de librerias y recuentos**  
-Los recuentos filtrados obtenidos previamente para cada gen se normalizan mediante el cálculo de factores de normalización para corregir las diferencias de composición en las librerías. Para ello, se usa la función calcNormFactors() del paquete edgeR.   
+De todos los genes iniciales, solo el 18.5% se expresa en las muestras estudiadas.  
+  
+**3.1.4 Cálculo de los factores de normalización**  
+  
+Los recuentos filtrados obtenidos previamente para cada gen se normalizan mediante el cálculo de factores de normalización para corregir las diferencias de composición en las librerías. Para ello, se usa la función calcNormFactors() del paquete edgeR, que permite la normalización mediante el método de la Media Recortada de los valores M (TMM, del inglés Trimmed Mean of M-values).     
 ```R
 y <- calcNormFactors(y)
 ```
@@ -1038,23 +1048,34 @@ GSM8153232   LES 30454394    0.9879841
 GSM8153230   LES 22574501    0.9503878
 GSM8153229   LES 24480946    1.0677673
 ```
+El producto entre el tamaño de librería real y el factor de normalización computado para cada muestra, resulta en el tamaño de librería efectivo, reduciendo así las diferencias de composición.  
+  
+**3.1.5 Estimacion de la variabilidad biologica**   
 
-**3.1.5 Estimacion de la variabilidad biologica entre muestras y réplicas**
 Para estimar la variabilidad y similitud entre las réplicas biológicas se emplea un gráfico de escala multidimensional MDS con la función plotMDS del paquete _limma_.     
 ```R
-plotMDS(y)
+colors <- c("steelblue2","indianred2") 
+
+limma::plotMDS(y,
+               col = colors[y$samples$group],
+               pch = 16,  #forma
+               cex = 1.4) #tamaño
+
+legend("bottomright", as.character(unique(y$samples$group)), 
+       pch = 16,
+       col = colors,
+       ncol = 2 , cex = 0.9)
 ```
-Este gráfico nos permite ver las relaciones entre muestras, de forma que las muestras con perfiles de expresión de genes similares estarán más cerca en el gráfico.  
-![image](https://github.com/user-attachments/assets/2ad47d0e-c24d-4aff-abcd-49696b5c88e1)
+Este gráfico permite hacerse una idea de las relaciones entre las muestras, de forma que las muestras con perfiles de expresión de genes similares estarán más cerca en el gráfico.  
+![image](https://github.com/user-attachments/assets/b6e728ff-4659-4d2f-9702-1ecb7e06998b)
+  
+**3.1.6 Dispersión de los genes**  
 
-
-**3.1.6 Estudio de la dispersión de los genes**  
-
-Para estimar la sobredispersión de los genes, primero se necesita crear una matriz que contenga el diseño experimental y que especifique cómo se asocian o agrupan las muestras.    
+Para estimar la sobredispersión de los genes, primero se crea una matriz con el diseño experimental que especifique cómo se asocian o agrupan las muestras.    
 ```R
 > mdesign <- model.matrix(~0 + disease)           # Creación de la matriz con el diseño experimental
 > colnames(mdesign) <- gsub("disease","", colnames(mdesign)) # Modificación de la cabecera 
-> rownames(mdesign) <- colnames(seqdata)          # Modificación de las filas
+> rownames(mdesign) <- colnames(seqdata)          # Modificación de los nombres de las filas
 > mdesign
            Sano LES
 GSM8153253    1   0
@@ -1078,7 +1099,7 @@ attr(,"contrasts")$disease
 
 Seguidamente se estima la dispersión de los genes con la función estimateDisp, y se especifica tanto la matriz de diseño como el parámetro robust=T para proteger la estimación contra los outliers.  
 ```R
-y <- estimateDisp(y, design, robust=T)
+y <- estimateDisp(y, mdesign, robust = TRUE) #Dispersión por defecto con reducción bayesiana
 ```
 
 El resultado de aplicar la función anterior genera una serie de resultados estadísticos dentro del objeto ‘DGEList’. La dispersión de los genes se va a evaluar desde 3 puntos de vista diferentes: “common dispersion”, “trended dispersion” y “tagwise dispersion”. 
@@ -1124,30 +1145,46 @@ $prior.n
 $span
 [1] 0.2938649
 ```
-En la estimación anterior, la dispersión individual de los genes o _tagwise_, se corrige mediante un modelo de reducción bayesiana para aproximar las dispersiones individuales a la línea de tendencia, con el fin de poder modelar los genes de manera más confiable y precisa.   
-
-Para observar las diferencias producidas entre los resultados con los valores de dispersión individuales corregidos y sin corregir, se puede emplear el código siguiente:
+En la estimación anterior, la dispersión individual de los genes o _tagwise_, se corrige mediante un modelo de reducción bayesiana para aproximar las dispersiones individuales a la línea de tendencia, con el fin de modelar los genes de manera más confiable y precisa.    
+  
+Para observar las diferencias entre los valores de dispersión individuales corregidos y sin corregir, se puede emplear el código siguiente:
 ```R
+y.priordf0 <- estimateDisp(y, mdesign, prior.df = 0, robust = TRUE) #Dispersión sin reducción bayesiana
 
+#Representación de los resutlados 
+par(mfrow = c(1,2))
+plotBCV(y.priordf0)
+title("Dispersión tagwise sin ajuste Bayesiano")
+plotBCV(y)
+title("Dispersión tagwise con ajuste Bayesiano")
 ```
+  
 Como resultado se obtienen los siguientes gráficos.  
+![image](https://github.com/user-attachments/assets/1e157fab-8e7b-403b-bf69-e8e0c6a15f81)  
+  
+**3.1.7 Ajuste de los datos de conteo con el enfoque _Quasi-likelihood_**  
 
-
-**3.1.7 Ajuste de la variabilidad de cada gen según la dispersión**  
-
-Una vez computado los valores de dispersión, se ajustan los datos mediante el enfoque de cuasidispersión o quasi-likelihood (QL), que permite obtener resultados más fiables.  
+Una vez computado los valores de dispersión, se ajustan los datos mediante el enfoque de cuasidispersión o quasi-likelihood (QL), que permite obtener resultados más fiables.    
 ```R
-fit <- glmQLfit(y, design, robust =T)
+fit <- glmQLFit(y, mdesign, robust = TRUE) # Ajuste del modelo con la función glmQLFit
 ```
-El nuevo objeto creado `fit` es un objeto de tipo DGEGLM. El objeto 'fit' tiene diferentes parámetros computados para cada uno de los genes, tales como coeficientes, valores ajustados...
-
-**3.1.8 Prueba de significancia o Test de expresión diferencial**
-
-Una vez computada la dispersión y ajustados los datos, se lleva a cabo la prueba de significancia o test de expresión diferencial.  
-Primero, con la función makeContrast del paquete limma, se define el tipo de comparación que vamos a realizar entre los grupos experimentales.   
 ```R
-# Grupos contraste a comparar
-> mcontrast.LvsS <- makeContrasts(lupusVSsano = LES-Sano, levels = mdesign) # Creación de la matriz con los grupos contraste a comparar
+> class(fit)  #creación de un objeto DGEGLM
+[1] "DGEGLM"
+attr(,"package")
+[1] "edgeR"
+```
+El nuevo objeto creado `fit` es un objeto de tipo DGEGLM y cuenta con diferentes parámetros computados para cada uno de los genes, tales como coeficientes, valores ajustados...  
+  
+**3.1.8 Prueba de significancia o Test de expresión diferencial**  
+  
+Una vez computada la dispersión y ajustados los datos, se lleva a cabo la prueba de significancia o test de expresión diferencial.  
+Primero, con la función makeContrast del paquete limma, se define el tipo de comparación a realizar entre los grupos experimentales.   
+```R
+mcontrast.LvsS <- makeContrasts(lupusVSsano = LES-Sano, levels = mdesign) # Creación de la matriz con los grupos contraste a comparar
+```
+La función makeContrast genera una matriz numérica que representa los grupos indicados a contrastar. El valor 1 y –1 corresponde a los grupos a comparar.  
+```R
 > mcontrast.LvsS
       Contrasts
 Levels lupusVSsano
@@ -1155,15 +1192,19 @@ Levels lupusVSsano
   LES            1
 ```
 
-La función makeContrast genera una matriz numérica que representa los grupos indicados a contrastar. El valor 1 y –1 corresponde a los grupos a comparar.  
-
 A continuación, se realiza el test de expresión diferencial con la función glmQLFTest() del paquete de edgeR y se genera un objeto de tipo DGELRT.
 ```R
-> test.LvsS <- glmQLFTest(fit, contrast = mcontrast.LvsS)  #test de expresión diferencial
+test.LvsS <- glmQLFTest(fit, contrast = mcontrast.LvsS)  #test de expresión diferencial
+```
+```R
 > class(test.LvsS)  #creación de un objeto DGELRT
 [1] "DGELRT"
 attr(,"package")
 [1] "edgeR"
+```
+El objeto DGELRT contiene algunos parámetros estadísticos comunes al objeto DGEGLM con el modelo ajustado. Sin embargo, aparecen unos subapartados nuevos con los resultados de la comparación. Los resultados obtenidos tras la comparación se guardan en el subapartado “table” , que contiene diferentes estadísticos como logFC, logCPM, F y P-valores.  
+  
+```R
 > head(test.LvsS$table)
                        logFC   logCPM            F      PValue
 ENSG00000000419 -0.066630968 5.353583 7.994665e-02 0.781124674
@@ -1173,46 +1214,238 @@ ENSG00000000938 -0.616529724 9.959342 1.068466e+01 0.005016953
 ENSG00000001036  0.297974957 2.391398 9.517483e-01 0.344313726
 ENSG00000001084  0.430007747 1.975376 4.473338e+00 0.051073759
 ```
-El objeto DGELRT contiene algunos parámetros estadísticos comunes al objeto DGEGLM con el modelo ajustado. Sin embargo, aparecen unos subapartados nuevos con los resultados de la comparación. 
-![image](https://github.com/user-attachments/assets/6f75917a-48cc-4b58-a31a-480b85843e59)  
 
-Los resultados obtenidos tras la comparación se guardan en el subapartado “table” , que contiene diferentes estadísticos como logFC, logCPM, F y P-valores.
-
-El valor de P es un parámetro estadístico que se usa para estimar la probabilidad de que un resultado sea obtenido al azar, de forma que cuando la probabilidad de obtener ese mismo resultado al azar es menor al 5% (p < 0.05), decimos que se trata de un resultado estadísticamente significativo. Sin embargo, al comparar un número de genes tan alto, aumenta la probabilidad de tener valores de p significativos (p< 0.05), simplemente por azar, aunque no sean realmente significativos. Por lo que los valores de P se deben corregir.
-
-**3.1.9 Corrección de los valores de P y filtrado de genes diferencialmente expresados**. 
-
-Para resolver el problema de testeado múltiple, los valores de P calculados se ajustan mediante la técninca de corrección Benjamini–Hochberg, que calcula los valores de FDR (False Discovery Rate) con el objetivo de reducir la tasa de falsos positivos. 
-
-La función decideTest, permite llevar a cabo esta corrección e identificar los genes diferencialmente expresados en función al umbral de FDR y logFC establecido. 
+El valor de P es un parámetro estadístico que se usa para estimar la probabilidad de que un resultado sea obtenido al azar, de forma que cuando la probabilidad de obtener ese mismo resultado al azar es menor al 5% (p < 0.05), decimos que se trata de un resultado estadísticamente significativo. Sin embargo, al comparar un número de genes tan alto, aumenta la probabilidad de tener valores de p significativos (p< 0.05), simplemente por azar, aunque no lo sean realmente. Por lo que los valores de P se deben corregir.  
+  
+**3.1.9 Corrección de P-valores y filtrado de genes diferencialmente expresados**  
+  
+Para resolver el problema de testeado múltiple, los valores de P calculados se ajustan mediante la técnica de corrección _Benjamini–Hochberg_, que calcula los valores de FDR (_False Discovery Rate_) con el objetivo de reducir la tasa de falsos positivos. La función decideTest, permite llevar a cabo esta corrección e identificar los genes diferencialmente expresados en función al umbral de FDR y logFC establecido.  
 
 ```R
-DecideTest()
+dTest_LvsS <- decideTests(test.LvsS, adjust.method = "BH", 
+                             p.value = 0.01,   # Umbral de p-valor corregido 
+			     lfc = 2)          # Umbral de log2-Fold-Change
 ```
-
-Seguidamente, los genes se pueden ordenar en función al valor de FDR con la función topTags(), que crea un objeto específico de edgeR con el mismo nombre ‘topTags’.
+La función `summary` permite observar los resultados obtenidos:  
+```R
+> summary(dTest_LvsS)
+       -1*Sano 1*LES
+Down               1
+NotSig         14558
+Up                58
+```
+  
+Seguidamente, los genes se ordenan en función al valor de FDR con la función topTags(), que crea un objeto específico de edgeR con el mismo nombre ‘topTags’.  
 
 ```R 
-TopTags
+toptag.LvsS <- topTags(test.LvsS, n = Inf)  #Creación de un objeto de clase topTags
+```
+```R
+> names(toptag.LvsS)
+[1] "table"         "adjust.method" "comparison"    "test"
+```
+El objeto TopTags contiene diferentes elementos, sin embargo, solamente nos interesa el elemento "table" con los resultados para los genes, por lo que se modifica la variable `toptag.LvsS`.  
+```R
+toptag.LvsS <- toptag.LvsS$table       
+```
+La variable `toptag.LvsS` contiene un data frame con todos los genes y los resultados para la comparación entre los grupos experimentales.  
+```R
+> head(toptag.LvsS)
+                    logFC   logCPM        F       PValue         FDR
+ENSG00000115155 10.983012 5.905536 62.94245 1.088771e-07 0.001591456
+ENSG00000299483  4.081678 2.248540 75.21752 2.668500e-07 0.001922562
+ENSG00000137965  4.880786 8.563740 69.78641 5.928582e-07 0.001922562
+ENSG00000305126  5.045554 1.783654 62.22386 7.416759e-07 0.001922562
+ENSG00000304354  2.430758 3.421995 61.26940 9.308613e-07 0.001922562
+ENSG00000126709  3.069027 7.076709 60.70911 1.028534e-06 0.001922562
 ```
 
-La variable ` ` contiene un data frame con todos los genes y los resultados para la comparación entre los grupos experimentales.
-
-Con el fin de conocer los genes diferencialmente expresados, se lleva cabo la selección de todas aquellas filas que cumplan los filtros especificados: valores de FDR <= 0.01 y valor absoluto de logFC >=  absoluto(2).
-
-En el caso de la escala de logFC, se escribe el valor absoluto de 2 puesto que al ser una escala simétrica nos van a interesar valores positivos y negativos. Valores de log de FC por debajo de –2 los anotamos como genes infraexpresados, mientras que valores de log FC mayores a 2 los anotamos como genes sobreexpresados.
+Con el fin de conocer los genes diferencialmente expresados, se lleva cabo la selección de todas aquellas filas que cumplan los filtros especificados: valores de FDR menor a 0.01 y valor absoluto de logFC mayor o igual al valor absoluto de 2. 
 
 ```R
-# numero de genes DE o bien UP o bien Down
-
-# grafico
-
+# Anotación de los genes sobreexpresados e infraexpresados en una nueva columna
+toptag.LvsS <- toptag.LvsS %>%  mutate(DE = case_when(logFC >= 2 & FDR < 0.01 ~ "Up",
+                                                      logFC <= -2 & FDR < 0.01 ~ "Down",
+                                                      .default="NotSign"))
 ```
-
-## 4 Anotación de los genes
-
-we need to figure out that those different groups of DEGs mean biologically. This is not a simple task, as we need to know the functions of every gene within the gene set, summarize them together, and then compare with genes outside of the gene set and see whether the gene set is significantly enriched in participating or representing certain functions, processes, pathways, components or other biological features.  
+En el caso del logFC, es una escala simétrica por lo que nos interesan cambios positivos y negativos. Valores de log de FC  mayores a 2 los anotamos como genes sobreexpresados, mientras que valores de log FC por debajo de –2 los anotamos como genes infraexpresados.  
+  
 ```R
+> nrow(toptag.LvsS[toptag.LvsS$DE == "Up",]) # Número de genes anotados como UP
+[1] 58
+> nrow(toptag.LvsS[toptag.LvsS$DE == "Down",]) # Número de genes anotados como DOWN
+[1] 1
 ```
+
+## 4 Conversión de los identificadores de los genes diferencialmente expresados
+
+Para la anotación de los genes, se emplea el paquete biomaRt, que emplea información de bases de datos en línea y convierte los identificadores (IDs) de los genes entre distintos sistemas (Ensembl, Entrez, Symbol, etc.). Además, también permite obtener las descripciones de los genes.
+
+Para ello, primero se crea una tabla que contenga únicamente los genes diferencialmente expresados.  
+```R
+de_table <- toptag.LvsS[toptag.LvsS$DE %in% c("Up","Down"),] #selección de genes sobre e infraexpresados
+de_table <- de_table %>% arrange(row.names(de_table))  #ordenación de los identificadores Ensembl ID de los genes
+```
+```R
+> dim(de_table)
+[1] 59  6
+```
+  
+A continuación, se lleva a cabo la conversión de los identificadores en formato _Ensembl ID_ a otros sistemas de anotación.  
+```R
+# Conexión con la base de datos Ensembl
+ensembl_113 <- useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl",
+			  version = 113) #misma versión que el archivo de anotaciones descargado desde la base de datos Ensembl, empleado para la anotación de lecturas
+
+#Anotación de genes con diferentes sistemas
+geneID <- getBM(attributes = c('ensembl_gene_id', 'entrezgene_id', 'external_gene_name', 'description'),   
+                  filters = 'ensembl_gene_id', 
+                  values = row.names(de_table), 
+                  mart = ensembl_113)
+```
+Como resultado, se obtiene un objeto con las anotaciones correspondientes encontradas para cada gen.  
+```R
+> head(geneID, n = 10)
+   ensembl_gene_id entrezgene_id external_gene_name                                                                                    description
+1  ENSG00000059378         64761             PARP12               poly(ADP-ribose) polymerase family member 12 [Source:HGNC Symbol;Acc:HGNC:21919]
+2  ENSG00000078081         27074              LAMP3                    lysosomal associated membrane protein 3 [Source:HGNC Symbol;Acc:HGNC:14582]
+3  ENSG00000088827          6614            SIGLEC1                       sialic acid binding Ig like lectin 1 [Source:HGNC Symbol;Acc:HGNC:11127]
+4  ENSG00000089127          4938               OAS1                           2'-5'-oligoadenylate synthetase 1 [Source:HGNC Symbol;Acc:HGNC:8086]
+5  ENSG00000106785          9830             TRIM14                             tripartite motif containing 14 [Source:HGNC Symbol;Acc:HGNC:16283]
+6  ENSG00000108771         79132              DHX58                                       DExH-box helicase 58 [Source:HGNC Symbol;Acc:HGNC:29517]
+7  ENSG00000111331          4940               OAS3                           2'-5'-oligoadenylate synthetase 3 [Source:HGNC Symbol;Acc:HGNC:8088]
+8  ENSG00000111335          4939               OAS2                           2'-5'-oligoadenylate synthetase 2 [Source:HGNC Symbol;Acc:HGNC:8087]
+9  ENSG00000115155          9381               OTOF                                                   otoferlin [Source:HGNC Symbol;Acc:HGNC:8515]
+10 ENSG00000119917          3437              IFIT3 interferon induced protein with tetratricopeptide repeats 3 [Source:HGNC Symbol;Acc:HGNC:5411]
+```
+Sin embargo, existen algunos identificadores que el programa no es capaz de encontrar, de forma que se lleva a cabo una búsqueda manual y se completan los identificadores faltantes.   
+```R
+geneID[geneID$ensembl_gene_id == "ENSG00000225964",2] <- "104326052"
+geneID[geneID$ensembl_gene_id == "ENSG00000228318",2] <- "130890644"
+geneID[geneID$ensembl_gene_id == "ENSG00000233975",2] <- "111216282"
+geneID[geneID$ensembl_gene_id == "ENSG00000279296",2] <- "109245082"
+geneID[geneID$ensembl_gene_id == "ENSG00000289234",2] <- "107985115"
+geneID[geneID$ensembl_gene_id == "ENSG00000275676",3] <- "lnc-FOXD4L5-97"
+```
+Finalmente, se combinan los identificadores encontrados con los resultados estadísticos obtenidos para los genes diferencialmente expresados.  
+```R
+de_results <- cbind(geneID, de_table$logFC, de_table$PValue, de_table$FDR, de_table$DE)
+colnames(de_results) <- c("Ensemble ID","Entrez ID", "Nombre del Gen", "Descripción", "logFC", "P-valor", "FDR", "DE" )  
+```
+```R
+> head(de_results)
+      Ensemble ID Entrez ID Nombre del Gen                                                                      Descripción    logFC      P-valor         FDR DE
+1 ENSG00000059378     64761         PARP12 poly(ADP-ribose) polymerase family member 12 [Source:HGNC Symbol;Acc:HGNC:21919] 2.181316 1.301791e-06 0.001922562 Up
+2 ENSG00000078081     27074          LAMP3      lysosomal associated membrane protein 3 [Source:HGNC Symbol;Acc:HGNC:14582] 3.104834 3.494549e-05 0.007663624 Up
+3 ENSG00000088827      6614        SIGLEC1         sialic acid binding Ig like lectin 1 [Source:HGNC Symbol;Acc:HGNC:11127] 6.430987 3.054285e-06 0.002125928 Up
+4 ENSG00000089127      4938           OAS1             2'-5'-oligoadenylate synthetase 1 [Source:HGNC Symbol;Acc:HGNC:8086] 5.504131 8.135505e-06 0.003129386 Up
+5 ENSG00000106785      9830         TRIM14               tripartite motif containing 14 [Source:HGNC Symbol;Acc:HGNC:16283] 2.219036 1.994167e-05 0.005397914 Up
+6 ENSG00000108771     79132          DHX58                         DExH-box helicase 58 [Source:HGNC Symbol;Acc:HGNC:29517] 2.742959 1.270625e-06 0.001922562 Up
+```
+
+## 5 Visualización de los genes diferencialmente expresados en un gráfico de Volcán   
+
+Una vez convertidos los identificadores _Ensembl_ de los genes diferencialmente expresados a los nombres comunes, se lleva a cabo un gráfico de tipo Volcano Plot para mostrar los resultados, y se etiquetan los 5 genes con mayor cambio de expresión resultantes tras la comparación.  Para ello, se emplea el objeto `topTags.LvsS` con todos los genes testeados en el análisis diferencial.  
+```R
+> head(toptag.LvsS)
+                    logFC   logCPM        F       PValue         FDR DE
+ENSG00000115155 10.983012 5.905536 62.94245 1.088771e-07 0.001591456 Up
+ENSG00000299483  4.081678 2.248540 75.21752 2.668500e-07 0.001922562 Up
+ENSG00000137965  4.880786 8.563740 69.78641 5.928582e-07 0.001922562 Up
+ENSG00000305126  5.045554 1.783654 62.22386 7.416759e-07 0.001922562 Up
+ENSG00000304354  2.430758 3.421995 61.26940 9.308613e-07 0.001922562 Up
+ENSG00000126709  3.069027 7.076709 60.70911 1.028534e-06 0.001922562 Up
+> dim(toptag.LvsS)
+[1] 14617     6
+```
+Primero, se crea una nueva columna y se anotan solamente los nombres comunes para 5 genes sobreexpresados con mayor valor de logFC. 
+```R
+toptag.LvsS$Annot <- NA  #creación de una nueva columna
+toptag.LvsS <- toptag.LvsS %>% arrange(desc(abs(logFC)))  #rrden descendiente del valor absoluto del logFC
+
+ensemblID <- head(toptag.LvsS,5) # selección de las primeras 5 filas
+
+top5 <- geneID[(geneID$ensembl_gene_id %in% rownames(ensemblID)),c(-2,-4)] #búsqueda de los nombres comunes para los genes en el objeto geneID
+```
+```R
+> head(top5)
+   ensembl_gene_id external_gene_name
+3  ENSG00000088827            SIGLEC1
+9  ENSG00000115155               OTOF
+22 ENSG00000137959             IFI44L
+33 ENSG00000160932               LY6E
+41 ENSG00000184979              USP18
+```
+Una vez identificados los nombres de los genes se agregan al _data frame_ `toptag.LvsS`  
+```R
+toptag.LvsS <- toptag.LvsS %>% rownames_to_column(var = "ensemblID")
+toptag.LvsS[toptag.LvsS$ensemblID == "ENSG00000088827", "Annot"] <- "SIGLEC1"
+toptag.LvsS[toptag.LvsS$ensemblID == "ENSG00000115155", "Annot"] <- "OTOF"
+toptag.LvsS[toptag.LvsS$ensemblID == "ENSG00000137959", "Annot"] <- "IFI44L"
+toptag.LvsS[toptag.LvsS$ensemblID == "ENSG00000160932", "Annot"] <- "LY6E"
+toptag.LvsS[toptag.LvsS$ensemblID== "ENSG00000184979", "Annot"] <- "USP18"
+```
+```R
+> head(toptag.LvsS)
+        ensemblID     logFC   logCPM        F       PValue         FDR DE   Annot
+1 ENSG00000115155 10.983012 5.905536 62.94245 1.088771e-07 0.001591456 Up    OTOF
+2 ENSG00000184979  6.506025 4.393928 51.75408 4.219425e-06 0.002422494 Up   USP18
+3 ENSG00000088827  6.430987 4.775736 54.65455 3.054285e-06 0.002125928 Up SIGLEC1
+4 ENSG00000160932  6.195741 9.043884 48.97921 5.487287e-06 0.002506490 Up    LY6E
+5 ENSG00000137959  5.853624 8.842057 44.92089 8.900121e-06 0.003215684 Up  IFI44L
+6 ENSG00000111335  5.755085 9.088278 55.40027 2.713972e-06 0.001983506 Up    <NA>
+```
+Finalmente, se representa los resultados en el gráfico Volcano Plot.  
+```R
+ggplot(toptag.LvsS, aes(x=logFC, y=-log10(FDR), color=DE, label=Annot)) + 
+  geom_point(size = 2) + 
+  scale_color_manual(values = c("blue","grey","indianred2"))+
+  geom_vline(xintercept=c(2,-2), linetype = 3) +
+  geom_label_repel(color="black", size = 5, box.padding = 0.3, nudge_y = 0.6) +
+  labs(color="") +
+  theme_classic(base_size = 20) 
+```
+![image](https://github.com/user-attachments/assets/f0406b31-67d0-46aa-9fd7-734902e78cea)
+
 
 ### 4.1 Análisis de enriquecimiento funcional
+
+A pesar de determinar los genes diferencialmente expresados, en general, es difícil interpretar su significado biológico. Es por ello, que existen herramientas informáticas que permiten establecer las rutas o funciones metabólicas más representadas en los genes diferencialmente expresados. En este caso solamente se analizarán los genes sobreexpresados.  
+
+```R
+# Filtrado de genes sobrerregulados
+res_up <- de_results[de_results$DE == "Up",]
+
+#Análisis de enriquecimiento funcional de genes en términos de Gene Ontology
+# Funciones moleculares sobrerrepresentadas
+ego_MF <- enrichGO(gene = res_up$`Nombre del Gen`,  # Lista de genes
+                   OrgDb = org.Hs.eg.db,            # Base de datos de anotación
+                   keyType = 'SYMBOL',              # Tipo de identificador
+                   ont="MF",                        # Ontología: BP (Biological Process)
+                   pAdjustMethod = "BH",            # Método de correción de p-valores
+                   pvalueCutoff = 0.01,             # Umbral de significancia
+                   qvalueCutoff = 0.05)             # Umbral de FDR
+
+# Procesos biológicos sobrerrepresentados
+ego_BP <- enrichGO(gene = res_up$`Nombre del Gen`, 
+                   OrgDb = org.Hs.eg.db,
+                   keyType = 'SYMBOL',
+                   ont="BP",
+                   pAdjustMethod = "BH",
+                   pvalueCutoff = 0.01,
+                   qvalueCutoff = 0.05)
+
+#Simplificación de los procesos biológicos y eliminación de términos redundantes
+ego_BP2 <- simplify(ego_BP, cutoff=0.7, by="p.adjust", select_fun=min)
+```
+Finalmente, se lleva a cabo la visualización con el paquete 'enrichplot'.    
+```R
+barplot(ego_MF, font.size = 20)
+
+cnetplot(ego_MF, color.params = list(category = "blue", gene = "grey"),
+         cex.params = list(category_node = 3, gene_node = 1, category_label = 1.8, gene_label = 1.5))
+
+#treeplot
+treeBP <- pairwise_termsim(ego_BP2)
+treeplot(treeBP, label_format=10, fontsize=5)
+```
