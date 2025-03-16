@@ -1406,8 +1406,8 @@ ggplot(toptag.LvsS, aes(x=logFC, y=-log10(FDR), color=DE, label=Annot)) +
   theme_classic(base_size = 20) 
 ```
 ![image](https://github.com/user-attachments/assets/f0406b31-67d0-46aa-9fd7-734902e78cea)
-
-
+![image](https://github.com/user-attachments/assets/93456e4b-4c35-4f6f-bf64-cbe0ecc18270)
+  
 ### 4.1 Análisis de enriquecimiento funcional
 
 A pesar de determinar los genes diferencialmente expresados, en general, es difícil interpretar su significado biológico. Es por ello, que existen herramientas informáticas que permiten establecer las rutas o funciones metabólicas más representadas en los genes diferencialmente expresados. En este caso solamente se analizarán los genes sobreexpresados.  
