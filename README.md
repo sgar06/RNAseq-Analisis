@@ -786,26 +786,23 @@ done
 
 
 
-GitHub
 ## 3 Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados
 ### 3.1 Instalación y carga en memoria de las librerías empleadas. 
   
 En primer lugar, se cargan todas las librerías necesarias para el análisis y se establece el directorio de trabajo.   
 ```R
-#Instalacion de  edgeR
+
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install("edgeR")
+BiocManager::install("edgeR") #Instalacion de  edgeR
 library(edgeR)
-Limma 
-
-# Libreria para la anotacion del gneoma humano
-BiocManager::install("biomaRt")
+ 
+BiocManager::install("biomaRt") # Conversión de identificadores de los genes
 
 
 # Librerías complementarias
 ## Librerías del paquete Tidyverse: ggplot2, dplyr, tidyr, ggrepel
-## Categoriacicón de los genes y sus productos génicos: clusterProfiler, limma
+## Análisis de enriquecimiento génico: clusterProfiler, limma
 
 # Creación de una variable con todas las librerías necesarias
 list_packages <- c("edgeR",  "ggplot2", "dplyr", "tidyr", "ggrepel", "tibble",
@@ -820,27 +817,138 @@ if(length(new_packages)>0)
 # Carga en memoria de todas las librerías especificadas
 invisible(lapply(list_packages, FUN=library, character.only =TRUE))
 
-# Establecer directorio
+# Establecimiento del directorio de trabajo
 setwd("C:/Users/sonni/OneDrive/Escritorio/2024-MASTER/TFM/RNAseq_analysis/")
 
 ```
 
 
-**3.2 Importación de la matriz de recuentos y metadatos**. 
-Para realizar el análisis, primero se importan los datos de interés y se ajustan los nombres de las muestras.  
+**3.2 Importación de la matriz de recuentos y metadatos**.  
+Para realizar el análisis, primero se importan los datos de interés y se ajustan los nombres de las muestras.   
 ```R
-# Importacion matriz de conteos
-seqdata = read.delim(file = "Results/matriz_conteos.tsv", sep = " ")
-# Importacion metadatos 
-metadatos <- read.csv(file ="Results/Matadata.csv")
+metadatos <- read.csv(file ="Results/Matadata.csv") #carga de los metadatos
+
+seqdata = read.delim(file = "Results/matriz_conteos.tsv", sep = " ") #importación de la matriz de conteos
+ colnames(seqdata) <- c("feature", metadatos$Sample.Name) #Cambio de los nombres de las columnas
+```
+Si observan las dimensiones de la matriz de conteos, se tienen 78937 filas y 13 columnas.  
+```R
+> dim(seqdata)
+[1] 78937    13
+> head(seqdata)
+          feature GSM8153253 GSM8153252 GSM8153250 GSM8153248 GSM8153246 GSM8153245 GSM8153238 GSM8153236 GSM8153234 GSM8153232 GSM8153230 GSM8153229
+1 ENSG00000000003          0          0          5          0          0          1          0          2          2          1          0          1
+2 ENSG00000000005          0          0          0          0          0          0          0          0          0          0          0          0
+3 ENSG00000000419       1207       1885       1501       1535        832       1002       1410       1370       1122       1234        954        488
+4 ENSG00000000457        702        726        823       1175        620        690        656        729       1018       1345        495        773
+5 ENSG00000000460         70         64        103        128         91         80         55         70        121        138         55         46
+6 ENSG00000000938      20342      45609      81968      44188      25032      28710      17354      36541      19381      18132      18277      22895
+> tail(seqdata)
+                     feature GSM8153253 GSM8153252 GSM8153250 GSM8153248 GSM8153246 GSM8153245 GSM8153238 GSM8153236 GSM8153234 GSM8153232 GSM8153230 GSM8153229
+78932        ENSG00000310557          0          0          0          0          0          0          0          0          0          0          0          0
+78933           __no_feature    3102207    4248945    5368135    5778559    6082434    5070486    4308555    7094467    5194665    4659772    3686613    3506258
+78934            __ambiguous    1097442    2447154    2567359    2496826    1193122    1173681    1100280    2363146    1611862    1701720    1244623    1296521
+78935        __too_low_aQual    1595129    3221199    4157612    3383771    1924811    1925120    1683095    3203467    2386385    2391636    1854569    1919572
+78936          __not_aligned     165990     239233     258154     221530     178293     122302     163687     245773     189997     251794     176381     173047
+78937 __alignment_not_unique          0          0          0          0          0          0          0          0          0          0          0          0
 ```
   
-**3.3 Representación de las características genómicas anotadas**
+**3.3 Representación de las características genómicas anotadas**  
+A partir de la matriz de conteos final, se calcula el porcentaje total de lecturas asignadas, no_feature, ambiguous, too_low_aQual y not_aligned; y el resultado se muestra en un gráfico de barras.  
 ```R
+annot <- seqdata
+annot[1:78932,1] <- "gene"  #conversión de los identificadores de los genes a una categoría común
 
-
+annot <- annot %>% group_by(feature) %>% summarise(across(where(is.numeric), sum)) #recuento de lecturas para cada categoria
 ```
+Tras la ejecución se observa el número de recuentos para cada categoría:  
+```R
+> head(annot)
+# A tibble: 6 × 13
+  feature                GSM8153253 GSM8153252 GSM8153250 GSM8153248 GSM8153246 GSM8153245 GSM8153238 GSM8153236 GSM8153234 GSM8153232 GSM8153230 GSM8153229
+  <chr>                       <int>      <int>      <int>      <int>      <int>      <int>      <int>      <int>      <int>      <int>      <int>      <int>
+1 __alignment_not_unique          0          0          0          0          0          0          0          0          0          0          0          0
+2 __ambiguous               1097442    2447154    2567359    2496826    1193122    1173681    1100280    2363146    1611862    1701720    1244623    1296521
+3 __no_feature              3102207    4248945    5368135    5778559    6082434    5070486    4308555    7094467    5194665    4659772    3686613    3506258
+4 __not_aligned              165990     239233     258154     221530     178293     122302     163687     245773     189997     251794     176381     173047
+5 __too_low_aQual           1595129    3221199    4157612    3383771    1924811    1925120    1683095    3203467    2386385    2391636    1854569    1919572
+6 gene                     22466408   40491330   42397848   40694703   24028088   24842924   23833401   34717738   30330906   30500265   22604489   24532419
+```
+Posteriormente, se eliminan aquellas categorías para las cuales no tenemos información y se cambia la estructura de la tabla a un formato largo con una función del paquete tidyr.
+```R
+annot <- annot[-1,] #eliminación de las categorías no informativas
+annot_long <- pivot_longer(annot, 
+                           cols = 2:ncol(annot), 
+                           names_to = "IDLecturas", 
+                           values_to = "Contaje")
+```
+Como resultado se obtiene la siguiente estructura:   
+```R
+> head(annot_long)
+# A tibble: 6 × 3
+  feature     IDLecturas Contaje
+  <chr>       <chr>        <int>
+1 __ambiguous GSM8153253 1097442
+2 __ambiguous GSM8153252 2447154
+3 __ambiguous GSM8153250 2567359
+4 __ambiguous GSM8153248 2496826
+5 __ambiguous GSM8153246 1193122
+6 __ambiguous GSM8153245 1173681
+```
+Finalmente, se calcula el porcentaje representado para cada categoría:  
+```R
+total <- annot_long %>% group_by(IDLecturas) %>% summarise(across(where(is.numeric), sum))
+```
+```R
+> head(total, n=12)
+# A tibble: 12 × 2
+   IDLecturas  Contaje
+   <chr>         <int>
+ 1 GSM8153229 31427817
+ 2 GSM8153230 29566675
+ 3 GSM8153232 39505187
+ 4 GSM8153234 39713815
+ 5 GSM8153236 47624591
+ 6 GSM8153238 31089018
+ 7 GSM8153245 33134513
+ 8 GSM8153246 33406748
+ 9 GSM8153248 52575389
+10 GSM8153250 54749108
+11 GSM8153252 50647861
+12 GSM8153253 28427176
+```
+Finalmente, se lleva a cabo la creación de una nueva columna para mostrar los porcentajes de cada categoría:  
+```R
+annot_long <- annot_long[order(annot_long$IDLecturas),] #ordenación de las muestras
 
+annot_long$Total <- rep(total$Contaje, each = 5)  #creación de una nueva columna con el total de lecturas por muestra
+annot_long <- annot_long %>% mutate(Porcentaje = Contaje/Total*100) #creación de una columna con el porcentaje para cada cetegoria
+```
+Tras la ejecución de los comandos, se obtiene el siguiente resultado:  
+```R
+> head(annot_long)
+# A tibble: 6 × 5
+  feature         IDLecturas  Contaje    Total Porcentaje
+  <chr>           <chr>         <int>    <int>      <dbl>
+1 __ambiguous     GSM8153229  1296521 31427817      4.13 
+2 __no_feature    GSM8153229  3506258 31427817     11.2  
+3 __not_aligned   GSM8153229   173047 31427817      0.551
+4 __too_low_aQual GSM8153229  1919572 31427817      6.11 
+5 gene            GSM8153229 24532419 31427817     78.1  
+6 __ambiguous     GSM8153230  1244623 29566675      4.21 
+```
+Una vez se tienen los porcentajes de los recuentos para cada categoría, se crea un gráfico de frecuencias con la librería ggplot2. 
+```R
+# Gráfico con la anotación de lecturas
+ggplot(annot_long, aes(x=IDLecturas, y=Porcentaje, fill=feature)) + 
+  geom_bar(stat="identity") + 
+  labs(fill="", x="") + #permite cambiar título, ejes, leyenda..
+  scale_fill_manual(values=c("lightblue","blue3","lightgreen","green4","lightsalmon"),
+                    labels=c('Lecturas ambiguas', 'Lecturas sin anotar', 'Lecuras sin alinear', 'Lecturas con mapeo de baja calidad', 'Lecturas anotadas como genes')) + 
+  guides(x=guide_axis(angle=90 )) +  #cambio orientación ejes
+  scale_y_continuous(expand = expansion(mult = 0)) + #ajuste del grafico
+  theme_classic(base_size=20) 
+```
 **3.4 Análisis de los genes diferencialmente expresados con el paquete edgeR**. 
   
 Para el análisis de Genes Diferencialmente Expresados se utiliza el paquete edgeR de Bioconductor y las funciones recogidas en la tabla siguiente:    
