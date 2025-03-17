@@ -383,9 +383,9 @@ infer_experiment.py -r ../5_Annotation/Homo_sapiens.bed  -i subsampled_alignment
    
 Como resultado se pueden dar diferentes escenarios según la forma de preparación de la librería: lecturas pareadas o de extremo único, lecturas con información de hebra específica o no, y a su vez, dentro de los experimentos de hebra específica, se pueden diferenciar:  
 * Librerias sentido: Lecturas *forward* o R1 situadas en la misma dirección que el transcrito.  
-* Librerias antisentido: Lecturas *reverse* o R2 situadas en la misma dirección que el transcrito.  
-  
-![image](https://github.com/user-attachments/assets/8d01c7a5-26a2-4a6c-ae81-bd2a8a0458f3)  
+* Librerias antisentido: Lecturas *reverse* o R2 situadas en la misma dirección que el transcrito.
+
+Se puede encontrar más información en la página [Eclipsebio](https://eclipsebio.com/eblogs/stranded-libraries/).  
   
 Según los resultados obtenidos, existen diferentes parámetros que se deben especificar en los análisis posteriores.  
   
@@ -1067,7 +1067,6 @@ legend("bottomright", as.character(unique(y$samples$group)),
        ncol = 2 , cex = 0.9)
 ```
 Este gráfico permite hacerse una idea de las relaciones entre las muestras, de forma que las muestras con perfiles de expresión de genes similares estarán más cerca en el gráfico.  
-![image](https://github.com/user-attachments/assets/b6e728ff-4659-4d2f-9702-1ecb7e06998b)
   
 **3.1.6 Dispersión de los genes**  
 
@@ -1158,9 +1157,6 @@ title("Dispersión tagwise sin ajuste Bayesiano")
 plotBCV(y)
 title("Dispersión tagwise con ajuste Bayesiano")
 ```
-  
-Como resultado se obtienen los siguientes gráficos.  
-![image](https://github.com/user-attachments/assets/1e157fab-8e7b-403b-bf69-e8e0c6a15f81)  
   
 **3.1.7 Ajuste de los datos de conteo con el enfoque _Quasi-likelihood_**  
 
@@ -1405,14 +1401,13 @@ ggplot(toptag.LvsS, aes(x=logFC, y=-log10(FDR), color=DE, label=Annot)) +
   labs(color="") +
   theme_classic(base_size = 20) 
 ```
-![image](https://github.com/user-attachments/assets/f0406b31-67d0-46aa-9fd7-734902e78cea)
   
 ### 4.1 Análisis de enriquecimiento funcional
 
 A pesar de determinar los genes diferencialmente expresados, en general, es difícil interpretar su significado biológico. Es por ello, que existen herramientas informáticas que permiten establecer las rutas o funciones metabólicas más representadas en los genes diferencialmente expresados. En este caso solamente se analizarán los genes sobreexpresados.  
 
 ```R
-# Filtrado de genes sobrerregulados
+# Filtrado de genes sobreexpresados
 res_up <- de_results[de_results$DE == "Up",]
 
 #Análisis de enriquecimiento funcional de genes en términos de Gene Ontology
@@ -1439,12 +1434,14 @@ ego_BP2 <- simplify(ego_BP, cutoff=0.7, by="p.adjust", select_fun=min)
 ```
 Finalmente, se lleva a cabo la visualización con el paquete 'enrichplot'.    
 ```R
-barplot(ego_MF, font.size = 20)
+# Gráfico de barras para la visualización de Funciones Moleculares sobrerrepresentadas
+barplot(ego_MF, font.size = 20)  
 
+# Gráfico con las relaciones entre las Funciones Moleculares sobrerrepresentadas
 cnetplot(ego_MF, color.params = list(category = "blue", gene = "grey"),
          cex.params = list(category_node = 3, gene_node = 1, category_label = 1.8, gene_label = 1.5))
 
-#treeplot
-treeBP <- pairwise_termsim(ego_BP2)
-treeplot(treeBP, label_format=10, fontsize=5)
+# Gráfico con las relaciones jerárquicas entre los Procesos Biológicos sobrerrepresentados
+treeBP <- pairwise_termsim(ego_BP2)   #Cálculo de la similitud entre los términos
+treeplot(treeBP, label_format=10, fontsize=5) #Representación gráfica
 ```
