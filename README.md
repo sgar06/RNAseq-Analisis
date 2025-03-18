@@ -227,7 +227,7 @@ Para descargar la lista con los identificadores de las lecturas en formato de te
   
 ![image](https://github.com/user-attachments/assets/afbcce1d-228e-4994-ba4e-32d585c77471)  
   
-Una vez descargado el archivo de texto plano _SRR_Acc_List.txt_ con los identificadores, se guarda en la ruta `~/RNAseq_analysis/Data/Supplementary` y se emplea el comando `fastq-dump` de la herramienta _SRA-toolkit_ desde la terminal para obtener las lecturas crudas en nuestra computadora, que se almacenarán en la carpeta `1_Raw`.  
+Una vez descargado el archivo de texto plano _SRR_Acc_List.txt_ con los identificadores, se guarda en la ruta `~/RNAseq_analysis/Data/Supplementary` y se emplea el comando `fastq-dump` de la herramienta _SRA-toolkit_ desde la terminal para obtener las lecturas crudas que se almacenarán en la carpeta `1_Raw`.  
   
 ```console
 # Cambio de directorio
