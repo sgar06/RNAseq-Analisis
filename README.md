@@ -9,16 +9,18 @@
      * 1.4 Obtención del genoma de referencia y el archivo de anotaciones de la especie _Homo sapiens_
      * 1.5 Descarga de los datos de RNA-seq del repositorio público SRA
 
-2. [Procesamiento de los datos RNA-seq](#2-procesamiento-de-los-datos-rna-seq)
-     * 2.1 Control de calidad, recorte de adaptadores y extremos de mala calidad
-     * 2.2 Alineamiento contra genoma de referencia  
-       - 2.2.1 Preparación del genoma de referencia  
-       - 2.2.2 Alineamiento de las lecturas contra el genoma de referencia con HISAT2              
-       - 2.2.3 Modificación y conversión de archivos SAM con SAMtools
-     * 2.3 Identificación y recuento de features o características  
-       - 2.3.1 Preparación del archivo de anotaciones gff  
-       - 2.3.2 Recuento de características con htseq-count  
-       - 2.3.3 Obtención de la matriz de recuentos  
+2. [Procesamiento de los datos RNA-seq ](#2-procesamiento-de-los-datos-rna-seq)
+     * 2.1 Determinacion de la direccionalidad de las lecturas
+     * 2.2 Control de calidad, recorte de adaptadores y extremos de baja calidad
+       - 2.2.1 Control de calidad 
+       - 2.2.2 Recorte de adaptadores y de bases anotadas de mala calidad    
+     * 2.3 Alineamiento de las lecturas procesadas contra el genoma de referencia con HISAT2   
+       - 2.3.1 Preparación del genoma de referencia   
+       - 2.3.2 Alineamiento de las lecturas
+     * 2.4 Identificación y recuento de features o características  
+       - 2.4.1 Preparación del archivo de anotaciones GTF
+       - 2.4.2 Recuento de características con htseq-count
+       - 2.4.3 Obtención de la matriz de recuentos 
 
 3. [Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados](#3-Analisis-estadístico-de-los-datos-de-RNAseq-y-Genes-Diferencialmente-Expresados) 
      * 3.1 Instalación de edgeR  
