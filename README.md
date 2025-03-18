@@ -140,14 +140,14 @@ Una vez conocido el _link_ de nuestro genoma de referencia, lo descargamos direc
 mkdir ~/RNAseq_analysis/Data/4_Alignment/Reference_genome && cd $_
 # Descarga del genoma de referencia de interés
 wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
-# Descomprisión del archivo descargado
+# Descompresión del archivo descargado
 tar -xvf grch38_genome.tar.gz
 ```
 > NOTA   
 > Con el comando `mkdir` creamos un nuevo directorio para el genoma de referencia dentro de nuestra carpeta 4_Alignment. El comando `cd $_` permite movernos a esta nueva carpeta dónde descargamos el archivo de interés con el comando `wget`.  
 > Tras la descompresión del archivo, se genera el directorio `/grch38/` con el genoma de referencia, el script `make_grch38.sh` y los archivos necesarios para la indexación identificados por la palabra `genome` seguidos de la terminación `.1.ht2, .2.ht2`, etc.  
   
-* **Descarga del archivo de anotaciones de referencia GRCh38 desde el repositorio _ENSEMBLE_**   
+* **Descarga del archivo de anotaciones de referencia GRCh38 desde el repositorio _ENSEMBL_**   
   
 Para descargar el archivo de anotaciones de referencia de la especie _H.sapiens_, se emplea el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon). Además, es importante que el archivo de anotaciones tenga ciertas características específicas necesarias para la correcta ejecución de programas posteriores. Es por ello, que se emplea la herramienta _File Chamaleon_ con el fin de formatear el archivo de anotaciones.  
   
