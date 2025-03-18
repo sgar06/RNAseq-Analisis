@@ -20,13 +20,22 @@
      * 2.4 Identificación y recuento de features o características  
        - 2.4.1 Preparación del archivo de anotaciones GTF
        - 2.4.2 Recuento de características con htseq-count
-       - 2.4.3 Obtención de la matriz de recuentos 
+       - 2.4.3 Obtención de la matriz de recuentos
+         
+3. [Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados con R](#3-Analisis-estadístico-de-los-datos-de-RNAseq-y-Genes-Diferencialmente-Expresados-con-R) 
+     * 3.1 Instalación y carga en memoria de las librerías necesarias
+     * 3.2 Importación de la matriz de recuentos y metadatos 
+     * 3.3 Representación de las características genómicas anotadas 
+     * 3.4 Análisis de los genes diferencialmente expresados con el paquete edgeR
+       - 3.4.1 Conversión de la matriz de recuentos al objeto DGEList
+       - 3.4.2 Eliminación de genes con recuentos bajos
+       - 3.4.3 Cálculo de los factores de normalización
+       - 3.4.4 Estimación de la variabilidad biológica
+       - 3.4.5 Dispersión de los genes
+       - 3.4.6 Ajuste de los datos de conteo con el enfoque _Quasi-likelihood_
+       - 3.4.7 Prueba de significancia o Test de Expresión Diferencial
+       - 3.4.8 Corrección de P-valores y filtrado de genes diferencialmente expresados
 
-3. [Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados](#3-Analisis-estadístico-de-los-datos-de-RNAseq-y-Genes-Diferencialmente-Expresados) 
-     * 3.1 Instalación de edgeR  
-       - 3.1.1 Importación de la matriz de recuentos y metadatos 
-       - 3.1.2 Conversión de la matriz de recuentos al objeto DGEList
-       - 3.1.3 Eliminación de genes con recuentos bajos
        - 3.1.4 Normalización de librerias y recuentos
        - 3.1.5 Estimacion de la variabilidad biologica entre muestras y réplicas
        - 3.1.6 Estudio de la dispersión de los genes
@@ -35,16 +44,16 @@
        - 3.1.9 Correción FP
        - 3.1.10 Filtrado de genes segun FDR y logFC
 
-4. [Anotación de los genes](4-Anotación-de-los-genes)
-     * 4.1 GeneOntology
-     * 4.2 KEGG
-     * 4.3 Reactome (open source and fully open acces)
-     * 4.4 MSigDB
+4. [Conversión de los identificadores de los genes diferencialmente expresados](#4-conversion-de-los-identificadores-de-los-genes-diferencialmente-expresados)
+5. [Visualización de los genes diferencialmente expresados en un gráfico de Volcán](#5-visualizacion-de-losgenes-diferencialmente-expresados-en-un-grafico-de-volcan)
+6. [Análisis de Enriquecimiento Funcional](#6-analisis-de-enriquecimiento-funcional)
+
+
 
 ## 1. Preparación 
 ### 1.1 Linux y Bash  
   
-Con el fin de realizar el presente tutorial se emplea un escritorio virutal basado en la nube, denominado Amazon WrokSpaces proporcionado por Amazon Web Services, con el sistema operativo Linux. Para llevar a cabo la ejecucion de los comandos siguientes, se emplea el shell de linea de comandos Bash (Bourne Again Shell).   
+Con el fin de realizar el presente tutorial se emplea un escritorio virutal basado en la nube, denominado Amazon WrokSpaces proporcionado por Amazon Web Services, con el sistema operativo Linux. Y, para llevar a cabo la ejecución de los comandos siguientes, se emplea el shell de línea de comandos _Bash_ (_Bourne Again Shell_).   
   
 ### 1.2 Conda e instalación de herramientas para el análisis RNA-seq  
   
@@ -62,7 +71,7 @@ bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
 ~/miniconda3/bin/conda init bash
 ```
 > NOTA  
-> El comando `conda init` permite inicializar conda por defecto en la terminal de _bash_. Seguidamente, para que el cambio tenga efecto, se cierra y abre una nueva terminal de _bash_, y nos encontraremos en el entorno 'base' de conda.
+> El comando `conda init` permite inicializar conda por defecto en la terminal de _Bash_. Seguidamente, para que el cambio tenga efecto, se cierra y abre una nueva terminal de _Bash_, y nos encontraremos en el entorno 'base' de conda.
   
 Una vez tenemos conda instalado por defecto en la terminal, podemos instalar nuevas herramientas o paquetes con el comando `conda install`, de forma que conda verifica si el programa está disponible dentro sus repositorios o canales, y si está  disponible, descargará el _software_ y las dependencias necesarias para su buen funcionamiento. 
 Para la correcta instalación de herramientas, debemos especificar a conda los canales o repositorios donde buscar, asi cómo el orden de preferencia. De esta forma, nos aseguramos de la instalación adecuada de los programas y de sus dependendencias con las versiones necesarias. 
@@ -83,7 +92,7 @@ conda create -n genomic_analysis
 conda activate genomic_analysis
 ```
 
-Posteriormente, instalamos la lista de herramientas mostrada a continuación, necesarias para el análisis transcriptómico dentro de nuestro entorno:  
+Posteriormente, instalamos la lista de herramientas mostrada a continuación necesarias para el análisis transcriptómico dentro de nuestro entorno:  
 
 | Programa | Versión | Comando de instalación | Función | 
 |---------|---------|----------|----------|
@@ -124,7 +133,7 @@ RNAseq_analysis
   
 ### 1.4 Obtención del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*  
   
-* **Descarga del genoma de referencia GRCh38 desde la página web de _HISAT2_**  
+**Descarga del genoma de referencia GRCh38 desde la página web de _HISAT2_**   
   
 _HISAT2_ es un programa de alineamiento rápido y eficiente capaz de alinear lecturas resultantes de la secuenciación contra diferentes genomas.  Desde su [repositorio online](http://daehwankimlab.github.io/hisat2/), se cuenta con diversos genomas indexados disponibles para su descarga. La indexación del genoma permite al alineador llevar a cabo su función de manera mucho más dinámica. En el caso de que el genoma de interés no esté indexado, la herramienta _HISAT2_ permite realizar una indexación manual con la función `hisat2-build`, aunque es un proceso lento y costoso. Es por ello, que descargaremos directamente el genoma de referencia humano (GRcH38) indexado desde su página web.  
   
@@ -136,7 +145,7 @@ Dentro de la sección _H.sapiens_, encontramos diferentes genomas de referencia 
   
 ![image](https://github.com/user-attachments/assets/2a07a735-3247-4f0a-92fd-9e0da1b8994e)
   
-Una vez conocido el _link_ de nuestro genoma de referencia, lo descargamos directamente a través de la terminal y lo almacenamos en una nueva carpeta dentro de la ruta `~RNAseq_analysis/Data/4_Alignment`.   
+Una vez conocido el _link_ de nuestro genoma de referencia, lo copiamos y descargamos directamente a través de la terminal, y lo almacenamos en una nueva carpeta dentro de la ruta `~RNAseq_analysis/Data/4_Alignment`.   
 ```console
 # Creación de la carpeta Reference_genome y cambio de directorio a la nueva carpeta
 mkdir ~/RNAseq_analysis/Data/4_Alignment/Reference_genome && cd $_
@@ -149,7 +158,7 @@ tar -xvf grch38_genome.tar.gz
 > Con el comando `mkdir` creamos un nuevo directorio para el genoma de referencia dentro de nuestra carpeta 4_Alignment. El comando `cd $_` permite movernos a esta nueva carpeta dónde descargamos el archivo de interés con el comando `wget`.  
 > Tras la descompresión del archivo, se genera el directorio `/grch38/` con el genoma de referencia, el script `make_grch38.sh` y los archivos necesarios para la indexación identificados por la palabra `genome` seguidos de la terminación `.1.ht2, .2.ht2`, etc.  
   
-* **Descarga del archivo de anotaciones de referencia GRCh38 desde el repositorio _ENSEMBL_**   
+**Descarga del archivo de anotaciones de referencia GRCh38 desde el repositorio _ENSEMBL_**   
   
 Para descargar el archivo de anotaciones de referencia de la especie _H.sapiens_, se emplea el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon). Además, es importante que el archivo de anotaciones tenga ciertas características específicas necesarias para la correcta ejecución de programas posteriores. Es por ello, que se emplea la herramienta _File Chamaleon_ con el fin de formatear el archivo de anotaciones.  
   
@@ -254,7 +263,7 @@ CCTAACCCTAACCCTAACCCTAACCCTAACCCTAACCCTAACACTAACCCTAACCCTAACCCTAACCCTAACCCTAACAC
 FF:FFFF::FF,FFFFFF,F:FFF,F,FFFF:FFFFFFFFFF,F,FF,FF,FFF,F,FFF:FFFFF,F,FF:FF:FFF::,::,,FFFF,F,:F:,::,,F
 ```
   
-Los resultados de la secuenciación para cada lectura vienen dados por 4 líneas: la primera, representa el símbolo @ seguido del identificador de la lectura; la segunda, contiene la secuencia de la lectura; la tercera, comienza por el símbolo '+' seguido del identificador nuevamente; y la cuarta, contiene la calidad asociada a cada base anotada para dicha lectura.  
+Los resultados de la secuenciación para cada lectura vienen dados por 4 líneas: la primera línea, representa el símbolo @ seguido del identificador de la lectura; la segunda, contiene la secuencia de la lectura; la tercera, comienza por el símbolo '+' seguido del identificador nuevamente; y la cuarta, contiene la calidad asociada a cada base anotada para dicha lectura.  
   
 ## 2 Procesamiento de los datos RNA-seq  
   
@@ -262,7 +271,7 @@ Los resultados de la secuenciación para cada lectura vienen dados por 4 líneas
   
 Para determinar si las lecturas RNA-seq contienen información de hebra específica, se emplea inicialmente una sola muestra y se realiza una selección aleatoria de entorno al 10% de lecturas totales incluyendo ambos extremos gracias a la herramienta **_Seqkit_**, y los resultados se almancenan en la ruta `~/RNAseq_analysis/Data/2_Infer_strandedness`.  
   
-En este paso solamente nos interesa determinar el tipo de librería empleada en el estudio y la especificidad de hebra, por lo que se realiza un selección de lecturas a partir de una de las muestras con el fin de aumentar la eficiencia y rapidez en los pasos posteriores. Con la herramienta `seqkit` se seleccionan de forma aleatoria las lecturas tanto _forward_ como _reverse_ contenidas en los archivos `{sample}_1.fastq.gz` y `{sample}_2.fastq.gz`, respectivamente. Además, es importante que a la hora de realizar el filtrado aleatorio, se incluyan ambos extremos de cada par de lecturas, tanto  *forward* como *reverse* en el orden correcto por lo que se deben emplear los mismos parámetros en ambos procesos.   
+En este paso solamente nos interesa determinar el tipo de librería empleada en el estudio y la especificidad de hebra, por lo que se realiza una selección de lecturas a partir de una de las muestras con el fin de aumentar la eficiencia y rapidez en los pasos posteriores. Con la herramienta `seqkit` se seleccionan de forma aleatoria las lecturas tanto _forward_ como _reverse_ contenidas en los archivos `{sample}_1.fastq.gz` y `{sample}_2.fastq.gz`, respectivamente. Además, es importante que a la hora de realizar el filtrado aleatorio, se incluyan ambos extremos de cada par de lecturas, tanto  *forward* como *reverse* en el orden correcto por lo que se deben emplear los mismos parámetros en ambos procesos.   
 
 Para la realizar la submuestra, se emplean las lecturas correspondientes al identificador SRR28380565.  
 ```console
@@ -276,7 +285,7 @@ seqkit sample -p 0.1 -s 100 SRR28380565_2.fastq.gz -o subsampled_SRR28380565_2.f
 > * `-p` permite determinar la proporción de lecturas a seleccionar. En nuestro caso, se selecciona el 10% de lecturas totales.   
 > * `-s` permite determinar una semilla aleatoria específica para generar resultados idénticos. En este caso, se especifica el valor de 100, permitiendo que las lecturas aleatorias sean las mismas en ambos archivos.
   
-Posteriomente, para comprobar el número de pares de lecturas seleccionadas en cada submuestra, se puede especificar el siguiente comando:  
+Posteriomente, para comprobar el número de pares de lecturas seleccionadas en cada submuestra, se puede emplear el siguiente comando:  
 ```console
 # Comando para determinar el número de lecturas totales en la submuestra 1 con las lecturas forward
 zcat subsampled_SRR28380565_1.fastq.gz | grep -c @SRR
@@ -290,7 +299,7 @@ zcat subsampled_SRR28380565_2.fastq.gz | grep -c @SRR
   
 En nuestro caso, como la submuestra se obtiene a partir del identificador SRR28380565, cuyo contenido de lecturas iniciales era de 28.5 millones, al llevar a cabo la selección del 10% de lecturas, obtenemos archivos con 2.8 millones de lecturas.  
   
-Una vez preparada la submuestra, se lleva a cabo un alineamiento rápido contra el genoma de referencia usando el mapeador _HISAT2_ y los resultados del alineamiento se comparan respecto al archivo de anotación de referencia mediante la herramienta `infer_experiment.py` del paquete _RseQC_ con el fin de determinar la direccionalidad de la librería.  
+Una vez preparada la submuestra, se lleva a cabo un alineamiento rápido contra el **genoma de referencia** usando el mapeador _HISAT2_ y los resultados del alineamiento se comparan respecto al archivo de anotación de referencia mediante la herramienta `infer_experiment.py` del paquete _RseQC_ con el fin de determinar la direccionalidad de la librería.  
   
 Para realizar el mapeo se emplea la herramienta **_HISAT2_**, las lecturas de la submuestra, y el genoma de referencia humano indexado descargado previamente (_grch38_genome.tar.gz_), y como resultado, se obtiene un archivo con la información del alineamiento de las lecturas en formato BAM.  
 ```console
@@ -346,7 +355,7 @@ A su vez, la sección con el alineamiento, se divide en 11 campos obligatorios y
    
 Además, existen diferentes recursos online que permiten conocer el significado de los distintos identificadores. Por ejemplo, para conocer el significado de los valores del campo FLAG, se puede usar el siguiente [enlace](https://broadinstitute.github.io/picard/explain-flags.html).   
   
-Una vez realizado el alineamiento, se emplea el archivo de anotaciones y la herramienta **_RseQC_** para determinar la direccionalidad de las lecturas. El archivo de anotaciones a emplear lo descargamos previamente en formato GTF y activamos la opción para incluir los identificadores de los transcritos (_transcript_id_). Sin embargo, para emplear la herramienta _RseQC_, se necesita el archivo de anotaciones en formato BED, por lo que primero convertimos el archivo de anotaciones al nuevo formato con el paquete de herramientas _Bedops_.  
+Una vez realizado el alineamiento, se emplea el **archivo de anotaciones** y la herramienta **_RseQC_** para determinar la direccionalidad de las lecturas. El archivo de anotaciones a emplear lo descargamos previamente en formato GTF y activamos la opción para incluir los identificadores de los transcritos (_transcript_id_). Sin embargo, para emplear la herramienta _RseQC_, se necesita el archivo de anotaciones en formato **BED**, por lo que primero convertimos el archivo de anotaciones al nuevo formato con el paquete de herramientas _Bedops_.  
 
 ```console
 # Cambio del directorio de trabajo al directorio con el archivo de anotaciones
@@ -387,8 +396,8 @@ infer_experiment.py -r ../5_Annotation/Homo_sapiens.bed  -i subsampled_alignment
 > La salida del comando se concatena con el comando `tee` que permite mostrar los resultados en la salida por pantalla, y a su vez generar un nuevo archivo `infer_strand.txt` con la información visualizada.    
    
 Como resultado se pueden dar diferentes escenarios según la forma de preparación de la librería: lecturas pareadas o de extremo único, lecturas con información de hebra específica o no, y a su vez, dentro de los experimentos de hebra específica, se pueden diferenciar:  
-* Librerias sentido: Lecturas *forward* o R1 situadas en la misma dirección que el transcrito.  
-* Librerias antisentido: Lecturas *reverse* o R2 situadas en la misma dirección que el transcrito.
+* **Librerias sentido**: Lecturas *forward* o R1 situadas en la misma dirección que el transcrito.  
+* **Librerias antisentido**: Lecturas *reverse* o R2 situadas en la misma dirección que el transcrito.
 
 Se puede encontrar más información en la página [Eclipsebio](https://eclipsebio.com/eblogs/stranded-libraries/).  
   
@@ -415,7 +424,7 @@ Determinar la direccionalidad de las lecturas, es importante  especialmente en g
 #### 2.2.1 Control de calidad 
 Para comprobar la calidad de la secuenciación, se empea la herramienta **FastQC** que permite hacer un control de calidad de las lecturas generando un reporte gráfico con diferentes aspectos del alineamiento, además de generar una salida html y un archivo .zip con los datos de calidad.  
   
-Para lanzar la herramienta, primero nos situamos en el directorio con las lecturas crudas y creamos una nueva carpeta para almacenar los resultados generados por FastQC.   
+Para lanzar la herramienta, primero nos situamos en el directorio con las lecturas crudas originales y creamos una nueva carpeta para almacenar los resultados generados por FastQC.   
 ```console
 # Cambio de directorio
 cd ~/RNAseq_analysis/Data/1_Raw
@@ -449,11 +458,11 @@ trim_galore --paired {sample}_1.fastq.gz {sample}_2.fastq.gz -o ../3_Processed/
 > NOTA  
 > * La opción `--paired` de TrimGalore permite indicar que se trata de lecturas pareadas, y seguidamente, se indican los archivos con las lecturas _forward_ y _reverse_.  
   
-El programa TrimGalore recorta los extremos de las lecturas en función a su calidad (Phred Q<20), detecta adaptadores y filtra las lecturas con longitud menor a 20pb. Al tratarse de lecturas pareadas, el programa procesa primero cada archivo con las lecturas _forward_ y _reverse_ de forma independiente generando archivos intermedios `*_trimmed.fq.gz`, y una vez completado el recorte, se genera una etapa de validación de los archivos intermedios, que serán eliminados, generando los archivos finales validados `*_val_1.fq.gz` y `*_val_2.fq.gz`.  Además, para cada archivo FASTQ, se genera un reporte `trimming_report.txt` con los resultados del recorte y filtrado.  
+El programa **TrimGalore** recorta los extremos de las lecturas en función a su calidad (Phred Q<20), detecta adaptadores y filtra las lecturas con longitud menor a 20pb. Al tratarse de lecturas pareadas, el programa procesa primero cada archivo con las lecturas _forward_ y _reverse_ de forma independiente generando archivos intermedios `*_trimmed.fq.gz`, y una vez completado el recorte, se genera una etapa de validación de los archivos intermedios, que serán eliminados, generando los archivos finales validados `*_val_1.fq.gz` y `*_val_2.fq.gz`.  Además, para cada archivo FASTQ, se genera un reporte `trimming_report.txt` con los resultados del recorte y filtrado.  
   
-En cuanto al procesamiento, TrimGalore primero recorta las bases con mala calidad del extremo 3' eliminado las partes de las lecturas con baja calidad (Phred-score < 20). Seguidamente, la herramienta Cutadapt, empaquetada dentro del programa TrimGalore, encuentra y elimina las secuencias de adaptadores en los extremos 3' de  las lecturas y, finalmente, aquellas lecturas que tras el recorte de bases y adaptadores contengan una longitud inferior a 20pb por defecto, son eliminadas.  
+En cuanto al procesamiento, **TrimGalore** primero recorta las bases con mala calidad del extremo 3' eliminado las partes de las lecturas con baja calidad (Phred-score < 20). Seguidamente, la herramienta **Cutadapt**, empaquetada dentro del programa TrimGalore, encuentra y elimina las secuencias de adaptadores en los extremos 3' de  las lecturas y, finalmente, aquellas lecturas que tras el recorte de bases y adaptadores contengan una longitud inferior a 20pb por defecto, son eliminadas.  
   
-Se puede encontrar más información del funcionamiento de TrimGalore en la página de sus creadores, pinchando [aquí](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md).  
+Se puede encontrar más información del funcionamiento de **TrimGalore** en la página de sus creadores, pinchando [aquí](https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md).  
   
 En el caso de querer optimizar el proceso o contar con varias muestras, se pueden procesar todos los archivos FASTQ con las lecturas crudas empleando el siguiente script, denominado `trimgalore.sh`, desde el directorio  ~/RNAseq_analysis/Code.  
 ```console
@@ -635,7 +644,7 @@ for SAMPLE in $SAMPLES; do
 	bam_stat.py -i ${SAMPLE}.sorted.bam > ./statistics/${SAMPLE}.bamstats.txt
 done
 ```
-Como resultado se obtiene un archivo de texto plano con diferentes estadísticas del alineamiento. Por ejemplo, en el caso del archivo SRR28380565 se obtienen los siguientes resultados:   
+Como resultado se obtiene un archivo de texto plano con diferentes estadísticas del alineamiento. Por ejemplo, en el caso del archivo SRR28380565, se obtienen los siguientes resultados:   
 ```console
 #==================================================
 #All numbers are READ count
@@ -652,8 +661,8 @@ mapq < mapq_cut (non-unique):           1663991   # Lecturas con mapeo de baja c
 mapq >= mapq_cut (unique):              54096073  # Lecturas con mapeo de alta calidad
 Read-1:                                 27138442  # Lecturas foward
 Read-2:                                 26957631  # Lecturas reverse
-Reads map to '+':                       27053055 
-Reads map to '-':                       27043018  
+Reads map to '+':                       27053055  # Lecturas mapeadas en la hebra '+'
+Reads map to '-':                       27043018  # Lecturas mapeadas en la hebra '-'
 Non-splice reads:                       40899546  # Lecturas mapeadas en un único exón
 Splice reads:                           13196527  # Lecturas mapeadas en diferentes exones
 Reads mapped in proper pairs:           53037578
@@ -670,7 +679,6 @@ Finalmente, los resultados obtenidos tras el alineamiento de todas las muestras 
 ### 2.4 Identificación y recuento de features o características  
 
 #### 2.4.1 Preparación del archivo de anotaciones GTF
-
 Como explicamos al principio del manual, el archivo de anotaciones de la especie humana (GRCh38.p14) en formato GTF se descargó desde el repositorio [ENSEMBL](https://www.ensembl.org/Homo_sapiens/Tools/FileChameleon), y su estructura es la siguiente:   
    
 ```console
@@ -764,7 +772,7 @@ __not_aligned	165990
 __alignment_not_unique	0
 ```
 > NOTA  
-> El archivo resultante muestra una tabla con los conteos para cada característica, seguido por 5 grupos que contienen las lecturas que no han sido anotadas a ninguna característica.   
+> El archivo resultante muestra una tabla con los conteos para cada característica. En las filas se representan los genes en formato _Ensembl ID_ y, para cada uno de ellos, se muestra el número de lecturas anotadas para cada gen. Finalmente, se representan 5 grupos que contienen aquellas lecturas que no han sido asignadas a ninguna característica.   
 > `__no_feature`, hace referencia a los pares de lecturas que no se han asignado a ninguna característica.   
 > `__ambiguous`, lecturas que pueden ser asignadas a más de una característica y que por tanto en el modo `union` no son asignadas.  
 > `__too_low_aQual, lecturas con un mapeo de baja calidad y que no se tienen en cuenta en el análisis.   
@@ -775,7 +783,7 @@ Las lecturas anotadas como ambiguas, son aquellas que mapean en regiones del gen
   
 #### 2.4.3 Obtención de la matriz de recuentos  
   
-Finalmente, juntamos todas las anotaciones de cada muestra, en un archivo común para obtener la matriz de recuentos final.  
+Finalmente, juntamos todas las anotaciones para cada muestra en un archivo común con el fin de obtener la matriz de recuentos final. Para ello, introducimos un encabezado en todos los archivos de anotaciones, donde la primera columna la denominamos _feature_, correspondiente a los genes y otras características, y la segunda columna la denominamos con el nombre de la muestra. 
 ```console
 #!/usr/bin/bash
 
@@ -788,21 +796,40 @@ for SAMPLE in $SAMPLES; do
 done
 
 ```
+Seguidamente, con el comando `join`, se unen todos los archivos de anotaciones en función a la columna común _feature_.  
+```console
+join SRR28380565_counts.tsv SRR28380566_counts.tsv | join - SRR28380568_counts.tsv | join - SRR28380570_counts.tsv | join - SRR28380572_counts.tsv | join - SRR28380573_counts.tsv | join - SRR28380580_counts.tsv | join - SRR28380582_counts.tsv | join - SRR28380584_counts.tsv | join - SRR28380586_counts.tsv | join - SRR28380588_counts.tsv | join - SRR28380589_counts.tsv > matriz_conteos.tsv
+```
+Como resultado se obtiene la matriz de recuentos final.  
+```console
+(genomic_analysis) [UNIVERSIDADVIU\sgarciallorens@a-24gr8c31n2wkj Results]$ head matriz_conteos.tsv 
+feature SRR28380565 SRR28380566 SRR28380568 SRR28380570 SRR28380572 SRR28380573 SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589
+ENSG00000000003 0 0 5 0 0 1 0 2 2 1 0 1
+ENSG00000000005 0 0 0 0 0 0 0 0 0 0 0 0
+ENSG00000000419 1207 1885 1501 1535 832 1002 1410 1370 1122 1234 954 488
+ENSG00000000457 702 726 823 1175 620 690 656 729 1018 1345 495 773
+ENSG00000000460 70 64 103 128 91 80 55 70 121 138 55 46
+ENSG00000000938 20342 45609 81968 44188 25032 28710 17354 36541 19381 18132 18277 22895
+ENSG00000000971 0 0 5 2 2 0 3 7 3 15 2 22
+ENSG00000001036 76 287 273 242 59 66 206 173 200 109 78 182
+ENSG00000001084 64 153 125 160 63 88 117 141 152 139 70 126
+```
 
 
+## 3 Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados con R
+### 3.1 Instalación y carga en memoria de las librerías necesarias. 
 
-## 3 Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados
-### 3.1 Instalación y carga en memoria de las librerías empleadas. 
+Para el análisis de los datos se emplea el programa Rstudio que permite la ejecución de código en el lenguaje de programación R. En este caso se emplea la versión de R(4.4.1), para llevar a cabo el análisis.  
   
-En primer lugar, se cargan todas las librerías necesarias para el análisis y se establece el directorio de trabajo.   
+En primer lugar, se cargan todas las librerías necesarias y se establece el directorio de trabajo.   
 ```R
 
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install("edgeR") # Análisis de genes diferencialmente expresados
 BiocManager::install("biomaRt") # Conversión de identificadores de los genes
-BiocManager::install("limma") #Análisis de datos, modelos lineales y expresión diferencial
-BiocManager::install("clusterProfiler") #Análisis de enriquecimiento génico
+BiocManager::install("limma") # Análisis de datos, modelos lineales y expresión diferencial
+BiocManager::install("clusterProfiler") # Análisis de enriquecimiento génico
 BiocManager::install("org.Hs.eg.db") # Base de datos para la anotación humana
 
 # Librerías complementarias
@@ -821,19 +848,19 @@ if(length(new_packages)>0)
 invisible(lapply(list_packages, FUN=library, character.only =TRUE))
 
 # Establecimiento del directorio de trabajo
-setwd("C:/Users/sonni/OneDrive/Escritorio/2025/RNAseq_analysis/")
+setwd("C:..../2025/RNAseq_analysis/")
 ```
   
-**3.2 Importación de la matriz de recuentos y metadatos**  
+### 3.2 Importación de la matriz de recuentos y metadatos 
   
-Para realizar el análisis, primero se importan los datos de interés y se ajustan los nombres de las muestras.   
+Para realizar el análisis, primero se importan los datos de interés y se ajustan los nombres de las muestras. El archivo de metadatos se obtiene desde el repositorio _Sequence Read Archive_.  
 ```R
-metadatos <- read.csv(file ="Results/Matadata.csv") #carga de los metadatos
+metadatos <- read.csv(file ="Results/Matadata.csv") # Carga de los metadatos
 
-seqdata = read.delim(file = "Results/matriz_conteos.tsv", sep = " ") #importación de la matriz de conteos
-colnames(seqdata) <- c("feature", metadatos$Sample.Name) #Cambio de los nombres de las columnas
+seqdata = read.delim(file = "Results/matriz_conteos.tsv", sep = " ") # Importación de la matriz de conteos
+colnames(seqdata) <- c("feature", metadatos$Sample.Name) # Cambio de los nombres de las columnas
 ```
-Si observan las dimensiones de la matriz de conteos, se tienen 78937 filas y 13 columnas.  
+A continuación, si se observan las dimensiones de la matriz de conteos, se tienen 78937 filas y 13 columnas.  
 ```R
 > dim(seqdata)
 [1] 78937    13
@@ -855,14 +882,14 @@ Si observan las dimensiones de la matriz de conteos, se tienen 78937 filas y 13 
 78937 __alignment_not_unique          0          0          0          0          0          0          0          0          0          0          0          0
 ```
   
-**3.3 Representación de las características genómicas anotadas**  
+### 3.3 Representación de las características genómicas anotadas
   
 A partir de la matriz de conteos final, se calcula el porcentaje total de lecturas asignadas, no_feature, ambiguous, too_low_aQual y not_aligned; y el resultado se muestra en un gráfico de barras.  
 ```R
 annot <- seqdata  
-annot[1:78932,1] <- "gene"  #conversión de los identificadores de los genes a una categoría común
+annot[1:78932,1] <- "gene"  # Conversión de los identificadores de los genes a una categoría común
 
-annot <- annot %>% group_by(feature) %>% summarise(across(where(is.numeric), sum)) #recuento de lecturas para cada categoria
+annot <- annot %>% group_by(feature) %>% summarise(across(where(is.numeric), sum)) # Recuento de lecturas para cada categoria
 ```
 Tras la ejecución se observa el número de recuentos para cada categoría:  
 ```R
@@ -879,7 +906,7 @@ Tras la ejecución se observa el número de recuentos para cada categoría:
 ```
 Posteriormente, se eliminan aquellas categorías para las cuales no se tiene información y se cambia la estructura de la tabla a un formato largo con una función del paquete tidyr.
 ```R
-annot <- annot[-1,] #eliminación de las categorías no informativas
+annot <- annot[-1,] # Eliminación de las categorías no informativas
 annot_long <- pivot_longer(annot, 
                            cols = 2:ncol(annot), 
                            names_to = "IDLecturas", 
@@ -922,10 +949,10 @@ total <- annot_long %>% group_by(IDLecturas) %>% summarise(across(where(is.numer
 ```
 Finalmente, se lleva a cabo la creación de una nueva columna con el porcentaje de lecturas correspondiente a cada categoría en cada una de las muestras:    
 ```R
-annot_long <- annot_long[order(annot_long$IDLecturas),] #ordenación de las muestras
+annot_long <- annot_long[order(annot_long$IDLecturas),] # Ordenación de los nombres de las muestras
 
-annot_long$Total <- rep(total$Contaje, each = 5)  #creación de una nueva columna con el total de lecturas por muestra
-annot_long <- annot_long %>% mutate(Porcentaje = Contaje/Total*100) #creación de una columna con el porcentaje para cada cetegoria
+annot_long$Total <- rep(total$Contaje, each = 5)  # Creación de una nueva columna con el total de lecturas por muestra
+annot_long <- annot_long %>% mutate(Porcentaje = Contaje/Total*100) # Creación de una columna con el porcentaje para cada cetegoria
 ```
 Tras la ejecución de los comandos, se obtiene el siguiente resultado:  
 ```R
@@ -944,46 +971,45 @@ Una vez se tienen los porcentajes de los recuentos para cada categoría, se crea
 ```R
 # Gráfico con la anotación de lecturas
 ggplot(annot_long, aes(x=IDLecturas, y=Porcentaje, fill=feature)) + 
-  geom_bar(stat="identity") + #selección de la geometría
-  labs(fill="", x="") + #cambio de nombre del eje X y leyenda
+  geom_bar(stat="identity") + # Selección de la geometría
+  labs(fill="", x="") + # Cambio de nombre del eje X y leyenda
   scale_fill_manual(values=c("lightblue","blue3","lightgreen","green4","lightsalmon"),
-                    labels=c('Lecturas ambiguas', 'Lecturas sin anotar', 'Lecuras sin alinear', 'Lecturas con mapeo de baja calidad', 'Lecturas anotadas como genes')) + #personalización de los colores y etiquetas
-  guides(x=guide_axis(angle=90 )) + #cambio de orientación de los ejes 
-  scale_y_continuous(expand = expansion(mult = 0)) + #ajuste del grafico
-  theme_classic(base_size=20)  #selección del tema
+                    labels=c('Lecturas ambiguas', 'Lecturas sin anotar', 'Lecuras sin alinear', 'Lecturas con mapeo de baja calidad', 'Lecturas anotadas como genes')) + # Personalización de colores y etiquetas
+  guides(x=guide_axis(angle=90 )) + # Cambio de orientación de los ejes 
+  scale_y_continuous(expand = expansion(mult = 0)) + # Ajuste del gráfico
+  theme_classic(base_size=20)  # Selección del tema
 ```
-![image](https://github.com/user-attachments/assets/2442616f-f5d7-423c-b0dd-028887e17054)
   
-**3.4 Análisis de los genes diferencialmente expresados con el paquete edgeR**. 
+### 3.4 Análisis de los genes diferencialmente expresados con el paquete edgeR 
   
-Para el análisis de Genes Diferencialmente Expresados se utiliza el paquete edgeR de Bioconductor y las funciones recogidas en la tabla siguiente:    
+Para el análisis de Genes Diferencialmente Expresados se utiliza el paquete **edgeR** de _Bioconductor_ y las funciones recogidas en la tabla siguiente:    
 
 | Etapa | Función de edgeR |
 |-------|-----------------|
 | Importacion de la matriz de conteos | DGEList |
 | Filtración de las lecturas con recuentos bajos o nulos | filterbyExpr | 
 | Normalización de las librerías | calcNormFactors |
-| Estimacion de la dispersion y visualización | estimateDisp / plotBCV |
-| juste de los datos y test de expresión diferencial | enfoque _quasi-likelihood_ (QL): glmQLFit / glmQLFTest |
+| Estimación de la dispersión y visualización | estimateDisp / plotBCV |
+| Ajuste de los datos y test de expresión diferencial | enfoque _quasi-likelihood_ (QL): glmQLFit / glmQLFTest |
 | Resultados | decideTest / topTags |  
   
-**Conversión de la matriz de recuentos al objeto DGEList**  
+#### 3.4.1 Conversión de la matriz de recuentos al objeto DGEList
   
-A partir de la matriz con los recuentos crudos, se genera un objeto DGEList. Este objeto está formado por 2 componentes esenciales: la matriz de conteos y la información de las muestras.  
+A partir de la matriz con los recuentos crudos, se genera un objeto DGEList formado por 2 componentes esenciales: la matriz de conteos y la información de las muestras.  
   
 ```R
 seqdata <- seqdata[1:78932,] # Selección de las lecturas anotadas como genes
-seqdata <- seqdata %>% tibble::column_to_rownames(var = "feature") #conversión de la columna feature a los nombres de las filas
+seqdata <- seqdata %>% tibble::column_to_rownames(var = "feature") # Conversión de la columna feature a los nombres de las filas
 
-y <- DGEList(seqdata) #creación del objeto DGEList
+y <- DGEList(seqdata) # Creación del objeto DGEList
 ```
   
 Una vez creado el objeto DGEList, se especifica el grupo experimental de cada muestra: sano o enfermo.   
 ```R
-disease <- rep(c("Sano","LES"),each=6)  #creación de una variable con las condiciones experimentales
-disease <- factor(disease, levels =c('Sano','LES')) #conversión a una variable categórica
+disease <- rep(c("Sano","LES"),each=6)  # Creación de una variable con las condiciones experimentales
+disease <- factor(disease, levels =c('Sano','LES')) # Conversión a una variable categórica
 
-y$samples$group <- disease #adición de los grupos experimentales al objeto DGEList
+y$samples$group <- disease # Adición de los grupos experimentales al objeto DGEList
 ```
   
 Una vez modificado el objeto DGEList, se verifican que los cambios se hayan efectuado.  
@@ -1014,25 +1040,25 @@ Además, se puede comprobar el número de genes totales incluidos en la matriz d
 [1] 78932
 ```
   
-**3.1.3 Eliminación de genes con recuentos bajos**  
+#### 3.4.2 Eliminación de genes con recuentos bajos
   
 Sin embargo, pese a tener tantos genes no todos se expresan por lo que se filtran los genes con recuentos nulos o inferiores a 10. 
 ```R
-keep.genes <- filterbyExpr(y)  #filtrado de genes con expresión baja o nula
-y <- y[keep.genes, keep.lib.sizes=F] #seleccion de genes y cálculo de nuevo del tamaño de librería
+keep.genes <- filterbyExpr(y)  # Selección de genes con recuentos mayores a 10
+y <- y[keep.genes, keep.lib.sizes=F] # Filtrado de genes no expresados y cálculo de nuevo del tamaño de librería
 ```
 Para comprobar el número de genes mantenidos tras el filtrado, se emplea el siguiente comando:  
 ```R
 > nrow(y$counts)
 [1] 14617
-> nrow(y$counts) / nrow(seqdata)*100 #Porcentaje de genes mantenidos respecto al número de genes iniciales
+> nrow(y$counts) / nrow(seqdata)*100 # Porcentaje de genes mantenidos respecto al número de genes iniciales
 [1] 18.51847
 ```
 De todos los genes iniciales, solo el 18.5% se expresa en las muestras estudiadas.  
   
-**3.1.4 Cálculo de los factores de normalización**  
+#### 3.4.3 Cálculo de los factores de normalización
   
-Los recuentos filtrados obtenidos previamente para cada gen se normalizan mediante el cálculo de factores de normalización para corregir las diferencias de composición en las librerías. Para ello, se usa la función calcNormFactors() del paquete edgeR, que permite la normalización mediante el método de la Media Recortada de los valores M (TMM, del inglés Trimmed Mean of M-values).     
+Los recuentos filtrados obtenidos previamente para cada gen se normalizan mediante el cálculo de factores de normalización para corregir las diferencias de composición en las librerías. Para ello, se usa la función calcNormFactors() del paquete edgeR, que permite la normalización mediante el método de la Media Recortada de los valores M (TMM, del inglés _Trimmed Mean of M-values_).     
 ```R
 y <- calcNormFactors(y)
 ```
@@ -1053,29 +1079,29 @@ GSM8153232   LES 30454394    0.9879841
 GSM8153230   LES 22574501    0.9503878
 GSM8153229   LES 24480946    1.0677673
 ```
-El producto entre el tamaño de librería real y el factor de normalización computado para cada muestra, resulta en el tamaño de librería efectivo, reduciendo así las diferencias de composición.  
+El producto entre el tamaño de librería real y el factor de normalización computado para cada muestra, resulta en el tamaño de librería efectivo, reduciendo así las diferencias de composición. En este caso, los factores de normalización están alrededor de 1, por lo que las diferencias son leves.  
   
-**3.1.5 Estimacion de la variabilidad biologica**   
+#### 3.4.4 Estimación de la variabilidad biológica   
 
 Para estimar la variabilidad y similitud entre las réplicas biológicas se emplea un gráfico de escala multidimensional MDS con la función plotMDS del paquete _limma_.     
 ```R
-colors <- c("steelblue2","indianred2") 
+colors <- c("steelblue2","indianred2")  # Selección de colores para la representación gráfica
 
 limma::plotMDS(y,
-               col = colors[y$samples$group],
-               pch = 16,  #forma
-               cex = 1.4) #tamaño
+               col = colors[y$samples$group],  # Asignación de colores a los grupos experimentales Sano y LES
+               pch = 16,  # Forma geométrica
+               cex = 1.4) # Tamaño
 
-legend("bottomright", as.character(unique(y$samples$group)), 
+legend("bottomright", as.character(unique(y$samples$group)),   # Leyenda del gráfico con los grupos experimentales 
        pch = 16,
        col = colors,
        ncol = 2 , cex = 0.9)
 ```
 Este gráfico permite hacerse una idea de las relaciones entre las muestras, de forma que las muestras con perfiles de expresión de genes similares estarán más cerca en el gráfico.  
   
-**3.1.6 Dispersión de los genes**  
+#### 3.4.5 Dispersión de los genes  
 
-Para estimar la sobredispersión de los genes, primero se crea una matriz con el diseño experimental que especifique cómo se asocian o agrupan las muestras.    
+Para estimar la sobredispersión de los genes entre las réplicas biológicas, primero se crea una matriz con el diseño experimental que especifique cómo se asocian o agrupan las muestras.    
 ```R
 > mdesign <- model.matrix(~0 + disease)           # Creación de la matriz con el diseño experimental
 > colnames(mdesign) <- gsub("disease","", colnames(mdesign)) # Modificación de la cabecera 
@@ -1101,12 +1127,15 @@ attr(,"contrasts")$disease
 [1] "contr.treatment"
 ```
 
-Seguidamente se estima la dispersión de los genes con la función estimateDisp, y se especifica tanto la matriz de diseño como el parámetro robust=T para proteger la estimación contra los outliers.  
+Seguidamente, se estima la dispersión de los genes con la función estimateDisp, y se especifica tanto la matriz de diseño (mdesign) como el parámetro robust=T para proteger la estimación contra los outliers.  
 ```R
-y <- estimateDisp(y, mdesign, robust = TRUE) #Dispersión por defecto con reducción bayesiana
+y <- estimateDisp(y, mdesign, robust = TRUE) # Dispersión por defecto con reducción bayesiana
 ```
 
-El resultado de aplicar la función anterior genera una serie de resultados estadísticos dentro del objeto ‘DGEList’. La dispersión de los genes se va a evaluar desde 3 puntos de vista diferentes: “common dispersion”, “trended dispersion” y “tagwise dispersion”. 
+El resultado de aplicar la función anterior genera una serie de resultados estadísticos dentro del objeto ‘DGEList’. La dispersión de los genes se va a evaluar desde 3 puntos de vista diferentes:  
+* common dispersion o dispersión común: tiene en cuenta la información de todos los genes y estima un valor común para todo el conjunto de datos.  
+* trended dispersion o dispersión de tendencia: tiene en cuenta la información de todos los genes, pero esta varía en función a la abundancia, de forma que los genes con los mismos niveles de expresión muestran la misma dispersión.  
+* tagwise dispersion o dispersión individual: calcula la dispersión para cada uno de los genes.  
  
 ```R
 > y
@@ -1149,7 +1178,7 @@ $prior.n
 $span
 [1] 0.2938649
 ```
-En la estimación anterior, la dispersión individual de los genes o _tagwise_, se corrige mediante un modelo de reducción bayesiana para aproximar las dispersiones individuales a la línea de tendencia, con el fin de modelar los genes de manera más confiable y precisa.    
+En la estimación anterior, la dispersión individual de los genes o _tagwise_, se corrige mediante un modelo de reducción bayesiana para aproximar las dispersiones individuales a la línea de tendencia (_trended dispersion_), con el fin de modelar los genes de manera más confiable y precisa.    
   
 Para observar las diferencias entre los valores de dispersión individuales corregidos y sin corregir, se puede emplear el código siguiente:
 ```R
@@ -1162,22 +1191,23 @@ title("Dispersión tagwise sin ajuste Bayesiano")
 plotBCV(y)
 title("Dispersión tagwise con ajuste Bayesiano")
 ```
+Finalmente, se obtienen 2 gráficos paralelos con los resultados de la dispersión con la reducción Bayesiana y sin ella.  
   
-**3.1.7 Ajuste de los datos de conteo con el enfoque _Quasi-likelihood_**  
+#### 3.4.6 Ajuste de los datos de conteo con el enfoque _Quasi-likelihood_  
 
-Una vez computado los valores de dispersión, se ajustan los datos mediante el enfoque de cuasidispersión o quasi-likelihood (QL), que permite obtener resultados más fiables.    
+Una vez computado los valores de dispersión, se ajustan los datos mediante el enfoque de cuasidispersión o _Quasi-likelihood_ (QL), que permite obtener resultados más fiables.    
 ```R
 fit <- glmQLFit(y, mdesign, robust = TRUE) # Ajuste del modelo con la función glmQLFit
 ```
 ```R
-> class(fit)  #creación de un objeto DGEGLM
+> class(fit)  # Creación de un objeto DGEGLM
 [1] "DGEGLM"
 attr(,"package")
 [1] "edgeR"
 ```
 El nuevo objeto creado `fit` es un objeto de tipo DGEGLM y cuenta con diferentes parámetros computados para cada uno de los genes, tales como coeficientes, valores ajustados...  
   
-**3.1.8 Prueba de significancia o Test de expresión diferencial**  
+#### 3.4.7 Prueba de significancia o Test de Expresión Diferencial 
   
 Una vez computada la dispersión y ajustados los datos, se lleva a cabo la prueba de significancia o test de expresión diferencial.  
 Primero, con la función makeContrast del paquete limma, se define el tipo de comparación a realizar entre los grupos experimentales.   
@@ -1195,15 +1225,15 @@ Levels lupusVSsano
 
 A continuación, se realiza el test de expresión diferencial con la función glmQLFTest() del paquete de edgeR y se genera un objeto de tipo DGELRT.
 ```R
-test.LvsS <- glmQLFTest(fit, contrast = mcontrast.LvsS)  #test de expresión diferencial
+test.LvsS <- glmQLFTest(fit, contrast = mcontrast.LvsS)  # Test de expresión diferencial
 ```
 ```R
-> class(test.LvsS)  #creación de un objeto DGELRT
+> class(test.LvsS)  # Creación de un objeto DGELRT
 [1] "DGELRT"
 attr(,"package")
 [1] "edgeR"
 ```
-El objeto DGELRT contiene algunos parámetros estadísticos comunes al objeto DGEGLM con el modelo ajustado. Sin embargo, aparecen unos subapartados nuevos con los resultados de la comparación. Los resultados obtenidos tras la comparación se guardan en el subapartado “table” , que contiene diferentes estadísticos como logFC, logCPM, F y P-valores.  
+El objeto DGELRT contiene algunos parámetros estadísticos comunes al objeto DGEGLM con el modelo ajustado. Sin embargo, aparecen unos subapartados nuevos con los resultados de la comparación. Los resultados obtenidos tras la comparación se guardan en el subapartado “table” , que contiene diferentes estadísticos como el logFC, logCPM, F y P-valores.  
   
 ```R
 > head(test.LvsS$table)
@@ -1215,10 +1245,10 @@ ENSG00000000938 -0.616529724 9.959342 1.068466e+01 0.005016953
 ENSG00000001036  0.297974957 2.391398 9.517483e-01 0.344313726
 ENSG00000001084  0.430007747 1.975376 4.473338e+00 0.051073759
 ```
-
+  
 El valor de P es un parámetro estadístico que se usa para estimar la probabilidad de que un resultado sea obtenido al azar, de forma que cuando la probabilidad de obtener ese mismo resultado al azar es menor al 5% (p < 0.05), decimos que se trata de un resultado estadísticamente significativo. Sin embargo, al comparar un número de genes tan alto, aumenta la probabilidad de tener valores de p significativos (p< 0.05), simplemente por azar, aunque no lo sean realmente. Por lo que los valores de P se deben corregir.  
   
-**3.1.9 Corrección de P-valores y filtrado de genes diferencialmente expresados**  
+#### 3.4.8 Corrección de P-valores y filtrado de genes diferencialmente expresados
   
 Para resolver el problema de testeado múltiple, los valores de P calculados se ajustan mediante la técnica de corrección _Benjamini–Hochberg_, que calcula los valores de FDR (_False Discovery Rate_) con el objetivo de reducir la tasa de falsos positivos. La función decideTest, permite llevar a cabo esta corrección e identificar los genes diferencialmente expresados en función al umbral de FDR y logFC establecido.  
 
@@ -1239,7 +1269,7 @@ Up                58
 Seguidamente, los genes se ordenan en función al valor de FDR con la función topTags(), que crea un objeto específico de edgeR con el mismo nombre ‘topTags’.  
 
 ```R 
-toptag.LvsS <- topTags(test.LvsS, n = Inf)  #Creación de un objeto de clase topTags
+toptag.LvsS <- topTags(test.LvsS, n = Inf)  # Creación de un objeto de clase topTags
 ```
 ```R
 > names(toptag.LvsS)
@@ -1261,7 +1291,7 @@ ENSG00000304354  2.430758 3.421995 61.26940 9.308613e-07 0.001922562
 ENSG00000126709  3.069027 7.076709 60.70911 1.028534e-06 0.001922562
 ```
 
-Con el fin de conocer los genes diferencialmente expresados, se lleva cabo la selección de todas aquellas filas que cumplan los filtros especificados: valores de FDR menor a 0.01 y valor absoluto de logFC mayor o igual al valor absoluto de 2. 
+Con el fin de conocer los genes diferencialmente expresados, se lleva cabo la selección de todas aquellas filas que cumplan los filtros especificados: valores de FDR menor a 0.01 y valor absoluto de logFC mayor o igual al valor absoluto de 2.  
 
 ```R
 # Anotación de los genes sobreexpresados e infraexpresados en una nueva columna
@@ -1284,8 +1314,8 @@ Para la anotación de los genes, se emplea el paquete biomaRt, que emplea inform
 
 Para ello, primero se crea una tabla que contenga únicamente los genes diferencialmente expresados.  
 ```R
-de_table <- toptag.LvsS[toptag.LvsS$DE %in% c("Up","Down"),] #selección de genes sobre e infraexpresados
-de_table <- de_table %>% arrange(row.names(de_table))  #ordenación de los identificadores Ensembl ID de los genes
+de_table <- toptag.LvsS[toptag.LvsS$DE %in% c("Up","Down"),] # Selección de genes sobre e infraexpresados
+de_table <- de_table %>% arrange(row.names(de_table))  # Ordenación de los identificadores Ensembl ID de los genes
 ```
 ```R
 > dim(de_table)
@@ -1296,7 +1326,7 @@ A continuación, se lleva a cabo la conversión de los identificadores en format
 ```R
 # Conexión con la base de datos Ensembl
 ensembl_113 <- useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl",
-			  version = 113) #misma versión que el archivo de anotaciones descargado desde la base de datos Ensembl, empleado para la anotación de lecturas
+			  version = 113) # Misma versión que el archivo de anotaciones descargado desde la base de datos Ensembl, empleado para la anotación de lecturas
 
 #Anotación de genes con diferentes sistemas
 geneID <- getBM(attributes = c('ensembl_gene_id', 'entrezgene_id', 'external_gene_name', 'description'),   
@@ -1319,7 +1349,7 @@ Como resultado, se obtiene un objeto con las anotaciones correspondientes encont
 9  ENSG00000115155          9381               OTOF                                                   otoferlin [Source:HGNC Symbol;Acc:HGNC:8515]
 10 ENSG00000119917          3437              IFIT3 interferon induced protein with tetratricopeptide repeats 3 [Source:HGNC Symbol;Acc:HGNC:5411]
 ```
-Sin embargo, existen algunos identificadores que el programa no es capaz de encontrar, de forma que se lleva a cabo una búsqueda manual y se completan los identificadores faltantes.   
+Sin embargo, existen algunos identificadores que el programa no es capaz de encontrar, de forma que se lleva a cabo una búsqueda manual y se completan los identificadores restantes en el caso de que estén disponibles.   
 ```R
 geneID[geneID$ensembl_gene_id == "ENSG00000225964",2] <- "104326052"
 geneID[geneID$ensembl_gene_id == "ENSG00000228318",2] <- "130890644"
@@ -1346,7 +1376,7 @@ colnames(de_results) <- c("Ensemble ID","Entrez ID", "Nombre del Gen", "Descripc
 
 ## 5 Visualización de los genes diferencialmente expresados en un gráfico de Volcán   
 
-Una vez convertidos los identificadores _Ensembl_ de los genes diferencialmente expresados a los nombres comunes, se lleva a cabo un gráfico de tipo Volcano Plot para mostrar los resultados, y se etiquetan los 5 genes con mayor cambio de expresión resultantes tras la comparación.  Para ello, se emplea el objeto `topTags.LvsS` con todos los genes testeados en el análisis diferencial.  
+Una vez convertidos los identificadores _Ensembl_ de los genes diferencialmente expresados a los nombres comunes, se lleva a cabo un gráfico de tipo Volcano Plot para mostrar los resultados, y se etiquetan los 5 genes con mayor cambio de expresión resultantes tras la comparación.  Para ello, se emplea el objeto `topTags.LvsS` con todos los genes testeados en el análisis diferencial.   
 ```R
 > head(toptag.LvsS)
                     logFC   logCPM        F       PValue         FDR DE
@@ -1359,14 +1389,14 @@ ENSG00000126709  3.069027 7.076709 60.70911 1.028534e-06 0.001922562 Up
 > dim(toptag.LvsS)
 [1] 14617     6
 ```
-Primero, se crea una nueva columna y se anotan solamente los nombres comunes para 5 genes sobreexpresados con mayor valor de logFC. 
+Primero, se crea una nueva columna y se anotan solamente los nombres comunes para 5 genes sobreexpresados con mayor valor de logFC.  
 ```R
-toptag.LvsS$Annot <- NA  #creación de una nueva columna
-toptag.LvsS <- toptag.LvsS %>% arrange(desc(abs(logFC)))  #rrden descendiente del valor absoluto del logFC
+toptag.LvsS$Annot <- NA  # Creación de una nueva columna
+toptag.LvsS <- toptag.LvsS %>% arrange(desc(abs(logFC)))  # Orden descendiente del valor absoluto del logFC
 
-ensemblID <- head(toptag.LvsS,5) # selección de las primeras 5 filas
+ensemblID <- head(toptag.LvsS,5) # Selección de las primeras 5 filas
 
-top5 <- geneID[(geneID$ensembl_gene_id %in% rownames(ensemblID)),c(-2,-4)] #búsqueda de los nombres comunes para los genes en el objeto geneID
+top5 <- geneID[(geneID$ensembl_gene_id %in% rownames(ensemblID)),c(-2,-4)] # Búsqueda de los nombres comunes para los genes en el objeto geneID
 ```
 ```R
 > head(top5)
@@ -1377,7 +1407,7 @@ top5 <- geneID[(geneID$ensembl_gene_id %in% rownames(ensemblID)),c(-2,-4)] #bús
 33 ENSG00000160932               LY6E
 41 ENSG00000184979              USP18
 ```
-Una vez identificados los nombres de los genes se agregan al _data frame_ `toptag.LvsS`  
+Una vez identificados los nombres de los genes se agregan a la variable `toptag.LvsS`    
 ```R
 toptag.LvsS <- toptag.LvsS %>% rownames_to_column(var = "ensemblID")
 toptag.LvsS[toptag.LvsS$ensemblID == "ENSG00000088827", "Annot"] <- "SIGLEC1"
@@ -1398,16 +1428,16 @@ toptag.LvsS[toptag.LvsS$ensemblID== "ENSG00000184979", "Annot"] <- "USP18"
 ```
 Finalmente, se representa los resultados en el gráfico Volcano Plot.  
 ```R
-ggplot(toptag.LvsS, aes(x=logFC, y=-log10(FDR), color=DE, label=Annot)) + 
-  geom_point(size = 2) + 
-  scale_color_manual(values = c("blue","grey","indianred2"))+
-  geom_vline(xintercept=c(2,-2), linetype = 3) +
-  geom_label_repel(color="black", size = 5, box.padding = 0.3, nudge_y = 0.6) +
-  labs(color="") +
-  theme_classic(base_size = 20) 
+ggplot(toptag.LvsS, aes(x=logFC, y=-log10(FDR), color=DE, label=Annot)) +  # Datos y variables a representan en el gráfico
+  geom_point(size = 2) +  # Selección de la geometría
+  scale_color_manual(values = c("blue","grey","indianred2"))+  # Selección de colores
+  geom_vline(xintercept=c(2,-2), linetype = 3) +  # Líneas verticales para representan los umbrales de logFC de 2 y -2
+  geom_label_repel(color="black", size = 5, box.padding = 0.3, nudge_y = 0.6) +  # Etiquetas para los 5 genes más expresados
+  labs(color="") +   # Supresión del nombre de la leyenda
+  theme_classic(base_size = 20)   # Tema
 ```
   
-### 4.1 Análisis de enriquecimiento funcional
+## 6 Análisis de Enriquecimiento Funcional
 
 A pesar de determinar los genes diferencialmente expresados, en general, es difícil interpretar su significado biológico. Es por ello, que existen herramientas informáticas que permiten establecer las rutas o funciones metabólicas más representadas en los genes diferencialmente expresados. En este caso solamente se analizarán los genes sobreexpresados.  
 
