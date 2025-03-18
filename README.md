@@ -794,7 +794,7 @@ join SRR28380565_counts.tsv SRR28380566_counts.tsv | join - SRR28380568_counts.t
 ```
 Como resultado se obtiene la matriz de recuentos final.  
 ```console
-(genomic_analysis) [UNIVERSIDADVIU\sgarciallorens@a-24gr8c31n2wkj Results]$ head matriz_conteos.tsv 
+head matriz_conteos.tsv 
 feature SRR28380565 SRR28380566 SRR28380568 SRR28380570 SRR28380572 SRR28380573 SRR28380580 SRR28380582 SRR28380584 SRR28380586 SRR28380588 SRR28380589
 ENSG00000000003 0 0 5 0 0 1 0 2 2 1 0 1
 ENSG00000000005 0 0 0 0 0 0 0 0 0 0 0 0
