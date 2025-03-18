@@ -767,9 +767,9 @@ __alignment_not_unique	0
 > El archivo resultante muestra una tabla con los conteos para cada característica. En las filas se representan los genes en formato _Ensembl ID_ y, para cada uno de ellos, se muestra el número de lecturas anotadas para cada gen. Finalmente, se representan 5 grupos que contienen aquellas lecturas que no han sido asignadas a ninguna característica.   
 > `__no_feature`, hace referencia a los pares de lecturas que no se han asignado a ninguna característica.   
 > `__ambiguous`, lecturas que pueden ser asignadas a más de una característica y que por tanto en el modo `union` no son asignadas.  
-> `__too_low_aQual, lecturas con un mapeo de baja calidad y que no se tienen en cuenta en el análisis.   
-> `__not_aligned`, lecturas no alineadas.   
-> `__alignment_not_unique`, lecturas con mapeos múltiples. En este caso, el valor es 0 puesto que restringimos el alineamiento a posiciones únicas con HISAT2.
+> `__too_low_aQual`, lecturas con un mapeo de baja calidad y que no se tienen en cuenta en el análisis.     
+> `__not_aligned`, lecturas no alineadas.    
+> `__alignment_not_unique`, lecturas con mapeos múltiples. En este caso, el valor es 0 puesto que restringimos el alineamiento a posiciones únicas con HISAT2.  
 
 Las lecturas anotadas como ambiguas, son aquellas que mapean en regiones del genoma con genes solapantes, ya sea en la misma hebra o en hebras opuestas. Sin embargo, en nuestro caso, al tratarse de una librería con información específica de hebra, somos capacez de distinguir los genes solapantes de hebras contrarias, y por tanto, las lecturas anotadas como ambiguas pertenecen a genes solapamentes dentro de la misma hebra que tienen un sitio de comienzo y final de transcripción diferente.   
   
