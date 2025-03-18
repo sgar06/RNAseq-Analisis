@@ -40,7 +40,10 @@
      * 4.4 MSigDB
 
 ## 1. Preparación 
-### 1.1 Linux y Bash
+### 1.1 Linux y Bash  
+  
+Con el fin de realizar el presente tutorial se emplea un escritorio virutal basado en la nube, denominado Amazon WrokSpaces proporcionado por Amazon Web Services, con el sistema operativo Linux. Para llevar a cabo la ejecucion de los comandos siguientes, se emplea el shell de linea de comandos Bash (Bourne Again Shell).   
+  
 ### 1.2 Conda e instalación de herramientas para el análisis RNA-seq  
   
 [Conda](https://docs.conda.io/en/latest/) es un gestor de paquetes y entornos de código abierto. Además, cuenta con grandes repositorios de _software_ o canales, que permiten la instalación y actualización de paquetes o herramientas, así como sus dependencias. Para emplear Conda, descargaremos la distribución de [Miniconda](https://docs.anaconda.com/miniconda/), un instalador gratuito de conda más ligero que incluye solamente conda, Python, y un pequeño número de paquetes o _softwares_.  
@@ -114,7 +117,7 @@ RNAseq_analysis
 ```
 > NOTA  
 > La carpeta **Code**, contendrá los _scripts_ necesarios para la ejecución de herramientas.  
-> La carpeta **Data**, contendrá las lecturas crudas y procesadas, losarchivos necesarios para la deducción de la direccionalidad de la librería y los resultados tras el alineamiento, entre otros.  
+> La carpeta **Data**, contendrá las lecturas crudas y procesadas, los archivos necesarios para la deducción de la direccionalidad de la librería y los resultados tras el alineamiento, entre otros.  
 > La carpeta **Results**, se empleará para almacenar los recuentos de características genómicas para cada muestra y la matriz de recuentos final.  
   
 ### 1.4 Obtención del genoma de referencia y el archivo de anotaciones de la especie *Homo sapiens*  
