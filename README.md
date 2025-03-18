@@ -36,14 +36,6 @@
        - 3.4.7 Prueba de significancia o Test de Expresión Diferencial
        - 3.4.8 Corrección de P-valores y filtrado de genes diferencialmente expresados
 
-       - 3.1.4 Normalización de librerias y recuentos
-       - 3.1.5 Estimacion de la variabilidad biologica entre muestras y réplicas
-       - 3.1.6 Estudio de la dispersión de los genes
-       - 3.1.7 Ajuste de la variabilidad de cada gen según la dispersión
-       - 3.1.8 Prueba de significancia o Test de expresión diferencial
-       - 3.1.9 Correción FP
-       - 3.1.10 Filtrado de genes segun FDR y logFC
-
 4. [Conversión de los identificadores de los genes diferencialmente expresados](#4-conversion-de-los-identificadores-de-los-genes-diferencialmente-expresados)
 5. [Visualización de los genes diferencialmente expresados en un gráfico de Volcán](#5-visualizacion-de-losgenes-diferencialmente-expresados-en-un-grafico-de-volcan)
 6. [Análisis de Enriquecimiento Funcional](#6-analisis-de-enriquecimiento-funcional)
