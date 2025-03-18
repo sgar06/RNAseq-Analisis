@@ -157,7 +157,7 @@ Una vez seleccionado el genoma de interés (GRCh38.p14), se descarga el archivo 
   
 A continuación descargamos y descomprimimos el archivo de anotaciones en formato GTF en nuestra computadora, y lo almacenamos en la ruta `~/RNAseq_analysis/Data/5_Annotation/`.  
 ```console
-# Descomprisión del archivo descargado
+# Descompresión del archivo descargado
 gunzip Homo_sapiens.gtf.gz
 # Almacenaje del archivo de anotaciones en la ruta de interés
 mv Homo_sapiens.gtf ~/RNAseq_analysis/Data/5_Annotation/
