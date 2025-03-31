@@ -22,7 +22,7 @@
        - 2.4.2 Recuento de características con htseq-count
        - 2.4.3 Obtención de la matriz de recuentos
          
-3. [Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados con R](#3-Analisis-estadístico-de-los-datos-de-RNAseq-y-Genes-Diferencialmente-Expresados-con-R) 
+3. [Analisis estadístico de los datos de RNAseq y Genes Diferencialmente Expresados con R](#3-Analisis-estadistico-de-los-datos-de-RNAseq-y-Genes-Diferencialmente-Expresados-con-R) 
      * 3.1 Instalación y carga en memoria de las librerías necesarias
      * 3.2 Importación de la matriz de recuentos y metadatos 
      * 3.3 Representación de las características genómicas anotadas 
@@ -36,9 +36,9 @@
        - 3.4.7 Prueba de significancia o Test de Expresión Diferencial
        - 3.4.8 Corrección de P-valores y filtrado de genes diferencialmente expresados
 
-4. [Conversión de los identificadores de los genes diferencialmente expresados](#4-conversion-de-los-identificadores-de-los-genes-diferencialmente-expresados)
-5. [Visualización de los genes diferencialmente expresados en un gráfico de Volcán](#5-visualizacion-de-losgenes-diferencialmente-expresados-en-un-grafico-de-volcan)
-6. [Análisis de Enriquecimiento Funcional](#6-analisis-de-enriquecimiento-funcional)
+4. [Conversión de los identificadores de los genes diferencialmente expresados](#4-Conversión-de-los-identificadores-de-los-genes-diferencialmente-expresados)
+5. [Visualización de los genes diferencialmente expresados en un gráfico de Volcán](#5-Visualización-de-los-genes-diferencialmente-expresados-en-un-gráfico-de-Volcán)
+6. [Análisis de Enriquecimiento Funcional](#6-Análisis-de-Enriquecimiento-Funcional)
 
 
 
@@ -1442,7 +1442,7 @@ res_up <- de_results[de_results$DE == "Up",]
 ego_MF <- enrichGO(gene = res_up$`Nombre del Gen`,  # Lista de genes
                    OrgDb = org.Hs.eg.db,            # Base de datos de anotación
                    keyType = 'SYMBOL',              # Tipo de identificador
-                   ont="MF",                        # Ontología: BP (Biological Process)
+                   ont="MF",                        # Ontología: MF (Molecular Function)
                    pAdjustMethod = "BH",            # Método de correción de p-valores
                    pvalueCutoff = 0.01,             # Umbral de significancia
                    qvalueCutoff = 0.05)             # Umbral de FDR
